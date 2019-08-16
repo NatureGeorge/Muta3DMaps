@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-16T23:30:20+08:00
+# @Last modified time: 2019-08-17T00:17:47+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -200,7 +200,7 @@ class SIFTS_unit(Unit):
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
         sifts_dfrm['Entry'] = sifts_dfrm.apply(lambda x: x['UniProt'].split('-')[0], axis=1)
         unpLen_dfrm = self.file_i(unpLen_filePath, unpLen_df, ('unpLen_filePath', 'unpLen_df'), sep=sep)
-        unpLen_dfrm.drop(columns=['yourlist'], inplace=True)
+        # unpLen_dfrm.drop(columns=['yourlist'], inplace=True)
         unpLen_dfrm.rename(columns={'Length':'UNP_len'}, inplace=True)
         dfrm = pd.merge(sifts_dfrm, unpLen_dfrm, on=['Entry'], how='left')
         self.file_o(outputPath, dfrm)

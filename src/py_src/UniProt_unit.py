@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-08-16T23:18:42+08:00
+# @Last modified time: 2019-08-17T00:19:40+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
@@ -43,11 +43,12 @@ class UniProt_unit:
     '''
 
     URL = 'https://www.uniprot.org/uploadlists/'
+    COLUMNS = ['id','length','reviewed','comment(ALTERNATIVE%20PRODUCTS)','feature(ALTERNATIVE%20SEQUENCE)']
     params = {
         'from': 'ACC+ID',
         'to': 'ACC',
         'format': 'tab',
-        'columns': 'id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)',
+        # 'columns': 'id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)',
     }
 
     def go_to_uniprot(url, params, code='utf-8'):
@@ -58,13 +59,27 @@ class UniProt_unit:
            response = f.read()
         return response.decode(code)
 
-    def get_info_from_uniprot(self, outputPath, unp_list=False, unp_list_file_path=False, sep='\t', chunksize=100, header=None, unp_col=0):
+    def get_info_from_uniprot(self, usecols, outputPath, unp_list=False, unp_list_file_path=False, sep='\t', chunksize=100, header=None, unp_col=0):
 
         def iter_io(iter_object, params, url, outputPath):
             params['query'] = ','.join(iter_object) # pdb_list_str
             result = UniProt_unit.go_to_uniprot(url, params)
             with open(outputPath, 'a+') as outputFile:
                 outputFile.write(result)
+
+        def tidy_result(path, colName='Entry', sep='\t'):
+            df = pd.read_csv(path, sep=sep, na_values=[colName])
+            df.dropna(subset=[colName], inplace=True)
+            df.to_csv(path, sep=sep, index=False)
+
+        if usecols != 'all':
+            if not set(self.COLUMNS) >= set(usecols):
+                print('get_info_from_uniprot(): please specified usecols with elements in %s'%self.COLUMNS)
+                return False
+            else:
+                self.params['columns'] = ','.join(usecols)
+        else:
+            self.params['columns'] = ','.join(self.COLUMNS)
 
         if unp_list_file_path:
             df = pd.read_csv(unp_list_file_path, header=header, chunksize=chunksize, sep=sep)
@@ -74,12 +89,18 @@ class UniProt_unit:
             for i in range(0, len(unp_list), chunksize):
                 iter_io(unp_list[i:i+chunksize], self.params, self.URL, outputPath)
 
+        tidy_result(outputPath)
+        return True
+
 
 if __name__ == '__main__':
     # print(help(UniProt_unit))
     # '''
-    unp_list_file_path = 'C:/Users/Nature/Desktop/LiGroup/Work/StructDDG_0427/data/0816_unp_list.txt'
-    outputPath = '../../data/info_of_UniprotID_list.tab'
+    unp_list_file_path = '../../data/demo_files/unp_list.txt'
+    outputPath = '../../data/demo_files/info_of_unp.tsv'
     uniprot_demo = UniProt_unit()
-    uniprot_demo.get_info_from_uniprot(outputPath, unp_list_file_path=unp_list_file_path)
+    uniprot_demo.get_info_from_uniprot(['id','length'], outputPath, unp_list_file_path=unp_list_file_path)
+
+    df = pd.read_csv(outputPath, sep='\t')
+    unp_len_df = df[['Entry', 'Length']]
     # '''

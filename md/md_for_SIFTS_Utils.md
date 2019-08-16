@@ -55,7 +55,7 @@ sifts_df_2.to_csv(add_InDe_sifts_file_path, sep='\t', header=False, index=False,
 
 ### Get UniProt Length Info
 ```py
-import UniProt_unit
+from UniProt_unit import UniProt_unit
 
 outputPath = ''
 unp_list_file_path = ''
