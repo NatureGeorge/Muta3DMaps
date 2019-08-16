@@ -21,7 +21,7 @@ class UniProt_unit:
        (Reference: https://www.uniprot.org/help/api_idmapping)
 
        ---
-Can collect data from SIFTS, UniProt, PDB(MMCIF), SMR, ModBase, Interactome3D and define representative structures  of a uniprot(Canonical) with score-based approach
+
        self.params['columns'] (Particial)
        'comma-separated list of column names'
        (Reference: https://www.uniprot.org/help/api_queries)
