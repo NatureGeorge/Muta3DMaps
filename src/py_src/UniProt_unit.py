@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
-# @Filename: get_unp_len_from_uniprot.py
-# @Last modified time: 2019-08-16T23:07:24+08:00
+# @Filename: UniProt_unit.py
+# @Last modified time: 2019-08-16T23:18:42+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
