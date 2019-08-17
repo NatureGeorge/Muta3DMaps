@@ -12,11 +12,17 @@
 ## SIFTS_unit 流程
 ### Build Complete Basic DataSet
 ```py
-from SIFTS_Utils import *
+import pandas as pd
+sys.path.append('./')
+from SIFTS_unit import SIFTS_unit
+from UniProt_unit import UniProt_unit
 
 raw_sifts_file_path = '../../data/pdb_uniprot_SIFTS_0714.csv'
 add_rangeInfo_sifts_file_path = '../../data/pdb_uniprot_SIFTS_NEW0815.tsv'
 add_InDe_sifts_file_path = '../../data/Mapping_Pipeline/sifts_files/pdb_uniprot_SIFTS_delwithInDe_0815.tsv'
+unp_len_file_path = '../../data/Mapping_Pipeline/unp_len_list_0817.tsv'
+seg_edited_file_path = '../../data/Mapping_Pipeline/sifts_files/uniprot_segments_observed_edited_0815.tsv'
+add_unpLen_segInfo_file_path = '../../data/Mapping_Pipeline/sifts_files/???'
 
 sifts_demo = SIFTS_unit()
 info_dict = sifts_demo.get_info_from_uniprot_pdb_file() # Download a new file
@@ -25,17 +31,32 @@ sifts_demo.set_lists(info_dict['pdb_set'], [])
 fail_list = sifts_demo.get_raw_SIFTS(raw_sifts_file_path)
 sifts_df_1 = sifts_demo.handle_SIFTS(outputPath=add_rangeInfo_sifts_file_path)
 sifts_df_2 = sifts_demo.deal_with_insertionDeletion_SIFTS(sifts_df=sifts_df_1, outputPath=add_InDe_sifts_file_path)
+
+# Add UniProt Length Info
+uniprot_demo = UniProt_unit()
+uniprot_demo.get_info_from_uniprot(['id', 'length'], unp_len_file_path, unp_list=list(info_dict['unp_set']))
+unp_len_df = pd.read_csv(unp_len_file_path, sep='\t', usecols=['Entry', 'Length'])
+sifts_df_3 = sifts_demo.add_unp_len_SIFTS(sifts_df=sifts_df_2, unpLen_df=unp_len_df)
+
+# Add Segment Info
+seg_df = sifts_demo.get_seg_info_from_uniprot_segments_file(outputPath=seg_edited_file_path) # Download a new file
+sifts_demo.add_seg_info_to_SIFTS(sifts_df=sifts_df_3, seg_df=seg_df, outputPath=add_unpLen_segInfo_file_path)
 ```
 
 ### Update Basic DataSet
 ```py
 import pandas as pd
-from SIFTS_Utils import *
+sys.path.append('./')
+from SIFTS_unit import SIFTS_unit
+from UniProt_unit import UniProt_unit
 
 demo_pdb_list_path = '../../data/demo_pdb_list.tsv'
 raw_sifts_file_path = '../../data/pdb_uniprot_SIFTS_demo.csv'
 add_rangeInfo_sifts_file_path = '../../data/pdb_uniprot_SIFTS_NEW0815.tsv'
 add_InDe_sifts_file_path = '../../data/Mapping_Pipeline/sifts_files/pdb_uniprot_SIFTS_delwithInDe_0815.tsv'
+unp_len_file_path = '../../data/Mapping_Pipeline/unp_len_list_0817.tsv'
+new_seg_edited_file_path = '../../data/Mapping_Pipeline/sifts_files/uniprot_segments_observed_edited_new.tsv' # Has Not exit
+add_unpLen_segInfo_file_path = '../../data/Mapping_Pipeline/sifts_files/???'
 
 demo_pdb_list = pd.read_csv(demo_pdb_list_path, sep='\t', usecols=['pdb_id'])['pdb_id']
 old_pdb_list = pd.read_csv(add_InDe_sifts_file_path, sep='\t', usecols=['pdb_id'])['pdb_id']
@@ -51,19 +72,19 @@ sifts_df_2 = sifts_demo.deal_with_insertionDeletion_SIFTS(sifts_df=sifts_df_1)
 
 sifts_df_1.to_csv(add_rangeInfo_sifts_file_path, sep='\t', header=False, index=False, mode='a+')
 sifts_df_2.to_csv(add_InDe_sifts_file_path, sep='\t', header=False, index=False, mode='a+')
-```
 
-### Get UniProt Length Info
-```py
-from UniProt_unit import UniProt_unit
-
-outputPath = ''
-unp_list_file_path = ''
-
+# Update(add) UniProt Length Info
+unp_list = sifts_df_2.apply(lambda x: x['UniProt'].split('-')[0], axis=1).drop_duplicates().tolist()
 uniprot_demo = UniProt_unit()
-uniprot_demo.get_info_from_uniprot(outputPath, unp_list_file_path=unp_list_file_path)
+uniprot_demo.get_info_from_uniprot(['id', 'length'], unp_len_file_path, unp_list=unp_list)
+unp_len_df = pd.read_csv(unp_len_file_path, sep='\t', usecols=['Entry', 'Length'])
+sifts_df_3 = sifts_demo.add_unp_len_SIFTS(sifts_df=sifts_df_2, unpLen_df=unp_len_df)
 
+# Update(add) Segment info
+seg_df = sifts_demo.get_seg_info_from_uniprot_segments_file(outputPath=new_seg_edited_file_path) # Download a new file
+sifts_df_4 = sifts_demo.add_seg_info_to_SIFTS(sifts_df=sifts_df_3, seg_df=seg_df)
 
+sifts_df_4.to_csv(add_unpLen_segInfo_file_path, sep='\t', mode='a+', index=False, header=False)
 ```
 
 ### self.get_info_from_uniprot_pdb_file()

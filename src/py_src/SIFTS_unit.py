@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-17T00:17:47+08:00
+# @Last modified time: 2019-08-17T12:13:57+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -195,7 +195,7 @@ class SIFTS_unit(Unit):
         self.file_o(outputPath, dfrm)
         return dfrm
 
-    def add_unp_len_SIFTS(self, sifts_df=False, sifts_filePath=False, unpLen_df=False, unpLen_filePath=False, outputPath=False, sep=','):
+    def add_unp_len_SIFTS(self, sifts_df=False, sifts_filePath=False, unpLen_df=False, unpLen_filePath=False, outputPath=False, sep='\t'):
         # unpLen_filePath = '/home/zzf/Work/StructDDG_0427/data/Mapping_Pipeline/sifts_unp_len_list.csv'
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
         sifts_dfrm['Entry'] = sifts_dfrm.apply(lambda x: x['UniProt'].split('-')[0], axis=1)
