@@ -12,6 +12,7 @@
 ## SIFTS_unit 流程
 ### Build Complete Basic DataSet
 ```py
+import sys
 import pandas as pd
 sys.path.append('./')
 from SIFTS_unit import SIFTS_unit
@@ -45,6 +46,7 @@ sifts_demo.add_seg_info_to_SIFTS(sifts_df=sifts_df_3, seg_df=seg_df, outputPath=
 
 ### Update Basic DataSet
 ```py
+import sys
 import pandas as pd
 sys.path.append('./')
 from SIFTS_unit import SIFTS_unit
