@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-08-16T23:22:45+08:00
+# @Last modified time: 2019-08-19T13:35:25+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -33,10 +33,10 @@ class Unit:
                 self.unp_range.append([int(tp_2[2]), int(tp_2[3])])
                 out = self.output()
             else:
-                out = self.output()
                 self.name = tp_1
                 self.pdb_range = [[int(tp_2[0]), int(tp_2[1])]]
                 self.unp_range = [[int(tp_2[2]), int(tp_2[3])]]
+                out = self.output()
 
             return out
 
