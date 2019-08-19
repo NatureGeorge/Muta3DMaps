@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-08-19T13:35:25+08:00
+# @Last modified time: 2019-08-19T14:36:51+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -192,7 +192,7 @@ class Unit:
 
     def file_i(self, path, df, va_tp, sep='\t'):
         try:
-            dfrm = pd.read_csv(path, sep=sep)
+            dfrm = pd.read_csv(path, sep=sep, na_values=['', None], keep_default_na=False)
         except Exception:
             dfrm = df
             if not isinstance(dfrm, pd.DataFrame):

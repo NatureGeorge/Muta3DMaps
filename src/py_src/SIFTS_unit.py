@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-17T12:13:57+08:00
+# @Last modified time: 2019-08-19T15:15:14+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -18,8 +18,8 @@ class SIFTS_unit(Unit):
             'pdb_id', 'chain_id', 'UniProt', 'identity', 'identifier',
             'pdb_start', 'pdb_end', 'unp_start', 'unp_end',
             'is_canonical', 'start', 'end', 'entity_id', 'struct_asym_id'],
-        'DOWNLOAD_FOLDER': '/home/zzf/Work/StructDDG_0427/data/Mapping_Pipeline/sifts_files/',
-        'UNP_LIST_PATH': '/home/zzf/Work/StructDDG_0427/data/Mapping_Pipeline/sifts_uniprot_list.tsv',
+        'DOWNLOAD_FOLDER': '../../data/sifts_files/',
+        'UNP_LIST_PATH': '../../data/sifts_files/sifts_uniprot_list.tsv',
         'ELE_LIST': ["coordinates_len", "mappedOut", "metal_count", "delHT_MissingNum", "if_2", "if_1"],
         'INI_LIST': [1, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 2, 3, 2],
         'SEG_SIFTS_MAP': {
@@ -84,7 +84,7 @@ class SIFTS_unit(Unit):
                 if info:
                     df = order_SIFTS_info(pdbId, info)
                     if not isinstance(df, bool):
-                        df.to_csv(outputPath, index=False, sep='\t', mode='a+')
+                        df.to_csv(outputPath, index=False, sep='\t', mode='a+', header=False)# Attention: 初始Build dataset时需指定header
             except Exception as e:
                 print('PDB: [', pdbId, ']\n', e)
                 fail_list.append(pdbId)
@@ -131,7 +131,7 @@ class SIFTS_unit(Unit):
             return in_df.drop(columns=range_info_col).drop_duplicates(subset=group_info_col, keep='last')
 
         filePath = sifts_filePath or self.raw_SIFTS_filePath
-        sifts_df = pd.read_csv(filePath, sep='\t', na_values=[SIFTS_unit.CONFIG['PDB_ID']])
+        sifts_df = pd.read_csv(filePath, sep='\t', na_values=[SIFTS_unit.CONFIG['PDB_ID'], '', None], keep_default_na=False)
         sifts_df.dropna(subset=[SIFTS_unit.CONFIG['PDB_ID']], inplace=True)
         sifts_df[SIFTS_unit.CONFIG['PDB_ID']] = sifts_df.apply(lambda x: x[SIFTS_unit.CONFIG['PDB_ID']].upper(), axis=1)
 
@@ -223,7 +223,7 @@ class SIFTS_unit(Unit):
             if mis_range:
                 for ran in mis_range:
                     mis_range_set = mis_range_set | set(range(ran[0], ran[1]+1))
-            return MMCIF_unit.getInterval(pdb_range_set - mis_range_set)
+            return SIFTS_unit.getInterval(pdb_range_set - mis_range_set)
 
         def getMappedOut(pdb_range, seqres_len):
             try:

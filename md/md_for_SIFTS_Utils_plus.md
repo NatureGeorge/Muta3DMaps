@@ -15,7 +15,7 @@
 
 #### Columns
 pdb_id	|	chain_id	|	UniProt	|	identity	|	identifier | pdb_start	|	pdb_end	|	unp_start	|	unp_end | is_canonical	|	start	|	end	|	entity_id	|	struct_asym_id
--|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-
+-|-|-|-|-|-|-|-|-|-|-|-|-|-
 str | str | str | float | str | int| int | int | int | bool | str | str | str | str
 
 ##### Note
@@ -62,7 +62,7 @@ str | str | str | float | str | int| int | int | int | bool | str | str | str | 
 
 #### Results of ```SIFTS_Unit.get_raw_SIFTS()```
 pdb_id	|	chain_id	|	UniProt	|	identity	|	identifier | pdb_start	|	pdb_end	|	unp_start	|	unp_end | is_canonical	|	start	|	end	|	entity_id	|	struct_asym_id
--|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-
+-|-|-|-|-|-|-|-|-|-|-|-|-|-
 2znj	|	A	|	B0S4P3	|	1	|	B0S4P3_DESHA	|	21	|	308	|	1	|	288	|	True	|	{author_residue_number: null, author_insertion_code: "", residue_number: 21}	|	{author_residue_number: 288, author_insertion_code: "", residue_number: 308}	|	1	|	A
 2znj	|	B	|	B0S4P3	|	1	|	B0S4P3_DESHA	|	21	|	308	|	1	|	288	|	True	|	{author_residue_number: null, author_insertion_code: "", residue_number: 21}	|	{author_residue_number: 288, author_insertion_code: "", residue_number: 308}	|	1	|	B
 
