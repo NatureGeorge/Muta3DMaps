@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-21T00:16:09+08:00
+# @Last modified time: 2019-08-21T01:17:24+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -125,7 +125,7 @@ class MMCIF_unit(Unit):
         # Deal with Residues in SEQRES_COL
         resides_col_li = MMCIF_unit.CONFIG['SEQRES_COL'][1:4]
         mtoTool = Unit.MultiToOne()
-        for i in range(len(resides_col_li[0])):
+        for i in range(len(info_dict[resides_col_li[0]])):
             for resides_col in resides_col_li:
                 info_dict[resides_col][i] = ''.join([mtoTool.multi_letter_convert_to_one_letter(j) for j in info_dict[resides_col][i]])
 
@@ -181,12 +181,14 @@ class MMCIF_unit(Unit):
                 info_dict[ligand_col_list[col_index]][i] = [tp[col_index] for tp in ligand_col_zip_li]
         # Deal with LIGAND_COL: Group the data
         ligand_group_col = ligand_col_list[0]
+        new_ligand_col_li = ['%s_index'%ligand_group_col, '%s_li'%ligand_group_col]
+        self.new_ligand_col_li = new_ligand_col_li
         for i in range(len(info_dict[ligand_group_col])):
             strand_id_index = [0]
             li = info_dict[ligand_group_col][i]
             if not li:
-                info_dict['%s_index'%ligand_group_col].append([])
-                info_dict['%s_li'%ligand_group_col].append([])
+                info_dict[new_ligand_col_li[0]].append([])
+                info_dict[new_ligand_col_li[1]].append([])
                 continue
             save_id = li[0]
             strand_id_li = [save_id]
@@ -195,8 +197,8 @@ class MMCIF_unit(Unit):
                     save_id = li[j]
                     strand_id_index.append(j)
                     strand_id_li.append(save_id)
-            info_dict['%s_li'%ligand_group_col].append(strand_id_li)
-            info_dict['%s_index'%ligand_group_col].append(strand_id_index)
+            info_dict[new_ligand_col_li[1]].append(strand_id_li)
+            info_dict[new_ligand_col_li[0]].append(strand_id_index)
 
             for col in ligand_col_list:
                 info_dict[col][i] = [
@@ -205,19 +207,54 @@ class MMCIF_unit(Unit):
 
         df = pd.DataFrame(info_dict)
         # Deal with the date of structure
-        df['initial_version_time'] = df.apply(lambda x: x['_pdbx_audit_revision_history.revision_date'][0], axis=1)
-        df['newest_version_time'] = df.apply(lambda x: x['_pdbx_audit_revision_history.revision_date'][-1], axis=1)
+        df['initial_version_time'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][0]][0], axis=1)
+        df['newest_version_time'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][0]][-1], axis=1)
         # Deal with the mutations
         muta_count = lambda x: x.count(',')+1 if x!= '?' else 0
         df['mutation_num'] = df.apply(lambda x: [muta_count(i) for i in x['_entity.pdbx_mutation']], axis=1)
         # Deal with the resolution
-        df['resolution'] = df.apply(lambda x: x['_refine.ls_d_res_high'] if x['_exptl.method']=='X-RAY DIFFRACTION' else x['_em_3d_reconstruction.resolution'], axis=1)
+        df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][3]] if x[MMCIF_unit.CONFIG['COMMON_COL'][1]]=='X-RAY DIFFRACTION' else x[MMCIF_unit.CONFIG['COMMON_COL'][2]], axis=1)
         # Change the columns
-        df.rename(columns={'_exptl.method':'method'},inplace=True)
-        df.drop(columns=['_pdbx_audit_revision_history.revision_date','_em_3d_reconstruction.resolution','_refine.ls_d_res_high'],inplace=True)
+        df.rename(columns={MMCIF_unit.CONFIG['COMMON_COL'][1]:'method'},inplace=True)
+        df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0],MMCIF_unit.CONFIG['COMMON_COL'][2],MMCIF_unit.CONFIG['COMMON_COL'][3]],inplace=True)
 
         return df
 
+    def handle_mmcif_df(self, dfrm):
+        def get_sub_df(df, i, spe_col_li, common_col_li):
+            try:
+                a = pd.DataFrame({key: df.loc[i,key] for key in spe_col_li})
+            except Exception as e:
+                print(pdb, e)
+                a = pd.DataFrame({key: [df.loc[i,key]] for key in spe_col_li})
+
+            for common_col in common_col_li:
+                a[common_col] = df.loc[i, common_col]
+            return a
+
+        def sub_handle_df(df, spe_col_li, common_col_li):
+            df_li = []
+            for i in df.index:
+                df_li.append(get_sub_df(df, i, spe_col_li, common_col_li))
+            return pd.concat(df_li, ignore_index=True)
+
+        entity_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['ENTITY_COL']+['mutation_num'], ['pdb_id'])
+        type_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['TYPE_COL'], ['pdb_id'])
+        basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL'], ['pdb_id', 'method', 'initial_version_time', 'newest_version_time', 'resolution'])
+        ligand_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['LIGAND_COL']+self.new_ligand_col_li, ['pdb_id'])
+
+        new_type_poly_df = type_poly_df.drop(MMCIF_unit.CONFIG['TYPE_COL'][1], axis=1).join(type_poly_df[MMCIF_unit.CONFIG['TYPE_COL'][1]].str.split(',', expand=True).stack().reset_index(level=1, drop=True).rename('chain_id'))
+
+        entity_poly_df.rename(columns={'_entity.pdbx_mutation': 'mutation_content', '_entity.id': 'entity_id'}, inplace=True)
+        new_type_poly_df.rename(columns={'_entity_poly.entity_id': 'entity_id', '_entity_poly.type': 'protein_type'}, inplace=True)
+        basic_df.rename(columns={'_pdbx_poly_seq_scheme.pdb_strand_id':'chain_id'}, inplace=True)
+        ligand_df.rename(columns={self.new_ligand_col_li[1]:'chain_id'}, inplace=True)
+
+        df_1 = pd.merge(entity_poly_df, basic_df, how='right')
+        df_2 = pd.merge(new_type_poly_df, df_1, how='right')
+        df_3 = pd.merge(ligand_df, df_2, how='right')
+
+        return df_3
 
 
 if __name__ == '__main__':
