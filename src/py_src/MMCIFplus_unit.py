@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-21T19:36:19+08:00
+# @Last modified time: 2019-08-21T19:41:49+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -213,7 +213,7 @@ class MMCIF_unit(Unit):
         muta_count = lambda x: x.count(',')+1 if x!= '?' else 0
         df['mutation_num'] = df.apply(lambda x: [muta_count(i) for i in x['_entity.pdbx_mutation']], axis=1)
         # Deal with the resolution
-        df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][3]] if x[MMCIF_unit.CONFIG['COMMON_COL'][1]]=='X-RAY DIFFRACTION' else x[MMCIF_unit.CONFIG['COMMON_COL'][2]], axis=1)
+        df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][3]] if 'X-RAY DIFFRACTION' in x[MMCIF_unit.CONFIG['COMMON_COL'][1]] else x[MMCIF_unit.CONFIG['COMMON_COL'][2]], axis=1)
         # Change the columns
         df.rename(columns={MMCIF_unit.CONFIG['COMMON_COL'][1]:'method'},inplace=True)
         df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0],MMCIF_unit.CONFIG['COMMON_COL'][2],MMCIF_unit.CONFIG['COMMON_COL'][3]],inplace=True)
