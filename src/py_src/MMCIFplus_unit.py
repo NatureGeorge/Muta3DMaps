@@ -1,15 +1,14 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-21T01:17:24+08:00
+# @Last modified time: 2019-08-21T12:27:19+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
-import os, re, time, requests, sys
+import os, time, requests, sys
 from urllib import request, error
 from retrying import retry
 from multiprocessing.dummy import Pool
-from bs4 import BeautifulSoup
 from Bio.PDB.MMCIF2Dict import MMCIF2Dict
 sys.path.append('./')
 from Unit import Unit
@@ -40,8 +39,12 @@ class MMCIF_unit(Unit):
                         'RU', 'SR', 'V', 'CS', 'W', 'AU', 'YB', 'LI', 'GD', 'PB', 'Y', 'TL', 'IR', 'RB', 'SM', 'AG',
                         'OS', 'PR', 'PD', 'EU', 'RH', 'RE', 'TB', 'TA', 'LU', 'HO', 'CR', 'GA', 'LA', 'SN', 'SB', 'CE',
                         'ZR', 'ER', 'TH', 'TI', 'IN', 'HF', 'SC', 'DY', 'BI', 'PA', 'PU', 'AM', 'CM', 'CF', 'GE', 'NB', 'TC',
-                        'ND', 'PM', 'TM', 'PO', 'FR', 'RA', 'AC', 'NP', 'BK', 'ES', 'FM', 'MD', 'NO', 'LR', 'RF', 'DB', 'SG']
-    }
+                        'ND', 'PM', 'TM', 'PO', 'FR', 'RA', 'AC', 'NP', 'BK', 'ES', 'FM', 'MD', 'NO', 'LR', 'RF', 'DB', 'SG'],
+        'HEADERS': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134'},
+
+        }
+
+    pdb_path_li = []
 
     def download_cif_file(pdbId, path):
         url = 'https://files.rcsb.org/view/%s.cif' % pdbId
@@ -65,19 +68,33 @@ class MMCIF_unit(Unit):
         else:
             if download:
                 MMCIF_unit.download_cif_file(pdbId, new_path)
-                return False
-            else:
-                return new_path
 
-    def get_mmcif_info_old(info_key, info_dict, path):
-        mmcif_dict = MMCIF2Dict(path)
-        for key in info_key:
-            data = mmcif_dict.get(key,[])
-            if isinstance(data, str):
-                data = data.split(',')
-            else:
-                print(data)
-            info_dict[key].append(list(filter(lambda x :x != '?' and x != '.', data)))
+            return new_path
+
+    def check_mmcif_file(self, pdb_list):
+        def find_unDownloaded_file(pdbId):
+            for path in self.CONFIG['MMCIF_OLD_FOLDER']+[self.CONFIG['MMCIF_FOLDER']]:
+                old_path = '%s%s.cif' % (path, pdbId)
+                if os.path.exists(old_path):
+                    MMCIF_unit.pdb_path_li.append(old_path)
+                    return False
+            return True
+
+        unDownload = list(filter(find_unDownloaded_file, pdb_list))
+
+        @retry(stop_max_attempt_number=3, wait_fixed=1000)
+        def download_mmcif_file(pdbId):
+            path = '%s%s.cif' % (MMCIF_unit.CONFIG['MMCIF_FOLDER'], pdbId)
+            print('download_mmcif_file(): %s' % path)
+            url = 'https://files.rcsb.org/view/%s.cif' % pdbId
+            r = requests.get(url, headers=MMCIF_unit.CONFIG['HEADERS'])
+            with open(path, 'wb+') as fw:
+                fw.write(r.content)
+                time.sleep(2)
+                MMCIF_unit.pdb_path_li.append(path)
+
+        pool = Pool(processes=20)
+        pool.map(download_mmcif_file, unDownload)
 
     def get_mmcif_info(info_key, info_key_nli, info_dict, path):
         mmcif_dict = MMCIF2Dict(path)
@@ -96,7 +113,7 @@ class MMCIF_unit(Unit):
                 else:
                     info_dict[key].append(data)
 
-    def get_data_from_mmcif(self, path_list):
+    def get_data_from_mmcif(self, path_list, outputPath=False):
         '''
         {
             '_pdbx_audit_revision_history.revision_date': ['initial_version_time', 'newest_version_time'], # sometimes not a list
@@ -144,33 +161,16 @@ class MMCIF_unit(Unit):
                     strand_id_li.append(save_id)
             info_dict[pdbx_poly_key][i] = strand_id_li
 
-            info_dict['_pdbx_poly_seq_scheme.mon_id'][i] = [
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.mon_id'][i], j)
-                for j in range(len(strand_id_index))]
+            for col in MMCIF_unit.CONFIG['SEQRES_COL'][1:4]:
+                info_dict[col][i] = [
+                    get_index(strand_id_index, info_dict[col][i], j)
+                    for j in range(len(strand_id_index))]
 
-            info_dict['_pdbx_poly_seq_scheme.auth_mon_id'][i] = [
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.auth_mon_id'][i], j)
-                for j in range(len(strand_id_index))]
+            for col in MMCIF_unit.CONFIG['SEQRES_COL'][4:]:
+                info_dict[col][i] = [';'.join(
+                    get_index(strand_id_index, info_dict[col][i], j))
+                    for j in range(len(strand_id_index))]
 
-            info_dict['_pdbx_poly_seq_scheme.pdb_mon_id'][i] = [
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.pdb_mon_id'][i], j)
-                for j in range(len(strand_id_index))]
-
-            info_dict['_pdbx_poly_seq_scheme.ndb_seq_num'][i] = [';'.join(
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.ndb_seq_num'][i], j))
-                for j in range(len(strand_id_index))]
-
-            info_dict['_pdbx_poly_seq_scheme.pdb_seq_num'][i] = [';'.join(
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.pdb_seq_num'][i], j))
-                for j in range(len(strand_id_index))]
-
-            info_dict['_pdbx_poly_seq_scheme.auth_seq_num'][i] = [';'.join(
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.auth_seq_num'][i], j))
-                for j in range(len(strand_id_index))]
-
-            info_dict['_pdbx_poly_seq_scheme.pdb_ins_code'][i] = [';'.join(
-                get_index(strand_id_index, info_dict['_pdbx_poly_seq_scheme.pdb_ins_code'][i], j))
-                for j in range(len(strand_id_index))]
         # Deal with LIGAND_COL: Sort the data
         ligand_col_list = MMCIF_unit.CONFIG['LIGAND_COL']
         for i in range(len(info_dict[ligand_col_list[0]])):
@@ -218,9 +218,13 @@ class MMCIF_unit(Unit):
         df.rename(columns={MMCIF_unit.CONFIG['COMMON_COL'][1]:'method'},inplace=True)
         df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0],MMCIF_unit.CONFIG['COMMON_COL'][2],MMCIF_unit.CONFIG['COMMON_COL'][3]],inplace=True)
 
+        if os.path.exists(outputPath):
+            self.file_o(outputPath, df, mode='a+',header=False)
+        else:
+            self.file_o(outputPath, df)
         return df
 
-    def handle_mmcif_df(self, dfrm):
+    def handle_mmcif_df(self, dfrm, outputPath=False):
         def get_sub_df(df, i, spe_col_li, common_col_li):
             try:
                 a = pd.DataFrame({key: df.loc[i,key] for key in spe_col_li})
@@ -250,11 +254,24 @@ class MMCIF_unit(Unit):
         basic_df.rename(columns={'_pdbx_poly_seq_scheme.pdb_strand_id':'chain_id'}, inplace=True)
         ligand_df.rename(columns={self.new_ligand_col_li[1]:'chain_id'}, inplace=True)
 
-        df_1 = pd.merge(entity_poly_df, basic_df, how='right')
-        df_2 = pd.merge(new_type_poly_df, df_1, how='right')
-        df_3 = pd.merge(ligand_df, df_2, how='right')
+        df_1 = pd.merge(basic_df, ligand_df, how='left')
+        df_2 = pd.merge(new_type_poly_df, df_1, how='left')
+        df_3 = pd.merge(df_2, entity_poly_df, how='left')
 
+        if os.path.exists(outputPath):
+            self.file_o(outputPath, df_3, mode='a+',header=False)
+        else:
+            self.file_o(outputPath, df_3)
         return df_3
+
+    def script_fun(self, pdb_list, outputPath_li, chunksize=100):
+        for i in range(0, len(pdb_list), chunksize):
+            chunk_li = pdb_list[i:i+chunksize]
+            MMCIF_unit.pdb_path_li = []
+            self.check_mmcif_file(chunk_li)
+            chunk_df = self.get_data_from_mmcif(MMCIF_unit.pdb_path_li, outputPath=outputPath_li[0])
+            self.handle_mmcif_df(chunk_df, outputPath=outputPath_li[1])
+
 
 
 if __name__ == '__main__':
@@ -263,5 +280,8 @@ if __name__ == '__main__':
     file_p_list = [route+i for i in file_list]
     mmcif_demo = MMCIF_unit()
     df = mmcif_demo.get_data_from_mmcif(file_p_list)
+
+    df_new = mmcif_demo.handle_mmcif_df(df)
+
     for i in df.index:
-        print(df.loc[i,])
+        print(df_new.loc[i,])

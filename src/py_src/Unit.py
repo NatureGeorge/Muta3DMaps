@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-08-19T14:36:51+08:00
+# @Last modified time: 2019-08-21T11:53:41+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -199,9 +199,9 @@ class Unit:
                 raise Exception('Input: %s=pd.DataFrame() or %s=str' % va_tp)
         return dfrm
 
-    def file_o(self, path, df):
+    def file_o(self, path, df, mode='w+', header=True):
         if path:
-            df.to_csv(path, sep='\t', index=False)
+            df.to_csv(path, sep='\t', index=False, mode=mode, header=header)
             self.file_list.append(path)
 
     def __init__(self):
