@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-21T12:27:19+08:00
+# @Last modified time: 2019-08-21T16:03:28+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -20,7 +20,7 @@ class MMCIF_unit(Unit):
             '/data1/suntt/CanDriver/Data/PDB_cgc/cgc_mmcif_file/',
             '/data1/suntt/CanDriver/Data/PDB_NEW/mmcif_file/'
             ],
-        'MMCIF_FOLDER': '../../data/Mapping_Pipeline/mmcif_file/',
+        'MMCIF_FOLDER': '/home/zzf/Work/SIFTS_Plus_Muta_Maps/data/mmcif_file/',
         'COMMON_COL': ['_pdbx_audit_revision_history.revision_date', '_exptl.method', '_em_3d_reconstruction.resolution', '_refine.ls_d_res_high'],
         'ENTITY_COL': ['_entity.pdbx_mutation', '_entity.id'],
         'TYPE_COL':['_entity_poly.entity_id', '_entity_poly.pdbx_strand_id', '_entity_poly.type'],
