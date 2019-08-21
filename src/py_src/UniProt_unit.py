@@ -1,11 +1,12 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-08-21T16:58:30+08:00
+# @Last modified time: 2019-08-21T17:22:08+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
 from random import uniform
+from time import sleep
 
 class UniProt_unit:
     '''
@@ -53,7 +54,7 @@ class UniProt_unit:
     }
 
     def go_to_uniprot(url, params, code='utf-8'):
-        time.sleep(uniform(0.5,5))
+        sleep(uniform(0.5,5))
         data = urllib.parse.urlencode(params)
         data = data.encode('utf-8')
         req = urllib.request.Request(url, data)
