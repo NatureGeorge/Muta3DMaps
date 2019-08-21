@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-21T16:03:28+08:00
+# @Last modified time: 2019-08-21T19:36:19+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -233,7 +233,11 @@ class MMCIF_unit(Unit):
                 a = pd.DataFrame({key: [df.loc[i,key]] for key in spe_col_li})
 
             for common_col in common_col_li:
-                a[common_col] = df.loc[i, common_col]
+                try:
+                    a[common_col] = df.loc[i, common_col]
+                except Exception as e:
+                    print(e)
+                    a[common_col] = ','.join(df.loc[i, common_col])
             return a
 
         def sub_handle_df(df, spe_col_li, common_col_li):
