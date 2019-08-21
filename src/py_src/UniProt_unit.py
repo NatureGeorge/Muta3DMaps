@@ -1,10 +1,11 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-08-17T00:19:40+08:00
+# @Last modified time: 2019-08-21T16:58:30+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
+from random import uniform
 
 class UniProt_unit:
     '''
@@ -13,7 +14,7 @@ class UniProt_unit:
             'to': 'ACC',
             'format': 'tab',
             'columns': 'id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)', # (Particial)
-            'query': pdb_list_str,
+            'query': list_str,
         }
 
        self.params['from'], params['to'] (Particial)
@@ -52,6 +53,7 @@ class UniProt_unit:
     }
 
     def go_to_uniprot(url, params, code='utf-8'):
+        time.sleep(uniform(0.5,5))
         data = urllib.parse.urlencode(params)
         data = data.encode('utf-8')
         req = urllib.request.Request(url, data)
@@ -62,7 +64,7 @@ class UniProt_unit:
     def get_info_from_uniprot(self, usecols, outputPath, unp_list=False, unp_list_file_path=False, sep='\t', chunksize=100, header=None, unp_col=0):
 
         def iter_io(iter_object, params, url, outputPath):
-            params['query'] = ','.join(iter_object) # pdb_list_str
+            params['query'] = ','.join(iter_object) # list_str
             result = UniProt_unit.go_to_uniprot(url, params)
             with open(outputPath, 'a+') as outputFile:
                 outputFile.write(result)
