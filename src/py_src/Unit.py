@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-08-21T11:53:41+08:00
+# @Last modified time: 2019-08-25T20:36:18+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -96,8 +96,8 @@ class Unit:
                 "GLY": "G", "ALA": "A", "SER": "S", "THR": "T", "CYS": "C", "VAL": "V", "LEU": "L",
                 "ILE": "I", "MET": "M", "PRO": "P","PHE": "F", "TYR": "Y", "TRP": "W", "ASP": "D",
                 "GLU": "E", "ASN": "N", "GLN": "Q", "HIS": "H", "LYS": "K", "ARG": "R", "HSD": "H",
-                "A": "A", "G": "G", "C": "C", "T": "T", "U": "U", "DA": "DA", "DT": "DT",
-                "DU": "DU", "DC": "DC", "DG": "DG","DI":"DI","?":"?","UNK":"!"}
+                "A": "A", "G": "G", "C": "C", "T": "T", "U": "U", "DA": "A", "DT": "T",
+                "DU": "U", "DC": "C", "DG": "G","DI":"I","?":"?","UNK":"!"}
 
         def multi_letter_convert_to_one_letter(self, a):
             return self.aa_map.get(a, 'X')
