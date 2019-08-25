@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-21T19:41:49+08:00
+# @Last modified time: 2019-08-25T23:17:35+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -29,11 +29,10 @@ class MMCIF_unit(Unit):
                  '_pdbx_poly_seq_scheme.ndb_seq_num', '_pdbx_poly_seq_scheme.pdb_seq_num',
                  '_pdbx_poly_seq_scheme.auth_seq_num', '_pdbx_poly_seq_scheme.pdb_ins_code'],
         'LIGAND_COL': [
-                 '_struct_conn.ptnr2_auth_asym_id','_struct_conn.ptnr2_auth_comp_id',
-                 '_struct_conn.ptnr2_auth_seq_id',
-                 '_struct_conn.conn_type_id',
-                 '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr1_auth_comp_id',
-                 '_struct_conn.ptnr1_auth_seq_id'],
+                 '_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id',
+                 '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id',
+                 '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id'],
+        'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
         'LIGAND_LIST': [
                         'ZN', 'MG', 'CA', 'FE', 'NA', 'MN', 'K', 'NI', 'CU', 'CO', 'CD', 'HG', 'PT', 'MO', 'BE', 'AL', 'BA',
                         'RU', 'SR', 'V', 'CS', 'W', 'AU', 'YB', 'LI', 'GD', 'PB', 'Y', 'TL', 'IR', 'RB', 'SM', 'AG',
@@ -41,6 +40,7 @@ class MMCIF_unit(Unit):
                         'ZR', 'ER', 'TH', 'TI', 'IN', 'HF', 'SC', 'DY', 'BI', 'PA', 'PU', 'AM', 'CM', 'CF', 'GE', 'NB', 'TC',
                         'ND', 'PM', 'TM', 'PO', 'FR', 'RA', 'AC', 'NP', 'BK', 'ES', 'FM', 'MD', 'NO', 'LR', 'RF', 'DB', 'SG'],
         'HEADERS': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134'},
+        'CHAIN_TYPE_DICT': {'polypeptide(L)':'protein', 'polypeptide(D)': 'protein', 'polydeoxyribonucleotide': 'DNA', 'polyribonucleotide':'RNA', 'polydeoxyribonucleotide/polyribonucleotide hybrid': 'DNA+RNA'},
 
         }
 
@@ -171,39 +171,48 @@ class MMCIF_unit(Unit):
                     get_index(strand_id_index, info_dict[col][i], j))
                     for j in range(len(strand_id_index))]
 
-        # Deal with LIGAND_COL: Sort the data
+        # Deal with LIGAND_COL
         ligand_col_list = MMCIF_unit.CONFIG['LIGAND_COL']
+        metal_li = MMCIF_unit.CONFIG['LIGAND_LIST']
+
         for i in range(len(info_dict[ligand_col_list[0]])):
+            if not info_dict[ligand_col_list[0]][i]:
+                info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]].append(np.nan)
+                info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append(np.nan)
+                continue
             ligand_col_tp = tuple(info_dict[col][i] for col in ligand_col_list)
             ligand_col_zip_li = list(zip(*ligand_col_tp))
-            ligand_col_zip_li.sort()
-            for col_index in range(len(ligand_col_list)):
-                info_dict[ligand_col_list[col_index]][i] = [tp[col_index] for tp in ligand_col_zip_li]
-        # Deal with LIGAND_COL: Group the data
-        ligand_group_col = ligand_col_list[0]
-        new_ligand_col_li = ['%s_index'%ligand_group_col, '%s_li'%ligand_group_col]
-        self.new_ligand_col_li = new_ligand_col_li
-        for i in range(len(info_dict[ligand_group_col])):
-            strand_id_index = [0]
-            li = info_dict[ligand_group_col][i]
-            if not li:
-                info_dict[new_ligand_col_li[0]].append([])
-                info_dict[new_ligand_col_li[1]].append([])
+
+            metal_ligand_info = list(filter(lambda x: x[0] == 'metalc', ligand_col_zip_li))
+            sub_metal_ligand_info_1 = filter(lambda x: x[1] in metal_li, metal_ligand_info) # chain_id: _struct_conn.ptnr2_auth_asym_id [4]
+            sub_metal_ligand_info_2 = filter(lambda x: x[2] in metal_li, metal_ligand_info) # chain_id: _struct_conn.ptnr1_auth_asym_id [3]
+
+            new_metal_ligand_info = []
+            for tp in sub_metal_ligand_info_1:
+                new_metal_ligand_info.append((tp[4], tp[1]))
+            for tp in sub_metal_ligand_info_2:
+                new_metal_ligand_info.append((tp[3], tp[2]))
+
+            new_metal_ligand_info.sort(key=lambda x: x[0])
+            try:
+                save_id = new_metal_ligand_info[0][0]
+                print(new_metal_ligand_info)
+            except IndexError:
+                info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]].append(np.nan)
+                info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append(np.nan)
                 continue
-            save_id = li[0]
+
             strand_id_li = [save_id]
-            for j in range(len(li)):
-                if li[j] != save_id:
-                    save_id = li[j]
+            strand_id_index = [0]
+            for j in range(len(new_metal_ligand_info)):
+                if new_metal_ligand_info[j][0] != save_id:
+                    save_id = new_metal_ligand_info[j][0]
                     strand_id_index.append(j)
                     strand_id_li.append(save_id)
-            info_dict[new_ligand_col_li[1]].append(strand_id_li)
-            info_dict[new_ligand_col_li[0]].append(strand_id_index)
 
-            for col in ligand_col_list:
-                info_dict[col][i] = [
-                    get_index(strand_id_index, info_dict[col][i], j)
-                    for j in range(len(strand_id_index))]
+            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]].append(strand_id_li)
+            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append([get_index(strand_id_index, [ele[1] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))])
+
 
         df = pd.DataFrame(info_dict)
         # Deal with the date of structure
@@ -229,7 +238,7 @@ class MMCIF_unit(Unit):
             try:
                 a = pd.DataFrame({key: df.loc[i,key] for key in spe_col_li})
             except Exception as e:
-                print(pdb, e)
+                print(spe_col_li, e)
                 a = pd.DataFrame({key: [df.loc[i,key]] for key in spe_col_li})
 
             for common_col in common_col_li:
@@ -249,14 +258,14 @@ class MMCIF_unit(Unit):
         entity_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['ENTITY_COL']+['mutation_num'], ['pdb_id'])
         type_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['TYPE_COL'], ['pdb_id'])
         basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL'], ['pdb_id', 'method', 'initial_version_time', 'newest_version_time', 'resolution'])
-        ligand_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['LIGAND_COL']+self.new_ligand_col_li, ['pdb_id'])
+        ligand_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['METAL_LIGAND_COL'], ['pdb_id'])
 
         new_type_poly_df = type_poly_df.drop(MMCIF_unit.CONFIG['TYPE_COL'][1], axis=1).join(type_poly_df[MMCIF_unit.CONFIG['TYPE_COL'][1]].str.split(',', expand=True).stack().reset_index(level=1, drop=True).rename('chain_id'))
 
         entity_poly_df.rename(columns={'_entity.pdbx_mutation': 'mutation_content', '_entity.id': 'entity_id'}, inplace=True)
         new_type_poly_df.rename(columns={'_entity_poly.entity_id': 'entity_id', '_entity_poly.type': 'protein_type'}, inplace=True)
         basic_df.rename(columns={'_pdbx_poly_seq_scheme.pdb_strand_id':'chain_id'}, inplace=True)
-        ligand_df.rename(columns={self.new_ligand_col_li[1]:'chain_id'}, inplace=True)
+        ligand_df.rename(columns={MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]:'chain_id'}, inplace=True)
 
         df_1 = pd.merge(basic_df, ligand_df, how='left')
         df_2 = pd.merge(new_type_poly_df, df_1, how='left')
@@ -287,5 +296,5 @@ if __name__ == '__main__':
 
     df_new = mmcif_demo.handle_mmcif_df(df)
 
-    for i in df.index:
+    for i in df_new.index:
         print(df_new.loc[i,])
