@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-19T15:15:14+08:00
+# @Last modified time: 2019-08-26T20:06:23+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -20,7 +20,7 @@ class SIFTS_unit(Unit):
             'is_canonical', 'start', 'end', 'entity_id', 'struct_asym_id'],
         'DOWNLOAD_FOLDER': '../../data/sifts_files/',
         'UNP_LIST_PATH': '../../data/sifts_files/sifts_uniprot_list.tsv',
-        'ELE_LIST': ["coordinates_len", "mappedOut", "metal_count", "delHT_MissingNum", "if_2", "if_1"],
+        'ELE_LIST': ["coordinates_len", "mappedOut", "metal_ligand_num", "delHT_MissingNum", "if_2", "if_1"],
         'INI_LIST': [1, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 2, 3, 2],
         'SEG_SIFTS_MAP': {
               "SP_PRIMARY":"UniProt",# (Canonical)
@@ -69,6 +69,10 @@ class SIFTS_unit(Unit):
             else:
                 return False
 
+        try:
+            rows = len(pd.read_csv(outputPath, sep='\t', usecols=['UniProt']))
+        except FileNotFoundError:
+            rows = 0
         fail_list = []
         self.raw_SIFTS_filePath = outputPath
         allPDB, current = len(self.pdb_list), 0
@@ -90,7 +94,7 @@ class SIFTS_unit(Unit):
                 fail_list.append(pdbId)
             current += 1
             print('getSiftsInfo(): End a circle.[',pdbId,'] current:',current,'ALL:',allPDB)
-        return fail_list
+        return rows, fail_list
 
     def get_info_from_uniprot_pdb_file(self, filePath=False, related_unp=False, related_pdb=False):
         '''
@@ -244,7 +248,7 @@ class SIFTS_unit(Unit):
 
         def getHeadTailMisNum(head, tail, li):
             try:
-                mis_li = json.loads(li)
+                mis_li = json.loads(li.replace('\'', '"'))
             except Exception:
                 return 0
             if not isinstance(head, float) and not isinstance(tail, float): # WARNING
@@ -293,7 +297,10 @@ class SIFTS_unit(Unit):
 
             df[colName] = df.apply(lambda x: cal(x, ele_list, weight) / x['UNP_len'] if not isinstance(x['sifts_pdb_range'], float) else np.nan, axis=1)
 
-        def getUsefulChainNum(s, cutoff):
+        def getUsefulChainNum(sli, cutoff):
+            li = json.loads(sli)
+            return len(list(filter(lambda x: int(x[0]) > cutoff, li)))
+            '''
             # useful = []
             count = 0
             li = s.split(',')
@@ -304,11 +311,14 @@ class SIFTS_unit(Unit):
                     count += 1
             # return useful
             return count
+            '''
 
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
+        '''
         # Metal ligand Info
         sifts_dfrm['metal_list'] = sifts_dfrm.apply(lambda x: list(map(int, x['ligand_position_in_seqres'].split(
             ';'))) if not isinstance(x['ligand_position_in_seqres'], float) else np.nan, axis=1)
+        '''
         # MappedRange Info
         sifts_dfrm['pdb_mapped_range'] = sifts_dfrm.apply(
             lambda x: getMappedRange(x['sifts_pdb_range'], x['mis_range']), axis=1)
@@ -332,7 +342,8 @@ class SIFTS_unit(Unit):
             json.loads(x['var_list'])), axis=1)
         sifts_dfrm['if_2'] = sifts_dfrm.apply(
             lambda x: len(x['Modification_num']) + x['mutation_num'] if not isinstance(x['Modification_num'], float) else x['mutation_num'], axis=1)
-        sifts_dfrm['metal_count'] = sifts_dfrm.apply(lambda x: len(x['metal_list']) if not isinstance(x['metal_list'], float) else 0, axis=1)
+
+        '''sifts_dfrm['metal_count'] = sifts_dfrm.apply(lambda x: len(x['metal_list']) if not isinstance(x['metal_list'], float) else 0, axis=1)'''
 
         select_vector = get_weight()
         calScore(sifts_dfrm, SIFTS_unit.CONFIG['SCORE_COL'], SIFTS_unit.CONFIG['ELE_LIST'], select_vector)
