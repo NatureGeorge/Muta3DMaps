@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-25T23:17:35+08:00
+# @Last modified time: 2019-08-26T16:08:40+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -183,20 +183,21 @@ class MMCIF_unit(Unit):
             ligand_col_tp = tuple(info_dict[col][i] for col in ligand_col_list)
             ligand_col_zip_li = list(zip(*ligand_col_tp))
 
+            aa_li = list(MMCIF_unit.SEQ_DICT.keys())[:21]
             metal_ligand_info = list(filter(lambda x: x[0] == 'metalc', ligand_col_zip_li))
-            sub_metal_ligand_info_1 = filter(lambda x: x[1] in metal_li, metal_ligand_info) # chain_id: _struct_conn.ptnr2_auth_asym_id [4]
-            sub_metal_ligand_info_2 = filter(lambda x: x[2] in metal_li, metal_ligand_info) # chain_id: _struct_conn.ptnr1_auth_asym_id [3]
+            sub_metal_ligand_info_1 = filter(lambda x: x[1] in metal_li and x[2] in aa_li, metal_ligand_info) # chain_id: _struct_conn.ptnr2_auth_asym_id [4]
+            sub_metal_ligand_info_2 = filter(lambda x: x[2] in metal_li and x[1] in aa_li, metal_ligand_info) # chain_id: _struct_conn.ptnr1_auth_asym_id [3]
 
             new_metal_ligand_info = []
             for tp in sub_metal_ligand_info_1:
-                new_metal_ligand_info.append((tp[4], tp[1]))
+                new_metal_ligand_info.append((tp[4], tp[1], tp[5], tp[2], tp[6]))
             for tp in sub_metal_ligand_info_2:
-                new_metal_ligand_info.append((tp[3], tp[2]))
+                new_metal_ligand_info.append((tp[3], tp[2], tp[6], tp[1], tp[5]))
 
             new_metal_ligand_info.sort(key=lambda x: x[0])
             try:
                 save_id = new_metal_ligand_info[0][0]
-                print(new_metal_ligand_info)
+                # print(new_metal_ligand_info)
             except IndexError:
                 info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]].append(np.nan)
                 info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append(np.nan)
@@ -211,7 +212,7 @@ class MMCIF_unit(Unit):
                     strand_id_li.append(save_id)
 
             info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]].append(strand_id_li)
-            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append([get_index(strand_id_index, [ele[1] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))])
+            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append([get_index(strand_id_index, [ele[1:] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))])
 
 
         df = pd.DataFrame(info_dict)
@@ -223,6 +224,18 @@ class MMCIF_unit(Unit):
         df['mutation_num'] = df.apply(lambda x: [muta_count(i) for i in x['_entity.pdbx_mutation']], axis=1)
         # Deal with the resolution
         df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][3]] if 'X-RAY DIFFRACTION' in x[MMCIF_unit.CONFIG['COMMON_COL'][1]] else x[MMCIF_unit.CONFIG['COMMON_COL'][2]], axis=1)
+        # Deal with chain type
+        get_chainType_fun = lambda ele: MMCIF_unit.CONFIG['CHAIN_TYPE_DICT'].get(ele,'other')
+        df['pdb_contain_chain_type'] = df.apply(lambda x: ','.join(set(map(get_chainType_fun, json.loads(x['_entity_poly.type'].replace('\'', '"')))))
+                if isinstance(x['_entity_poly.type'], str)
+                else ','.join(set(map(get_chainType_fun, x['_entity_poly.type']))), axis=1)
+        # Deal with UNK_ALL in chain
+        get_unk_fun = lambda ele: len(ele) == ele.count('!')
+        df['UNK_ALL_IN_CHAIN'] = df.apply(lambda x: list(map(get_unk_fun, json.loads(x['_pdbx_poly_seq_scheme.mon_id'].replace('\'', '"'))))
+                if isinstance(x['_entity_poly.type'], str)
+                else list(map(get_unk_fun, x['_pdbx_poly_seq_scheme.mon_id'])), axis=1)
+        # Deal with UNK_ALL in chains of a pdb
+        df['contains_unk_in_chain_pdb'] = df.apply(lambda x: len(set(x['UNK_ALL_IN_CHAIN'])) == 2, axis=1)
         # Change the columns
         df.rename(columns={MMCIF_unit.CONFIG['COMMON_COL'][1]:'method'},inplace=True)
         df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0],MMCIF_unit.CONFIG['COMMON_COL'][2],MMCIF_unit.CONFIG['COMMON_COL'][3]],inplace=True)
@@ -257,7 +270,7 @@ class MMCIF_unit(Unit):
 
         entity_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['ENTITY_COL']+['mutation_num'], ['pdb_id'])
         type_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['TYPE_COL'], ['pdb_id'])
-        basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL'], ['pdb_id', 'method', 'initial_version_time', 'newest_version_time', 'resolution'])
+        basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL']+['UNK_ALL_IN_CHAIN'], ['pdb_id', 'method', 'initial_version_time', 'newest_version_time', 'resolution', 'pdb_contain_chain_type', 'contains_unk_in_chain_pdb'])
         ligand_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['METAL_LIGAND_COL'], ['pdb_id'])
 
         new_type_poly_df = type_poly_df.drop(MMCIF_unit.CONFIG['TYPE_COL'][1], axis=1).join(type_poly_df[MMCIF_unit.CONFIG['TYPE_COL'][1]].str.split(',', expand=True).stack().reset_index(level=1, drop=True).rename('chain_id'))
@@ -270,6 +283,25 @@ class MMCIF_unit(Unit):
         df_1 = pd.merge(basic_df, ligand_df, how='left')
         df_2 = pd.merge(new_type_poly_df, df_1, how='left')
         df_3 = pd.merge(df_2, entity_poly_df, how='left')
+
+        df_3['metal_ligand_num'] = df_3.apply(lambda x: str(x['metal_ligand_content']).count('),')+1 if not isinstance(x['metal_ligand_content'], float) else 0, axis=1)
+        df_3['Modification_num'] = df_3.apply(lambda x: x['_pdbx_poly_seq_scheme.mon_id'].count('X'), axis=1)
+        df_3['seqres_len'] = df_3.apply(lambda x: len(x['_pdbx_poly_seq_scheme.mon_id']), axis=1)
+        df_3['coordinates_len'] = df_3.apply(lambda x: len(x['_pdbx_poly_seq_scheme.pdb_mon_id'].replace('?','')), axis=1)
+
+        find_charIndex_fun = lambda s, char: [x for x in range(s.find(char), len(s)) if s[x] == char]
+        df_3['Modification_index'] = df_3.apply(lambda x: find_charIndex_fun(x['_pdbx_poly_seq_scheme.mon_id'], 'X'), axis=1)
+        df_3['mis_index'] = df_3.apply(lambda x: find_charIndex_fun(x['_pdbx_poly_seq_scheme.pdb_mon_id'], '?'), axis=1)
+
+        df_3['mis_range'] = df_3.apply(lambda x: MMCIF_unit.getInterval(x['mis_index']), axis=1)
+        df_3['resolution_score'] = df_3.apply(lambda x: x['resolution'] if not isinstance(x['resolution'], float) else 1000, axis=1)
+
+        col_list = ['pdb_id', 'chain_id', 'protein_type', 'coordinates_len']
+        pro_chain_grouper = MMCIF_unit.GroupER(col_list[0], ['polypeptide(L)','polypeptide(D)'], df_3, 'protein_chain_and_length')
+        df_3['protein_chain_and_length'] = np.nan
+        for i in df_3.index:
+            pro_chain_grouper.check(df_3.loc[i, col_list[0]], (i, df_3.loc[i, col_list[-2]], df_3.loc[i, col_list[-1]], df_3.loc[i, col_list[1]]))
+        pro_chain_grouper.output()
 
         if os.path.exists(outputPath):
             self.file_o(outputPath, df_3, mode='a+',header=False)

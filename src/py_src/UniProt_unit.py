@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-08-21T17:22:08+08:00
+# @Last modified time: 2019-08-22T00:39:22+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
@@ -45,7 +45,7 @@ class UniProt_unit:
     '''
 
     URL = 'https://www.uniprot.org/uploadlists/'
-    COLUMNS = ['id','length','reviewed','comment(ALTERNATIVE%20PRODUCTS)','feature(ALTERNATIVE%20SEQUENCE)']
+    COLUMNS = ['id','length','reviewed','comment(ALTERNATIVE%20PRODUCTS)','feature(ALTERNATIVE%20SEQUENCE)', 'genes']
     params = {
         'from': 'ACC+ID',
         'to': 'ACC',

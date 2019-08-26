@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-08-25T20:36:18+08:00
+# @Last modified time: 2019-08-26T16:02:38+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -9,6 +9,43 @@ import json
 
 
 class Unit:
+
+    SEQ_DICT = {
+        "GLY": "G", "ALA": "A", "SER": "S", "THR": "T", "CYS": "C", "VAL": "V", "LEU": "L",
+        "ILE": "I", "MET": "M", "PRO": "P","PHE": "F", "TYR": "Y", "TRP": "W", "ASP": "D",
+        "GLU": "E", "ASN": "N", "GLN": "Q", "HIS": "H", "LYS": "K", "ARG": "R", "HSD": "H",
+        "A": "A", "G": "G", "C": "C", "T": "T", "U": "U", "DA": "A", "DT": "T",
+        "DU": "U", "DC": "C", "DG": "G","DI":"I","?":"?","UNK":"!"}
+
+    class GroupER:
+        def __init__(self, name_tp, filter_ele, dfrm, new_col):
+            self.name = name_tp
+            self.filter_ele = filter_ele
+            self.content = []
+            self.index = []
+            self.dfrm = dfrm
+            self.new_col = new_col
+
+        def output(self):
+            if self.index:
+                self.dfrm.loc[self.index, self.new_col] = str(self.content).replace('\'', '"')
+
+        def check(self, tp, data): # (index, type, len, chain_id)
+            if self.name == tp:
+                self.index.append(data[0])
+                if data[1] in self.filter_ele:
+                    self.content.append(data[2:])
+            else:
+                self.output()
+                self.name = tp
+
+                if data[1] in self.filter_ele:
+                    self.content = [data[2:]]
+                else:
+                    self.content = []
+
+                self.index = [data[0]]
+
 
     class RangeSetER:
         def __init__(self, name_tp):
@@ -92,13 +129,7 @@ class Unit:
 
     class MultiToOne:
         def __init__(self):
-            self.aa_map = {
-                "GLY": "G", "ALA": "A", "SER": "S", "THR": "T", "CYS": "C", "VAL": "V", "LEU": "L",
-                "ILE": "I", "MET": "M", "PRO": "P","PHE": "F", "TYR": "Y", "TRP": "W", "ASP": "D",
-                "GLU": "E", "ASN": "N", "GLN": "Q", "HIS": "H", "LYS": "K", "ARG": "R", "HSD": "H",
-                "A": "A", "G": "G", "C": "C", "T": "T", "U": "U", "DA": "A", "DT": "T",
-                "DU": "U", "DC": "C", "DG": "G","DI":"I","?":"?","UNK":"!"}
-
+            self.aa_map = Unit.SEQ_DICT
         def multi_letter_convert_to_one_letter(self, a):
             return self.aa_map.get(a, 'X')
 
@@ -147,7 +178,7 @@ class Unit:
             df.loc[grouped_df.index, selectName] = True
 
     def getInterval(rangeSet):
-        if rangeSet == '' or rangeSet == set():
+        if rangeSet == '' or rangeSet == set() or rangeSet == []:
             return np.nan
         else:
             start = []
