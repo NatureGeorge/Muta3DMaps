@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-26T20:06:23+08:00
+# @Last modified time: 2019-08-27T10:57:52+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -123,7 +123,7 @@ class SIFTS_unit(Unit):
         else:
             return {'pdb_set':set(pdb_list), 'unp_set':set(dfrm['SP_PRIMARY'])}
 
-    def handle_SIFTS(self, sifts_filePath=False, outputPath=False):
+    def handle_SIFTS(self, sifts_filePath=False, skiprows=0, outputPath=False):
         def addSiftsRange(in_df):
             group_info_col = SIFTS_unit.CONFIG['RAW_SIFTS_COLUMNS'][:3]
             range_info_col = SIFTS_unit.CONFIG['RAW_SIFTS_COLUMNS'][5:9]
@@ -135,7 +135,7 @@ class SIFTS_unit(Unit):
             return in_df.drop(columns=range_info_col).drop_duplicates(subset=group_info_col, keep='last')
 
         filePath = sifts_filePath or self.raw_SIFTS_filePath
-        sifts_df = pd.read_csv(filePath, sep='\t', na_values=[SIFTS_unit.CONFIG['PDB_ID'], '', None], keep_default_na=False)
+        sifts_df = pd.read_csv(filePath, sep='\t', na_values=[SIFTS_unit.CONFIG['PDB_ID'], '', None], keep_default_na=False, skiprows=skiprows, names=SIFTS_unit.CONFIG['RAW_SIFTS_COLUMNS'])
         sifts_df.dropna(subset=[SIFTS_unit.CONFIG['PDB_ID']], inplace=True)
         sifts_df[SIFTS_unit.CONFIG['PDB_ID']] = sifts_df.apply(lambda x: x[SIFTS_unit.CONFIG['PDB_ID']].upper(), axis=1)
 
@@ -195,7 +195,7 @@ class SIFTS_unit(Unit):
     def add_mmcif_info_SIFTS(self, sifts_df=False, sifts_filePath=False, mmcif_df=False, mmcif_filePath=False, outputPath=False):
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
         mmcif_dfrm = self.file_i(mmcif_filePath, mmcif_df, ('mmcif_filePath', 'mmcif_df'))
-        dfrm = pd.merge(sifts_dfrm, mmcif_dfrm, on=['pdb_id', 'chain_id'], how='left')
+        dfrm = pd.merge(sifts_dfrm, mmcif_dfrm, on=['pdb_id', 'chain_id', 'entity_id'], how='left')
         self.file_o(outputPath, dfrm)
         return dfrm
 
@@ -298,7 +298,7 @@ class SIFTS_unit(Unit):
             df[colName] = df.apply(lambda x: cal(x, ele_list, weight) / x['UNP_len'] if not isinstance(x['sifts_pdb_range'], float) else np.nan, axis=1)
 
         def getUsefulChainNum(sli, cutoff):
-            li = json.loads(sli)
+            li = json.loads(sli.replace('(','[').replace(')',']'))
             return len(list(filter(lambda x: int(x[0]) > cutoff, li)))
             '''
             # useful = []
@@ -349,8 +349,9 @@ class SIFTS_unit(Unit):
         calScore(sifts_dfrm, SIFTS_unit.CONFIG['SCORE_COL'], SIFTS_unit.CONFIG['ELE_LIST'], select_vector)
 
         # Add resolution-related socre
+        deal_rs = lambda x: -float(x.split(',')[0]) if ',' in x else -1200
         sifts_dfrm['ne_resolution_score'] = sifts_dfrm.apply(
-            lambda x: -x['resolution_score'], axis=1)
+            lambda x: -float(x['resolution_score']) if len(set(x['resolution_score']) & set('?,')) == 0 else deal_rs(x['resolution_score']), axis=1)
 
         # Find Useful chain
         sifts_dfrm['pdb_SIFTS_useful_chain_num'] = np.nan
@@ -430,8 +431,8 @@ class SIFTS_unit(Unit):
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
         constraint_dict = ConstraintDict(
             {
-                'only_contains_unk_in_chain_pdb': ('no', 'eq'),
-                'UNK_ALL_IN_CHAIN': ('no', 'eq'),
+                'contains_unk_in_chain_pdb': (False, 'eq'),
+                'UNK_ALL_IN_CHAIN': (False, 'eq'),
                 'pdb_contain_chain_type': ('protein', 'eq'),
                 'pdb_SIFTS_useful_chain_num': (0, 'gt'),
                 'coordinates_len': (20, 'gt'),
@@ -454,7 +455,7 @@ class SIFTS_unit(Unit):
         file_o(outputPath, mo_fakeHoHe_df)
         return mo_fakeHoHe_df
 
-    def map_muta_to_PDB_SIFTS(self, sifts_df=False, sifts_filePath=False, outputPath=False):
+    def map_muta_from_PDB_to_UNP(self, sifts_df=False, sifts_filePath=False, outputPath=False):
         def getUniprotMutaSite(pdb_position, coor_list, sifts_unp_range, sifts_pdb_range):
             position = pdb_position[1:-1]
             seqresMutaSite = coor_list.index(position)+1
@@ -492,6 +493,15 @@ class SIFTS_unit(Unit):
         mapMutaFromPDBToUniprot(sifts_dfrm)
         file_o(outputPath, sifts_dfrm)
         return sifts_dfrm
+
+    def map_muta_from_UNP_to_PDB(self, mutaSiteCol, sifts_df=False, sifts_filePath=False, outputPath=False):
+        sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
+
+
+
+        file_o(outputPath, sifts_dfrm)
+        return sifts_dfrm
+
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-26T16:08:40+08:00
+# @Last modified time: 2019-08-28T15:18:11+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -280,7 +280,11 @@ class MMCIF_unit(Unit):
         basic_df.rename(columns={'_pdbx_poly_seq_scheme.pdb_strand_id':'chain_id'}, inplace=True)
         ligand_df.rename(columns={MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]:'chain_id'}, inplace=True)
 
-        df_1 = pd.merge(basic_df, ligand_df, how='left')
+        if ligand_df['chain_id'].isnull().sum() == len(ligand_df):
+            basic_df[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]] = np.nan
+            df_1 = basic_df
+        else:
+            df_1 = pd.merge(basic_df, ligand_df, how='left')
         df_2 = pd.merge(new_type_poly_df, df_1, how='left')
         df_3 = pd.merge(df_2, entity_poly_df, how='left')
 

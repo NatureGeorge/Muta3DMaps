@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-08-22T00:39:22+08:00
+# @Last modified time: 2019-08-28T13:56:01+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
@@ -45,7 +45,7 @@ class UniProt_unit:
     '''
 
     URL = 'https://www.uniprot.org/uploadlists/'
-    COLUMNS = ['id','length','reviewed','comment(ALTERNATIVE%20PRODUCTS)','feature(ALTERNATIVE%20SEQUENCE)', 'genes']
+    COLUMNS = ['id','length','reviewed','comment(ALTERNATIVE%20PRODUCTS)','feature(ALTERNATIVE%20SEQUENCE)', 'genes', 'organism']
     params = {
         'from': 'ACC+ID',
         'to': 'ACC',
@@ -62,7 +62,7 @@ class UniProt_unit:
            response = f.read()
         return response.decode(code)
 
-    def get_info_from_uniprot(self, usecols, outputPath, unp_list=False, unp_list_file_path=False, sep='\t', chunksize=100, header=None, unp_col=0):
+    def get_info_from_uniprot(self, usecols, outputPath, from_list=False, from_list_file_path=False, sep='\t', chunksize=100, header=None):
 
         def iter_io(iter_object, params, url, outputPath):
             params['query'] = ','.join(iter_object) # list_str
