@@ -1,23 +1,29 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Interactome3D_unit.py
-# @Last modified time: 2019-08-16T23:35:51+08:00
+# @Last modified time: 2019-08-29T17:16:46+08:00
 import pandas as pd
 import numpy as np
 import wget, time, sys
+from urllib import request
+from retrying import retry
+from multiprocessing.dummy import Pool
+from xml.etree import ElementTree
 sys.path.append('./')
 from Unit import Unit
 
 
-class Interactome3D(Unit):
+class Interactome3D_unit(Unit):
+    # Reference: https://interactome3d.irbbarcelona.org/help.php#restful
     CONFIG = {
-        'DOWNLOAD_FOLDER': '/home/zzf/Work/StructDDG_0427/data/Mapping_Pipeline/Interactome3D_files/',
+        'DOWNLOAD_FOLDER': '/data/zzf/Interactome3D_files/',
         'INTERACTION_SIFTS_COL': ['interac_TYPE', 'pdb_id', 'interac_BIO_UNIT',
                                   'interac_FILENAME', 'interac_group_compo',
                                   'UniProt', 'chain_id', 'interac_MODEL',
                                   'interac_SEQ_IDENT', 'interac_COVERAGE',
                                   'interac_DOMAIN', 'interac_model_len',
                                   'interac_model_range'],
+        'DOWNLOAD_URL': 'https://interactome3d.irbbarcelona.org/api/%s?',# %s=%s&%s=%s
 
     }
 
@@ -61,6 +67,22 @@ class Interactome3D(Unit):
         dfrm = pd.merge(interac_dfrm, sifts_dfrm, on=['pdb_id', 'chain_id', 'UniProt'], how='left')
         self.file_o(outputPath, dfrm)
         return dfrm
+
+    def download_pdb_from_Interactome3D(filename, type='interaction'):
+        url = self.CONFIG['DOWNLOAD_URL'] % 'getPdbFile' + 'filename=%s&type=%s' % (filename ,type)
+        xmlPage = request.urlopen(url).read()
+        xmlPage = xmlPage.decode('utf-8')
+        node = ElementTree.XML(xmlPage)
+        with open(self.CONFIG['DOWNLOAD_FOLDER']+filename, 'w') as fw:
+            fw.write(node[0][0][1].text)
+            time.sleep(2)
+
+    def download_model_script(self, fileName_list,chunksize=100):
+        for i in range(0, len(fileName_list), chunksize):
+            chunk_li = fileName_list[i:i+chunksize]
+            @retry(stop_max_attempt_number=3, wait_fixed=1000)
+            pool = Pool(processes=20)
+            pool.map(download_pdb_from_Interactome3D, chunk_li)
 
 
 if __name__ == '__main__':

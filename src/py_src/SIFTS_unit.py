@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-27T10:57:52+08:00
+# @Last modified time: 2019-08-28T22:13:19+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -350,8 +350,15 @@ class SIFTS_unit(Unit):
 
         # Add resolution-related socre
         deal_rs = lambda x: -float(x.split(',')[0]) if ',' in x else -1200
-        sifts_dfrm['ne_resolution_score'] = sifts_dfrm.apply(
-            lambda x: -float(x['resolution_score']) if len(set(x['resolution_score']) & set('?,')) == 0 else deal_rs(x['resolution_score']), axis=1)
+        def deal_reso_score(score):
+            if isinstance(score, str):
+                if len(set(score) & set('?,')) == 0:
+                    return -float(score)
+                else:
+                    return deal_rs(score)
+            else:
+                return -score
+        sifts_dfrm['ne_resolution_score'] = sifts_dfrm.apply(lambda x: deal_reso_score(x['resolution_score']), axis=1)
 
         # Find Useful chain
         sifts_dfrm['pdb_SIFTS_useful_chain_num'] = np.nan
