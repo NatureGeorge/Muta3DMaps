@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Interactome3D_unit.py
-# @Last modified time: 2019-08-29T17:16:46+08:00
+# @Last modified time: 2019-08-29T17:32:34+08:00
 import pandas as pd
 import numpy as np
 import wget, time, sys
@@ -68,6 +68,7 @@ class Interactome3D_unit(Unit):
         self.file_o(outputPath, dfrm)
         return dfrm
 
+    @retry(stop_max_attempt_number=3, wait_fixed=1000)
     def download_pdb_from_Interactome3D(filename, type='interaction'):
         url = self.CONFIG['DOWNLOAD_URL'] % 'getPdbFile' + 'filename=%s&type=%s' % (filename ,type)
         xmlPage = request.urlopen(url).read()
@@ -80,7 +81,6 @@ class Interactome3D_unit(Unit):
     def download_model_script(self, fileName_list,chunksize=100):
         for i in range(0, len(fileName_list), chunksize):
             chunk_li = fileName_list[i:i+chunksize]
-            @retry(stop_max_attempt_number=3, wait_fixed=1000)
             pool = Pool(processes=20)
             pool.map(download_pdb_from_Interactome3D, chunk_li)
 

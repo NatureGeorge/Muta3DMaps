@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-08-28T22:13:19+08:00
+# @Last modified time: 2019-09-02T09:16:15+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -341,7 +341,7 @@ class SIFTS_unit(Unit):
             json.loads(x['unp_GAP_list'])) + sum(
             json.loads(x['var_list'])), axis=1)
         sifts_dfrm['if_2'] = sifts_dfrm.apply(
-            lambda x: len(x['Modification_num']) + x['mutation_num'] if not isinstance(x['Modification_num'], float) else x['mutation_num'], axis=1)
+            lambda x: x['Modification_num'] + x['mutation_num'] if not isinstance(x['Modification_num'], float) else x['mutation_num'], axis=1)
 
         '''sifts_dfrm['metal_count'] = sifts_dfrm.apply(lambda x: len(x['metal_list']) if not isinstance(x['metal_list'], float) else 0, axis=1)'''
 

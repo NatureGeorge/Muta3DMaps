@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-08-29T18:23:10+08:00
+# @Last modified time: 2019-09-02T20:36:21+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
@@ -14,7 +14,7 @@ class UniProt_unit:
             'from': 'ACC+ID',
             'to': 'ACC',
             'format': 'tab',
-            'columns': 'id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)', # (Particial)
+            'columns': 'id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)'...
             'query': list_str,
         }
 
@@ -50,7 +50,6 @@ class UniProt_unit:
         'from': 'ACC+ID',
         'to': 'ACC',
         'format': 'tab',
-        # 'columns': 'id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)',
     }
 
     def go_to_uniprot(url, params, code='utf-8'):
@@ -97,8 +96,6 @@ class UniProt_unit:
 
 
 if __name__ == '__main__':
-    # print(help(UniProt_unit))
-    # '''
     unp_list_file_path = '../../data/demo_files/unp_list.txt'
     outputPath = '../../data/demo_files/info_of_unp.tsv'
     uniprot_demo = UniProt_unit()
@@ -106,4 +103,3 @@ if __name__ == '__main__':
 
     df = pd.read_csv(outputPath, sep='\t')
     unp_len_df = df[['Entry', 'Length']]
-    # '''
