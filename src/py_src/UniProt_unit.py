@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-09-02T20:36:21+08:00
+# @Last modified time: 2019-09-03T21:36:02+08:00
 import urllib.parse
 import urllib.request
 import pandas as pd
@@ -83,23 +83,23 @@ class UniProt_unit:
         else:
             self.params['columns'] = ','.join(self.COLUMNS)
 
-        if unp_list_file_path:
-            df = pd.read_csv(unp_list_file_path, header=header, chunksize=chunksize, sep=sep)
+        if from_list_file_path:
+            df = pd.read_csv(from_list_file_path, header=header, chunksize=chunksize, sep=sep)
             for chunk in df:
                 iter_io(chunk[0], self.params, self.URL, outputPath)
         else:
-            for i in range(0, len(unp_list), chunksize):
-                iter_io(unp_list[i:i+chunksize], self.params, self.URL, outputPath)
+            for i in range(0, len(from_list), chunksize):
+                iter_io(from_list[i:i+chunksize], self.params, self.URL, outputPath)
 
         tidy_result(outputPath)
         return True
 
 
 if __name__ == '__main__':
-    unp_list_file_path = '../../data/demo_files/unp_list.txt'
+    from_list_file_path = '../../data/demo_files/unp_list.txt'
     outputPath = '../../data/demo_files/info_of_unp.tsv'
     uniprot_demo = UniProt_unit()
-    uniprot_demo.get_info_from_uniprot(['id','length'], outputPath, unp_list_file_path=unp_list_file_path)
+    uniprot_demo.get_info_from_uniprot(['id','length'], outputPath, from_list_file_path=unp_list_file_path)
 
     df = pd.read_csv(outputPath, sep='\t')
     unp_len_df = df[['Entry', 'Length']]
