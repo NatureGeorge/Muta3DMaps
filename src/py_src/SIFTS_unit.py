@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-02T09:16:15+08:00
+# @Last modified time: 2019-09-03T19:08:01+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -415,15 +415,14 @@ class SIFTS_unit(Unit):
         self.file_o(outputPath, dfrm)
         return dfrm
 
-    def select_PDB_SIFTS(self, groupby_list, sifts_df=False, sifts_filePath=False, outputPath=False):
+    def select_PDB_SIFTS(self, groupby_list,
+                               select_col=SIFTS_unit.CONFIG['PDB_SELECT_COL'],
+                               rank_col = SIFTS_unit.CONFIG['PDB_RANK_COL'],
+                               rank_list = SIFTS_unit.CONFIG['PDB_RANK_LIST'],
+                               rank_format = SIFTS_unit.CONFIG['PDB_RANK_FORMAT'],
+                               range_name = SIFTS_unit.CONFIG['PDB_SELECT_RANGE_NAME'],
+                               sifts_df=False, sifts_filePath=False, outputPath=False):
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
-        select_col = SIFTS_unit.CONFIG['PDB_SELECT_COL']
-        rank_col = SIFTS_unit.CONFIG['PDB_RANK_COL']
-        rank_list = SIFTS_unit.CONFIG['PDB_RANK_LIST']
-        rank_format = SIFTS_unit.CONFIG['PDB_RANK_FORMAT']
-        # groupby_list = SIFTS_unit.CONFIG['PDB_INIT_GROUPBY_LIST']
-        range_name = SIFTS_unit.CONFIG['PDB_SELECT_RANGE_NAME']
-
         sifts_dfrm[select_col] = False
         sifts_dfrm[rank_col] = np.nan
 
@@ -501,14 +500,101 @@ class SIFTS_unit(Unit):
         file_o(outputPath, sifts_dfrm)
         return sifts_dfrm
 
-    def map_muta_from_UNP_to_PDB(self, mutaSiteCol, sifts_df=False, sifts_filePath=False, outputPath=False):
-        sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
+    def map_muta_from_unp_to_pdb(x, muta_col, unp_range_col, pdb_range_col, error_li, addInscode=True):
+        muta_li = x[muta_col]
+        unp_range = json.loads(x[unp_range_col])
+        pdb_range = json.loads(x[pdb_range_col])
 
+        auth_seq_li = x['_pdbx_poly_seq_scheme.auth_seq_num'].split(';')
+        com_seq_li = x['_pdbx_poly_seq_scheme.pdb_seq_num'].split(';')
+        inscode_seq_li = x['_pdbx_poly_seq_scheme.pdb_ins_code'].split(';')
+        found_muta_1 = x['mutation_content'].split(',')
+        found_muta_2 = [i[1:-1] for i in found_muta_1]
 
+        pdb_li = []
+        unp_li = []
+        new_muta_site = []
+        for ran in pdb_range:
+            pdb_li.extend(list(range(ran[0], ran[1]+1)))
+        for ran in unp_range:
+            unp_li.extend(list(range(ran[0], ran[1]+1)))
+        if addInscode:
+            for muta in muta_li:
+                try:
+                    seqresSite = pdb_li[unp_li.index(int(muta[1:-1]))]
+                except ValueError:
+                    new_muta_site.append('#')
+                    continue
+                except IndexError:
+                    new_muta_site.append('$')
+                    continue
 
-        file_o(outputPath, sifts_dfrm)
-        return sifts_dfrm
+                seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
+                ref_aa = muta[0]
+                inscode = inscode_seq_li[seqresSite-1]
 
+                # Analyse the Situation of unsuccessful mapping
+                if seq_aa != ref_aa:
+                    try:
+                        found_muta = found_muta_1[found_muta_2.index(com_seq_li[seqresSite-1])]
+                    except ValueError:
+                        found_muta = False
+
+                    error_info = []
+                    if found_muta:
+                        # May because the mutation that already found, check the muta aa
+                        if found_muta[0] == ref_aa:
+                            error_info.append('EntityMutation: %s' % found_muta)
+                    if seq_aa == 'X':
+                        error_info.append('ModifiedResidue: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
+                    else:
+                        error_info.append('PossibleMutation: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
+                    error_li.append('' + ','.join(error_info))
+                else:
+                    error_li.append('Safe')
+
+                # Check inscode
+                if inscode != '.':
+                    new_muta_site.append('%s%s' % (auth_seq_li[seqresSite-1], inscode))
+                else:
+                    new_muta_site.append(auth_seq_li[seqresSite-1])
+        else:
+            for muta in muta_li:
+                try:
+                    seqresSite = pdb_li[unp_li.index(int(muta[1:-1]))]
+                except ValueError:
+                    new_muta_site.append('#')
+                    continue
+                except IndexError:
+                    new_muta_site.append('$')
+                    continue
+
+                seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
+                ref_aa = muta[0]
+
+                # Analyse the Situation of unsuccessful mapping
+                if seq_aa != ref_aa:
+                    try:
+                        found_muta = found_muta_1[found_muta_2.index(com_seq_li[seqresSite-1])]
+                    except ValueError:
+                        found_muta = False
+
+                    error_info = []
+                    if found_muta:
+                        # May because the mutation that already found, check the muta aa
+                        if found_muta[0] == ref_aa:
+                            error_info.append('EntityMutation: %s' % found_muta)
+                    if seq_aa == 'X':
+                        error_info.append('ModifiedResidue: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
+                    else:
+                        error_info.append('PossibleMutation: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
+                    error_li.append('' + ','.join(error_info))
+                else:
+                    error_li.append('Safe')
+
+                new_muta_site.append(auth_seq_li[seqresSite-1])
+
+        return new_muta_site
 
 
 if __name__ == '__main__':

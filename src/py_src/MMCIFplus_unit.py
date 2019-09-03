@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-08-28T15:18:11+08:00
+# @Last modified time: 2019-09-03T16:12:39+08:00
 from collections import defaultdict
 import pandas as pd
 import numpy as np
@@ -45,6 +45,23 @@ class MMCIF_unit(Unit):
         }
 
     pdb_path_li = []
+
+    def checkEntityType(sli, cli):
+        if isinstance(sli, str):
+            sli = json.loads(sli.replace('\'','"'))
+        if isinstance(cli, str):
+            cli = json.loads(cli.replace('\'','"'))
+        li = list(zip(sli,cli))
+        pli = list(filter(lambda x: 'polypeptide' in x[0], li))
+        pli_len = len(pli)
+        if pli_len == 1:
+            count = pli[0][1].count(',')
+            if count == 0:
+                return 'mo'
+            elif count > 0:
+                return 'ho:%d'% (count+1)
+        elif pli_len > 1:
+            return 'he:'+';'.join([i[1] for i in pli])
 
     def download_cif_file(pdbId, path):
         url = 'https://files.rcsb.org/view/%s.cif' % pdbId
@@ -236,6 +253,8 @@ class MMCIF_unit(Unit):
                 else list(map(get_unk_fun, x['_pdbx_poly_seq_scheme.mon_id'])), axis=1)
         # Deal with UNK_ALL in chains of a pdb
         df['contains_unk_in_chain_pdb'] = df.apply(lambda x: len(set(x['UNK_ALL_IN_CHAIN'])) == 2, axis=1)
+        # Add Info about pdb_type
+        df['pdb_type_MMCIF'] = df.apply(lambda x: MMCIF_unit.checkEntityType(x['_entity_poly.type'], x['_entity_poly.pdbx_strand_id']), axis=1)
         # Change the columns
         df.rename(columns={MMCIF_unit.CONFIG['COMMON_COL'][1]:'method'},inplace=True)
         df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0],MMCIF_unit.CONFIG['COMMON_COL'][2],MMCIF_unit.CONFIG['COMMON_COL'][3]],inplace=True)
@@ -270,7 +289,7 @@ class MMCIF_unit(Unit):
 
         entity_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['ENTITY_COL']+['mutation_num'], ['pdb_id'])
         type_poly_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['TYPE_COL'], ['pdb_id'])
-        basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL']+['UNK_ALL_IN_CHAIN'], ['pdb_id', 'method', 'initial_version_time', 'newest_version_time', 'resolution', 'pdb_contain_chain_type', 'contains_unk_in_chain_pdb'])
+        basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL']+['UNK_ALL_IN_CHAIN'], ['pdb_id', 'method', 'initial_version_time', 'newest_version_time', 'resolution', 'pdb_contain_chain_type', 'contains_unk_in_chain_pdb', 'pdb_type_MMCIF'])
         ligand_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['METAL_LIGAND_COL'], ['pdb_id'])
 
         new_type_poly_df = type_poly_df.drop(MMCIF_unit.CONFIG['TYPE_COL'][1], axis=1).join(type_poly_df[MMCIF_unit.CONFIG['TYPE_COL'][1]].str.split(',', expand=True).stack().reset_index(level=1, drop=True).rename('chain_id'))
