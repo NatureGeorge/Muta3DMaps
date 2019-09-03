@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-03T19:08:01+08:00
+# @Last modified time: 2019-09-03T21:07:08+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -416,11 +416,11 @@ class SIFTS_unit(Unit):
         return dfrm
 
     def select_PDB_SIFTS(self, groupby_list,
-                               select_col=SIFTS_unit.CONFIG['PDB_SELECT_COL'],
-                               rank_col = SIFTS_unit.CONFIG['PDB_RANK_COL'],
-                               rank_list = SIFTS_unit.CONFIG['PDB_RANK_LIST'],
-                               rank_format = SIFTS_unit.CONFIG['PDB_RANK_FORMAT'],
-                               range_name = SIFTS_unit.CONFIG['PDB_SELECT_RANGE_NAME'],
+                               select_col=CONFIG['PDB_SELECT_COL'],
+                               rank_col=CONFIG['PDB_RANK_COL'],
+                               rank_list=CONFIG['PDB_RANK_LIST'],
+                               rank_format=CONFIG['PDB_RANK_FORMAT'],
+                               range_name=CONFIG['PDB_SELECT_RANGE_NAME'],
                                sifts_df=False, sifts_filePath=False, outputPath=False):
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
         sifts_dfrm[select_col] = False
