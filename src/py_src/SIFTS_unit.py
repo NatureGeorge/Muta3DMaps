@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-06T14:23:33+08:00
+# @Last modified time: 2019-09-06T18:54:35+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -17,7 +17,7 @@ from Unit import Unit
 class SIFTS_unit(Unit):
     CONFIG = {
         'PDB_ID': 'pdb_id',
-        'RAW_SIFTS_COLUMNS':[
+        'RAW_SIFTS_COLUMNS': [
             'pdb_id', 'chain_id', 'UniProt', 'identity', 'identifier',
             'pdb_start', 'pdb_end', 'unp_start', 'unp_end',
             'is_canonical', 'start', 'end', 'entity_id', 'struct_asym_id'],
@@ -26,13 +26,13 @@ class SIFTS_unit(Unit):
         'ELE_LIST': ["coordinates_len", "mappedOut", "metal_ligand_num", "delHT_MissingNum", "if_2", "if_1"],
         'INI_LIST': [1, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 2, 3, 2],
         'SEG_SIFTS_MAP': {
-              "SP_PRIMARY":"UniProt",# (Canonical)
-              "RES_BEG":"pdb_start",
-              "RES_END":"pdb_end",
-              "PDB_BEG":"residue index(start) in pdb",
-              "PDB_END":"residue index(end) in pdb",
-              "SP_BEG":"unp_start",
-              "SP_END":"unp_end",
+              "SP_PRIMARY": "UniProt",  # (Canonical)
+              "RES_BEG": "pdb_start",
+              "RES_END": "pdb_end",
+              "PDB_BEG": "residue index(start) in pdb",
+              "PDB_END": "residue index(end) in pdb",
+              "SP_BEG": "unp_start",
+              "SP_END": "unp_end",
               "PDB": 'pdb_id',
               "CHAIN": 'chain_id',
               },
@@ -82,7 +82,7 @@ class SIFTS_unit(Unit):
         allPDB, current = len(self.pdb_list), 0
         for pdbId in self.pdb_list:
             time.sleep(1.2)
-            print('getSiftsInfo(): Start to get the pdb info from SIFTS.',pdbId)
+            print('getSiftsInfo(): Start to get the pdb info from SIFTS.', pdbId)
             url = ('http://www.ebi.ac.uk/pdbe/api/mappings/all_isoforms/%s') % (pdbId)
             try:
                 req = request.Request(url)
@@ -92,12 +92,12 @@ class SIFTS_unit(Unit):
                 if info:
                     df = order_SIFTS_info(pdbId, info)
                     if not isinstance(df, bool):
-                        df.to_csv(outputPath, index=False, sep='\t', mode='a+', header=False)# Attention: 初始Build dataset时需指定header
+                        df.to_csv(outputPath, index=False, sep='\t', mode='a+', header=False)  # Attention: 初始Build dataset时需指定header
             except Exception as e:
                 print('PDB: [', pdbId, ']\n', e)
                 fail_list.append(pdbId)
             current += 1
-            print('getSiftsInfo(): End a circle.[',pdbId,'] current:',current,'ALL:',allPDB)
+            print('getSiftsInfo(): End a circle.[', pdbId, '] current:', current, 'ALL:', allPDB)
         return rows, fail_list
 
     def get_info_from_uniprot_pdb_file(self, filePath=False, related_unp=False, related_pdb=False):
@@ -209,7 +209,7 @@ class SIFTS_unit(Unit):
         sifts_dfrm['Entry'] = sifts_dfrm.apply(lambda x: x['UniProt'].split('-')[0], axis=1)
         unpLen_dfrm = self.file_i(unpLen_filePath, unpLen_df, ('unpLen_filePath', 'unpLen_df'), sep=sep)
         # unpLen_dfrm.drop(columns=['yourlist'], inplace=True)
-        unpLen_dfrm.rename(columns={'Length':'UNP_len'}, inplace=True)
+        unpLen_dfrm.rename(columns={'Length': 'UNP_len'}, inplace=True)
         dfrm = pd.merge(sifts_dfrm, unpLen_dfrm, on=['Entry'], how='left')
         self.file_o(outputPath, dfrm)
         return dfrm
@@ -286,8 +286,8 @@ class SIFTS_unit(Unit):
             value, vector = np.linalg.eig(np.triu(x.T).T + np.triu(y.T) - np.diag(x.diagonal()))
             max_val = np.max(value)
             index = list(value).index(max_val)
-            max_vector = vector[:,index]
-            select_vector = np.real(max_vector/np.linalg.norm(max_vector,ord=1))
+            max_vector = vector[:, index]
+            select_vector = np.real(max_vector/np.linalg.norm(max_vector, ord=1))
             return -select_vector*50
 
         def calScore(df, colName, ele_list, weight):
@@ -302,7 +302,7 @@ class SIFTS_unit(Unit):
             df[colName] = df.apply(lambda x: cal(x, ele_list, weight) / x['UNP_len'] if not isinstance(x['sifts_pdb_range'], float) else np.nan, axis=1)
 
         def getUsefulChainNum(sli, cutoff):
-            li = json.loads(sli.replace('(','[').replace(')',']'))
+            li = json.loads(sli.replace('(', '[').replace(')', ']'))
             return len(list(filter(lambda x: int(x[0]) > cutoff, li)))
             '''
             # useful = []
@@ -354,6 +354,7 @@ class SIFTS_unit(Unit):
 
         # Add resolution-related socre
         deal_rs = lambda x: -float(x.split(',')[0]) if ',' in x else -1200
+
         def deal_reso_score(score):
             if isinstance(score, str):
                 if len(set(score) & set('?,')) == 0:
@@ -366,12 +367,11 @@ class SIFTS_unit(Unit):
 
         # Find Useful chain
         sifts_dfrm['pdb_SIFTS_useful_chain_num'] = np.nan
-        for i,j in sifts_dfrm.groupby([SIFTS_unit.CONFIG['PDB_ID']]):
+        for i, j in sifts_dfrm.groupby([SIFTS_unit.CONFIG['PDB_ID']]):
             sifts_dfrm.loc[j.index, 'pdb_SIFTS_useful_chain_num'] = len(set(j[j['coordinates_len'] > 20]['chain_id']))
         # ---
         sifts_dfrm['pdb_useful_chain_num'] = sifts_dfrm.apply(
             lambda x: getUsefulChainNum(x['protein_chain_and_length'], 20), axis=1)
-
 
         self.file_o(outputPath, sifts_dfrm)
         return sifts_dfrm
@@ -391,7 +391,7 @@ class SIFTS_unit(Unit):
                 tuple(x[i] for i in group_info_col),
                 tuple(x[i] for i in range_info_col)),
                 axis=1)
-            return in_df.drop(columns=range_info_col+['PDB_BEG','PDB_END']).drop_duplicates(subset=group_info_col, keep='last')
+            return in_df.drop(columns=range_info_col+['PDB_BEG', 'PDB_END']).drop_duplicates(subset=group_info_col, keep='last')
 
         if not filePath:
             url = "ftp://ftp.ebi.ac.uk/pub/databases/msd/sifts/flatfiles/csv/uniprot_segments_observed.csv.gz"
@@ -458,7 +458,7 @@ class SIFTS_unit(Unit):
             da1.append(da[0])
             da2.append(da[1])
 
-        df = pd.DataFrame({new_range_cols[0]:da1, new_range_cols[1]:da2}, index=focus_index)
+        df = pd.DataFrame({new_range_cols[0]: da1, new_range_cols[1]: da2}, index=focus_index)
         new_sifts_df = pd.merge(sifts_dfrm, df, left_index=True, right_index=True, how='left')
         new_sifts_df[new_range_cols[0]] = new_sifts_df.apply(lambda x: x['sifts_unp_range'] if isinstance(x[new_range_cols[0]], float) else x[new_range_cols[0]], axis=1)
         new_sifts_df[new_range_cols[1]] = new_sifts_df.apply(lambda x: x['sifts_pdb_range'] if isinstance(x[new_range_cols[1]], float) else x[new_range_cols[1]], axis=1)
@@ -486,7 +486,7 @@ class SIFTS_unit(Unit):
 
     def find_mo_SIFTS(self, groupby_list, sifts_df=False, sifts_filePath=False, outputPath=False):
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
-        constraint_dict = ConstraintDict(
+        constraint_dict = self.ConstraintDict(
             {
                 'contains_unk_in_chain_pdb': (False, 'eq'),
                 'UNK_ALL_IN_CHAIN': (False, 'eq'),
@@ -508,8 +508,8 @@ class SIFTS_unit(Unit):
             }
         )
 
-        mo_fakeHoHe_df = ConstraintDict.addConstraintToDf(sifts_dfrm, constraint_dict)
-        file_o(outputPath, mo_fakeHoHe_df)
+        mo_fakeHoHe_df = self.ConstraintDict.addConstraintToDf(sifts_dfrm, constraint_dict)
+        self.file_o(outputPath, mo_fakeHoHe_df)
         return mo_fakeHoHe_df
 
     def map_muta_from_PDB_to_UNP(self, sifts_df=False, sifts_filePath=False, outputPath=False):
@@ -536,9 +536,9 @@ class SIFTS_unit(Unit):
                 return 0
 
         def mapMutaFromPDBToUniprot(dfrm, groupby_list, pdb_muta_col, unp_muta_col):
-            dfrm[unp_muta_col] = np.nan # 'Mutation_Uniprot'
-            for _, groupData in dfrm.groupby(groupby_list): # ['pdb_id', 'chain_id', 'iso_id']
-                coor_list = groupData.loc[groupData.index[0], 'pdb_ins_position'].split(';') # pdb_ins_seqres_position
+            dfrm[unp_muta_col] = np.nan  # 'Mutation_Uniprot'
+            for _, groupData in dfrm.groupby(groupby_list):  # ['pdb_id', 'chain_id', 'iso_id']
+                coor_list = groupData.loc[groupData.index[0], 'pdb_ins_position'].split(';')  # pdb_ins_seqres_position
                 sifts_unp_range = groupData.loc[groupData.index[0], 'sifts_unp_range']
                 sifts_pdb_range = groupData.loc[groupData.index[0], 'sifts_pdb_range']
                 dfrm.loc[groupData.index, unp_muta_col] = groupData.apply(
@@ -548,14 +548,14 @@ class SIFTS_unit(Unit):
 
         sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
         mapMutaFromPDBToUniprot(sifts_dfrm)
-        file_o(outputPath, sifts_dfrm)
+        self.file_o(outputPath, sifts_dfrm)
         return sifts_dfrm
 
     def map_muta_from_unp_to_pdb(x, muta_col, unp_range_col, pdb_range_col, error_li, addInscode=True):
         sub_error_li = []
         muta_li = x[muta_col]
         if isinstance(muta_li, str):
-            muta_li = json.loads(muta_li.replace('\'','"'))
+            muta_li = json.loads(muta_li.replace('\'', '"'))
         unp_range = json.loads(x[unp_range_col])
         pdb_range = json.loads(x[pdb_range_col])
 
