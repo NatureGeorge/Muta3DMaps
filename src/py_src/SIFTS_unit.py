@@ -1,12 +1,15 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-03T21:07:08+08:00
+# @Last modified time: 2019-09-06T12:48:17+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
 from urllib import request
 from itertools import combinations
+from Bio import SeqIO
+from Bio import Align
+from Bio.SubsMat import MatrixInfo as matlist
 sys.path.append('./')
 from Unit import Unit
 
@@ -40,6 +43,7 @@ class SIFTS_unit(Unit):
         'PDB_RANK_FORMAT': '%d-%d-%d',
         'PDB_INIT_GROUPBY_LIST': ['UniProt'],
         'PDB_SELECT_RANGE_NAME': 'seg_unp_range',
+        'PDB_SEQRES_COL': '_pdbx_poly_seq_scheme.mon_id',
 
     }
 
@@ -414,6 +418,53 @@ class SIFTS_unit(Unit):
         dfrm = pd.merge(sifts_dfrm, seg_dfrm, on=['pdb_id', 'chain_id', 'UniProt'], how='left')
         self.file_o(outputPath, dfrm)
         return dfrm
+
+    def update_range_info_SIFTS(self, unp_fasta_files_path, new_range_cols=('new_sifts_unp_range', 'new_sifts_pdb_range'), sifts_df=False, sifts_filePath=False, outputPath=False):
+        def getAlignmentSegment(alignment):
+            segments1 = []
+            segments2 = []
+            i1, i2 = alignment.path[0]
+            for node in alignment.path[1:]:
+                j1, j2 = node
+                if j1 > i1 and j2 > i2:
+                    segment1 = [i1+1, j1]
+                    segment2 = [i2+1, j2]
+                    segments1.append(segment1)
+                    segments2.append(segment2)
+                i1, i2 = j1, j2
+            return segments1,segments2
+
+        def mmcif_pd_align(aligner, pdbSeq, unpSeq_route):
+            unpSeq = SeqIO.read(unpSeq_route, "fasta")
+            alignments = aligner.align(unpSeq.seq, pdbSeq)
+            result = getAlignmentSegment(alignments[0])
+            return json.dumps(result[0]), json.dumps(result[1])
+
+        sifts_dfrm = self.file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
+        focus = ['Deletion', 'Insertion & Deletion']
+        focus_index = sifts_dfrm[sifts_dfrm['sifts_range_tage'].isin(focus)].index
+
+        aligner = Align.PairwiseAligner()
+        aligner.mode = 'global'
+        aligner.open_gap_score = -10
+        aligner.extend_gap_score = -0.5
+        aligner.substitution_matrix = matlist.blosum62
+
+        da1 = []
+        da2 = []
+        for index in focus_index:
+            da = mmcif_pd_align(aligner, sifts_dfrm.loc[index, self.CONFIG['PDB_SEQRES_COL'],
+                    unp_fasta_files_path % sifts_dfrm.loc[index, self.CONFIG['UniProt']])
+            da1.append(da[0])
+            da2.append(da[1])
+
+        df = pd.DataFrame([da1, da2], index=focus_index, columns=new_range_cols)
+        new_sifts_df = pd.merge(sifts_dfrm, df, left_index=True, right_index=True, how='left')
+        new_sifts_df[new_range_cols[0]] = new_sifts_df.apply(lambda x: x['sifts_unp_range'] if isinstance(x[new_range_cols[0]], float) else x[new_range_cols[0]], axis=1)
+        new_sifts_df[new_range_cols[1]] = new_sifts_df.apply(lambda x: x['sifts_pdb_range'] if isinstance(x[new_range_cols[1]], float) else x[new_range_cols[1]], axis=1)
+
+        self.file_o(outputPath, new_sifts_df)
+        return new_sifts_df
 
     def select_PDB_SIFTS(self, groupby_list,
                                select_col=CONFIG['PDB_SELECT_COL'],
