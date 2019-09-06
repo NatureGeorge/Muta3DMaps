@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-06T12:48:17+08:00
+# @Last modified time: 2019-09-06T13:11:23+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -453,7 +453,7 @@ class SIFTS_unit(Unit):
         da1 = []
         da2 = []
         for index in focus_index:
-            da = mmcif_pd_align(aligner, sifts_dfrm.loc[index, self.CONFIG['PDB_SEQRES_COL'],
+            da = mmcif_pd_align(aligner, sifts_dfrm.loc[index, self.CONFIG['PDB_SEQRES_COL']],
                     unp_fasta_files_path % sifts_dfrm.loc[index, self.CONFIG['UniProt']])
             da1.append(da[0])
             da2.append(da[1])
