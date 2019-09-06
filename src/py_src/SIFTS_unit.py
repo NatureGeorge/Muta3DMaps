@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-06T13:11:23+08:00
+# @Last modified time: 2019-09-06T14:23:33+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -454,11 +454,11 @@ class SIFTS_unit(Unit):
         da2 = []
         for index in focus_index:
             da = mmcif_pd_align(aligner, sifts_dfrm.loc[index, self.CONFIG['PDB_SEQRES_COL']],
-                    unp_fasta_files_path % sifts_dfrm.loc[index, self.CONFIG['UniProt']])
+                    unp_fasta_files_path % sifts_dfrm.loc[index, 'UniProt'])
             da1.append(da[0])
             da2.append(da[1])
 
-        df = pd.DataFrame([da1, da2], index=focus_index, columns=new_range_cols)
+        df = pd.DataFrame({new_range_cols[0]:da1, new_range_cols[1]:da2}, index=focus_index)
         new_sifts_df = pd.merge(sifts_dfrm, df, left_index=True, right_index=True, how='left')
         new_sifts_df[new_range_cols[0]] = new_sifts_df.apply(lambda x: x['sifts_unp_range'] if isinstance(x[new_range_cols[0]], float) else x[new_range_cols[0]], axis=1)
         new_sifts_df[new_range_cols[1]] = new_sifts_df.apply(lambda x: x['sifts_pdb_range'] if isinstance(x[new_range_cols[1]], float) else x[new_range_cols[1]], axis=1)
@@ -552,7 +552,10 @@ class SIFTS_unit(Unit):
         return sifts_dfrm
 
     def map_muta_from_unp_to_pdb(x, muta_col, unp_range_col, pdb_range_col, error_li, addInscode=True):
+        sub_error_li = []
         muta_li = x[muta_col]
+        if isinstance(muta_li, str):
+            muta_li = json.loads(muta_li.replace('\'','"'))
         unp_range = json.loads(x[unp_range_col])
         pdb_range = json.loads(x[pdb_range_col])
 
@@ -575,9 +578,11 @@ class SIFTS_unit(Unit):
                     seqresSite = pdb_li[unp_li.index(int(muta[1:-1]))]
                 except ValueError:
                     new_muta_site.append('#')
+                    sub_error_li.append('Unmapped #: %s' % muta)
                     continue
                 except IndexError:
                     new_muta_site.append('$')
+                    sub_error_li.append('Unmapped $: %s' % muta)
                     continue
 
                 seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
@@ -600,9 +605,9 @@ class SIFTS_unit(Unit):
                         error_info.append('ModifiedResidue: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
                     else:
                         error_info.append('PossibleMutation: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
-                    error_li.append('' + ','.join(error_info))
+                    sub_error_li.append('' + ','.join(error_info))
                 else:
-                    error_li.append('Safe')
+                    sub_error_li.append('Safe')
 
                 # Check inscode
                 if inscode != '.':
@@ -645,6 +650,7 @@ class SIFTS_unit(Unit):
 
                 new_muta_site.append(auth_seq_li[seqresSite-1])
 
+        error_li.append(sub_error_li)
         return new_muta_site
 
 
