@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-08-26T16:02:38+08:00
+# @Last modified time: 2019-09-07T15:58:08+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -49,7 +49,7 @@ class Unit:
 
     class RangeSetER:
         def __init__(self, name_tp):
-            self.name = name_tp# ('pdb_id', 'chain_id', 'UniProt')
+            self.name = name_tp  # ('pdb_id', 'chain_id', 'UniProt')
             self.pdb_range = []
             self.unp_range = []
 
@@ -111,7 +111,7 @@ class Unit:
             return self.xitems
 
         def addConstraintToDf(df, constraint_dict):
-            for i,j in constraint_dict.items():
+            for i, j in constraint_dict.items():
                 j1, j2 = j
                 if j2 == 'eq':
                     df = df[df[i] == j1]
@@ -130,6 +130,7 @@ class Unit:
     class MultiToOne:
         def __init__(self):
             self.aa_map = Unit.SEQ_DICT
+
         def multi_letter_convert_to_one_letter(self, a):
             return self.aa_map.get(a, 'X')
 
@@ -148,7 +149,7 @@ class Unit:
         r2_cutoff: 0.2
         # overlap_type: ['shorter']
         '''
-        #overlap_list = []
+        # overlap_list = []
         if len(grouped_df) > 1:
             rank_df = pd.DataFrame([grouped_df[ele].rank(ascending=0, method='dense')
                                     for ele in rank_list]).T
@@ -165,20 +166,20 @@ class Unit:
                 if temp_range <= repreSet:
                     continue
                 else:
-                    #overlap = getOverlap(temp_range, repreSet, overlap_type)
-                    #overlap_list.append(overlap)
+                    # overlap = getOverlap(temp_range, repreSet, overlap_type)
+                    # overlap_list.append(overlap)
                     overlap = len(temp_range & repreSet)
                     temp_range_len = len(temp_range)
-                    #---------------------------------------------------------------
+                    # ---------------------------------------------------------------
                     if (overlap/temp_range_len <= r1_cutoff) and ((temp_range_len - overlap)/len(repreSet) >= r2_cutoff):
-                    #---------------------------------------------------------------
+                    # ---------------------------------------------------------------
                         repreSet = repreSet | temp_range
                         df.loc[tr, selectName] = True
         else:
             df.loc[grouped_df.index, selectName] = True
 
     def getInterval(rangeSet):
-        if rangeSet == '' or rangeSet == set() or rangeSet == []:
+        if rangeSet == '' or rangeSet == set() or rangeSet == [] or isinstance(rangeSet, float):
             return np.nan
         else:
             start = []

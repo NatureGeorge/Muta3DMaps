@@ -1,17 +1,19 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-09-06T19:47:54+08:00
+# @Last modified time: 2019-09-06T23:01:26+08:00
 import urllib.parse
 import urllib.request
 from retrying import retry
 import pandas as pd
 from random import uniform
 from time import sleep
-import os
+import os, sys
+sys.path.append('./')
+from Unit import Unit
 
 
-class UniProt_unit:
+class UniProt_unit(Unit):
     '''
         params = {
             'from': 'ACC+ID',
@@ -124,13 +126,13 @@ class UniProt_unit:
         df = dfrm.copy()
         return df.drop([colName], axis=1).join(df[colName].str.split(sep, expand=True).stack().reset_index(level=1, drop=True).rename(colName))
 
-    def handel_unp_info(self, unp_df=False, unp_filPath=False, usecols=COLUMNS, outputPath=False):
+    def handle_unp_info(self, unp_df=False, unp_filPath=False, usecols=COLUMNS, outputPath=False):
         unp_df = self.file_i(unp_filPath, unp_df, ('unp_filPath', 'unp_df'))
         # Set the columns
         col_1 = usecols.copy()
         col_1.remove('isomap')
         col_2 = usecols.copy()
-        col_1.remove('yourlist')
+        col_2.remove('yourlist')
         # Split the DataFrame
         sub_df_1 = UniProt_unit.split_df(unp_df[col_1], 'yourlist', ',')
         sub_df_2 = UniProt_unit.split_df(unp_df[col_2], 'isomap', ',')
