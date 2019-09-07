@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-09-07T16:09:27+08:00
+# @Last modified time: 2019-09-07T17:09:26+08:00
 from Unit import Unit
 from collections import defaultdict
 import pandas as pd
@@ -302,7 +302,10 @@ class MMCIF_unit(Unit):
                 a = pd.DataFrame({key: df.loc[i, key] for key in spe_col_li})
             except Exception:
                 # print(spe_col_li, e)
-                a = pd.DataFrame({key: [df.loc[i, key]] for key in spe_col_li})
+                try:
+                    a = pd.DataFrame({key: json.loads(df.loc[i, key].replace('\'', '"').replace('False', 'false').replace('True', 'true')) for key in spe_col_li})
+                except Exception:
+                    a = pd.DataFrame({key: [df.loc[i, key]] for key in spe_col_li})
 
             for common_col in common_col_li:
                 try:
