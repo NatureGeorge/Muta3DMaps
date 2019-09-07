@@ -1,14 +1,14 @@
 # @Date:   2019-09-03T16:37:05+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: PdSeq_unit.py
-# @Last modified time: 2019-09-03T20:41:50+08:00
-import json
-import pandas as pd
-import numpy as np
+# @Last modified time: 2019-09-07T23:27:29+08:00
+from Unit import Unit
+import sys
 from Bio import pairwise2
 from Bio.SubsMat import MatrixInfo as matlist
+from Bio import Align
+import json
 sys.path.append('./')
-from Unit import Unit
 
 
 class RowChecker:
@@ -40,15 +40,31 @@ class IndexRecorder:
         self.count = 0
 
 
-class PdSeq:
-    def __init__(self, seqCols):
-        self.seqCola, self.seqColb = seqCols
+class PdSeqAlign:
+    def getAlignmentSegment(alignment):
+        segments1 = []
+        segments2 = []
+        i1, i2 = alignment.path[0]
+        for node in alignment.path[1:]:
+            j1, j2 = node
+            if j1 > i1 and j2 > i2:
+                segment1 = [i1+1, j1]
+                segment2 = [i2+1, j2]
+                segments1.append(segment1)
+                segments2.append(segment2)
+            i1, i2 = j1, j2
+        return segments1, segments2
+
+    def __init__(self):
         self.seqa = ''
         self.seqb = ''
+        self.aligner = Align.PairwiseAligner()
+        self.aligner.mode = 'global'
+        self.aligner.open_gap_score = -10
+        self.aligner.extend_gap_score = -0.5
+        self.aligner.substitution_matrix = matlist.blosum62
 
-    def makeAlignment(self, row):
-        seqa = row[self.seqCola]
-        seqb = row[self.seqColb]
+    def makeAlignment_pairwise2(self, seqa, seqb):
         if seqa == self.seqa and seqb == self.seqb:
             return self.range_a, self.range_b
         else:
@@ -65,3 +81,13 @@ class PdSeq:
             self.range_a = Unit.getInterval([i[0] for i in mapped])
             self.range_b = Unit.getInterval([i[1] for i in mapped])
             return self.range_a, self.range_b
+
+    def makeAlignment_align(self, seqa, seqb):
+        if not (seqa == self.seqa and seqb == self.seqb):
+            self.seqa = seqa
+            self.seqb = seqb
+            alignments = self.aligner.align(seqa, seqb)
+            result = PdSeqAlign.getAlignmentSegment(alignments[0])
+            self.range_a, self.range_b = json.dumps(result[0]), json.dumps(result[1])
+
+        return self.range_a, self.range_b
