@@ -18,7 +18,7 @@
 
 ### Related items in mmCIF Format
 |Key|Category Description
--|-|-
+-|-
 |```_entity.id```|One concept on which the PDBx/mmCIF format relies is that of entities. An entity is a chemically distinct part of a structure as represented in the PDBx/mmCIF data file. Data items in the ```_entity``` category, describe the chemistry and identity of the molecules under investigation. In any particular entry, there may be multiple copies of a given entity.[2] [More Details](http://mmcif.rcsb.org/dictionaries/mmcif_pdbx_v50.dic/Categories/entity.html "Link")|
 |```_entity_poly.entity_id, _entity_poly.pdbx_strand_id, _entity_poly.type```|Data items in the ```ENTITY_POLY``` category record details about the polymer, such as the type of the polymer.[3]|
 |```_pdbx_struct_assembly_gen.assembly_id, _pdbx_struct_assembly_gen.oper_expression, _pdbx_struct_assembly_gen.asym_id_list```| Data items in the ```PDBX_STRUCT_ASSEMBLY_GEN``` category record details about the generation of each macromolecular assemblies. The ```PDBX_STRUCT_ASSEMBLY_GEN``` data items provide the specifications of the components that constitute that assembly in terms of cartesian transformations.[3]|
