@@ -36,10 +36,10 @@
     </tr>
     <tr>
         <td>
-            <img src="./img/fig_MMCIF_1.png"/>
+            <img src="./img/fig_MMCIF_1.PNG"/>
         </td>
         <td>
-            <img src="./img/fig_MMCIF_2.png"/>
+            <img src="./img/fig_MMCIF_2.PNG"/>
         </td>
     </tr>
 </table>
@@ -392,7 +392,9 @@ _pdbx_struct_assembly.oligomeric_count                                          
 ---
 
 ### Reference
-> [1] http://pdb101.rcsb.org/learn/guide-to-understanding-pdb-data/biological-assemblies#Anchor-BioUnit
-> [2] https://pdb101.rcsb.org/learn/guide-to-understanding-pdb-data/beginner%E2%80%99s-guide-to-pdb-structures-and-the-pdbx-mmcif-format
-> [3] http://mmcif.rcsb.org/pdbx-mmcif-home-page.html
-> [4] http://proteopedia.org/wiki/index.php/Biological_Unit
+<ol>
+    <li>http://pdb101.rcsb.org/learn/guide-to-understanding-pdb-data/biological-assemblies#Anchor-BioUnit</li>
+    <li>https://pdb101.rcsb.org/learn/guide-to-understanding-pdb-data/beginner%E2%80%99s-guide-to-pdb-structures-and-the-pdbx-mmcif-format</li>
+    <li>http://mmcif.rcsb.org/pdbx-mmcif-home-page.html</li>
+    <li>http://proteopedia.org/wiki/index.php/Biological_Unit</li>
+</ol>
