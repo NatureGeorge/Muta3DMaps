@@ -1,18 +1,18 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-09-10T19:45:56+08:00
+# @Last modified time: 2019-09-10T22:28:43+08:00
 import os
-import time
-import requests
 import sys
 import json
 import pandas as pd
 import numpy as np
+from collections import defaultdict, Iterable, Iterator
+import time
+import requests
 from urllib import request
 from retrying import retry
 from multiprocessing.dummy import Pool
-from collections import defaultdict, Iterable, Iterator
 from Bio.File import as_handle
 from Bio.PDB.MMCIF2Dict import MMCIF2Dict
 from Unit import Unit
@@ -59,8 +59,9 @@ DEFAULT_COLS = {
     'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
 }
 
+
 class MMCIF2DictPlus(MMCIF2Dict):
-    """Parse a MMCIF file and return a dictionary"""
+    """# Parse a MMCIF file and return a dictionary"""
 
     def __init__(self, filename, useKeyList):
         """
@@ -130,10 +131,11 @@ class MMCIF2DictPlus(MMCIF2Dict):
 
 
 class MMCIF2Dfrm(Unit):
-    """Convert MMCIF data into a DataFrame"""
+    """# Convert MMCIF data into a DataFrame"""
 
     FUNC_LI_DI = []
     FUNC_LI_DF = []
+    pdb_path_li = []
 
     @property
     def default_use_keys(self):
@@ -160,6 +162,56 @@ class MMCIF2Dfrm(Unit):
         elif pli_len > 1:
             return 'he:' + ';'.join(i[1] for i in pli)
 
+    def download_cif_file(pdbId, path):
+        url = 'https://files.rcsb.org/view/%s.cif' % pdbId
+        html = request.urlopen(url).read()
+        html = html.decode('utf-8')
+        with open(path, 'w') as fw:
+            fw.write(html)
+            time.sleep(2)
+
+    def get_mmcif_file_path(self, pdbId, download=False):
+        print('get_mmcif_file_path(): Working on [%s]' % pdbId)
+        new_path = '%s%s.cif' % (MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], pdbId)
+
+        for path in MMCIF_FILE_FOLDER['MMCIF_OLD_FOLDER']:
+            old_path = '%s%s.cif' % (path, pdbId)
+            if os.path.exists(old_path):
+                return old_path
+
+        if os.path.exists(new_path):
+            return new_path
+        else:
+            if download:
+                MMCIF2Dfrm.download_cif_file(pdbId, new_path)
+
+            return new_path
+
+    def check_mmcif_file(self, pdb_list):
+        def find_unDownloaded_file(pdbId):
+            for path in MMCIF_FILE_FOLDER['MMCIF_OLD_FOLDER'] + [MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER']]:
+                old_path = '%s%s.cif' % (path, pdbId)
+                if os.path.exists(old_path):
+                    MMCIF2Dfrm.pdb_path_li.append(old_path)
+                    return False
+            return True
+
+        unDownload = list(filter(find_unDownloaded_file, pdb_list))
+
+        @retry(stop_max_attempt_number=3, wait_fixed=1000)
+        def download_mmcif_file(pdbId):
+            path = '%s%s.cif' % (MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], pdbId)
+            print('download_mmcif_file(): %s' % path)
+            url = 'https://files.rcsb.org/view/%s.cif' % pdbId
+            r = requests.get(url, headers=CONFIG['HEADERS'])
+            with open(path, 'wb+') as fw:
+                fw.write(r.content)
+                time.sleep(2)
+                MMCIF2Dfrm.pdb_path_li.append(path)
+
+        pool = Pool(processes=20)
+        pool.map(download_mmcif_file, unDownload)
+
     def get_mmcif_dict(info_key, info_dict, path):
         '''
         <h1>Get MMCIF info in dict-format with the help of ```MMCIF2DictPlus```</h1>
@@ -181,7 +233,7 @@ class MMCIF2Dfrm(Unit):
             info_dict[key].append(data)
 
     def dispatch_on_set(keys, func_li):
-        """Decorator to add new dispatch functions."""
+        """# Decorator to add new dispatch functions."""
         def register(func):
             func_li.append((func, set(keys)))
             return func
@@ -327,6 +379,41 @@ class MMCIF2Dfrm(Unit):
         df['contains_unk_in_chain_pdb'] = df.apply(
             lambda x: len(set(x['UNK_ALL_IN_CHAIN'])) == 2, axis=1)
 
+    @dispatch_on_set(DEFAULT_COLS['BIOASS_COL']+['_pdbx_poly_seq_scheme.pdb_strand_id'], func_li=FUNC_LI_DF)
+    def handle_bioas_df(df):
+        '''
+        ### Deal with Biological Assemblies in PDB</h3>
+        #### Example
+        Key|Value
+        -|-
+        pdb_id|3A6P
+        _entity.id|[1, 2, 3, 4, 5, 6, 7]
+        _entity_poly.entity_id|[1, 2, 3, 4, 5]
+        _entity_poly.pdbx_strand_id|[A,F, B,G, C,H, D,I, E,J]
+        _entity_poly.type|[polypeptide(L), polypeptide(L), polypeptide(L)...
+        _pdbx_struct_assembly_gen.assembly_id|[1, 2]
+        _pdbx_struct_assembly_gen.oper_expression|[1, 1]
+        _pdbx_struct_assembly_gen.asym_id_list|[A,B,C,D,E,K,L, F,G,H,I,J,M,N]
+        _pdbx_struct_assembly.oligomeric_count|[5, 5]
+        ---
+        ```_pdbx_struct_assembly_gen.asym_id_list``` -> [A,B,C,D,E,~~K,L,~~ F,G,H,I,J,~~M,N~~]
+        ```_pdbx_poly_seq_scheme.pdb_strand_id```
+        > For more examples, please goto [here](https://naturegeorge.github.io/BioinforResearch/md_for_MMCIF2Dfrm.html "Link")
+        '''
+        def getBioUnitInfo(au_id_li, au_asym_id_li, oli, pl_asym_id_li):
+            au_dict = defaultdict(list)
+            for index in range(len(au_id_li)):
+                au_dict[au_id_li[index]].extend([chain for chain in au_asym_id_li[index].split(',') if chain in pl_asym_id_li])
+            for index, key in enumerate(sorted(au_dict.keys())):
+                au_dict[key] = (int(oli[index]), au_dict[key])
+            return json.dumps(au_dict)
+
+        df['bioUnit'] = df.apply(lambda x: getBioUnitInfo(
+                x['_pdbx_struct_assembly_gen.assembly_id'],
+                x['_pdbx_struct_assembly_gen.asym_id_list'],
+                x['_pdbx_struct_assembly.oligomeric_count'],
+                x['_pdbx_poly_seq_scheme.pdb_strand_id']), axis=1)
+
     def mmcif_dict2dfrm(self, path_list, useKeyList=False, outputPath=False):
         '''
         <h1>Convert MMCIF data into a DataFrame</h1>
@@ -368,13 +455,111 @@ class MMCIF2Dfrm(Unit):
             self.file_o(outputPath, df)
         return df
 
+    def handle_mmcif_dfrm(self, dfrm, outputPath=False):
+
+        def get_sub_df(df, i, spe_col_li, common_col_li):
+            try:
+                a = pd.DataFrame({key: df.loc[i, key] for key in spe_col_li})
+            except Exception:
+                try:
+                    a = pd.DataFrame({key: json.loads(df.loc[i, key].replace('\'', '"').replace('False', 'false').replace('True', 'true')) for key in spe_col_li})
+                except Exception:
+                    a = pd.DataFrame({key: [df.loc[i, key]] for key in spe_col_li})
+
+            for common_col in common_col_li:
+                da = df.loc[i, common_col]
+                if isinstance(da, list):
+                    a[common_col] = ','.join(df.loc[i, common_col])
+                elif isinstance(da, (str, bool, np.bool_)) or pd.isna(da):
+                    a[common_col] = da
+                else:
+                    print('get_sub_df(): WARNING: %s -> %s(%s)' % (common_col, da, type(da)))
+                    a[common_col] = da
+            return a
+
+        def sub_handle_df(df, spe_col_li, common_col_li):
+            df_li = []
+            for i in df.index:
+                df_li.append(get_sub_df(df, i, spe_col_li, common_col_li))
+            return pd.concat(df_li, ignore_index=True)
+
+        entity_poly_df = sub_handle_df(
+            dfrm, DEFAULT_COLS['ENTITY_COL'] + ['mutation_num'], ['pdb_id'])
+        type_poly_df = sub_handle_df(
+            dfrm, DEFAULT_COLS['TYPE_COL'], ['pdb_id'])
+        basic_df = sub_handle_df(dfrm, DEFAULT_COLS['SEQRES_COL'] + ['UNK_ALL_IN_CHAIN'],
+            [
+                'pdb_id', 'method', 'initial_version_time',
+                'newest_version_time', 'resolution', 'pdb_contain_chain_type',
+                'contains_unk_in_chain_pdb', 'pdb_type_MMCIF', 'bioUnit'
+            ]
+            + DEFAULT_COLS['COMMON_COL'][3:5]
+            + DEFAULT_COLS['BIOASS_COL'])
+        ligand_df = sub_handle_df(
+            dfrm, DEFAULT_COLS['METAL_LIGAND_COL'], ['pdb_id'])
+
+        new_type_poly_df = type_poly_df.drop(DEFAULT_COLS['TYPE_COL'][1], axis=1).join(
+            type_poly_df[DEFAULT_COLS['TYPE_COL'][1]].str.split(',', expand=True).stack().reset_index(level=1, drop=True).rename('chain_id'))
+
+        entity_poly_df.rename(columns={
+                              '_entity.pdbx_mutation': 'mutation_content', '_entity.id': 'entity_id'}, inplace=True)
+        new_type_poly_df.rename(columns={
+                                '_entity_poly.entity_id': 'entity_id', '_entity_poly.type': 'protein_type'}, inplace=True)
+        basic_df.rename(
+            columns={'_pdbx_poly_seq_scheme.pdb_strand_id': 'chain_id'}, inplace=True)
+        ligand_df.rename(
+            columns={DEFAULT_COLS['METAL_LIGAND_COL'][0]: 'chain_id'}, inplace=True)
+
+        if ligand_df['chain_id'].isnull().sum() == len(ligand_df):
+            basic_df[DEFAULT_COLS['METAL_LIGAND_COL'][1]] = np.nan
+            df_1 = basic_df
+        else:
+            df_1 = pd.merge(basic_df, ligand_df, how='left')
+        df_2 = pd.merge(new_type_poly_df, df_1, how='left')
+        df_3 = pd.merge(df_2, entity_poly_df, how='left')
+
+        df_3['metal_ligand_num'] = df_3.apply(lambda x: str(x['metal_ligand_content']).count(
+            '),') + 1 if not isinstance(x['metal_ligand_content'], float) else 0, axis=1)
+        df_3['Modification_num'] = df_3.apply(lambda x: x['_pdbx_poly_seq_scheme.mon_id'].count(
+            'X') if not isinstance(x['_pdbx_poly_seq_scheme.mon_id'], float) else np.nan, axis=1)
+        df_3['seqres_len'] = df_3.apply(lambda x: len(x['_pdbx_poly_seq_scheme.mon_id']) if not isinstance(
+            x['_pdbx_poly_seq_scheme.mon_id'], float) else np.nan, axis=1)
+        df_3['coordinates_len'] = df_3.apply(lambda x: len(x['_pdbx_poly_seq_scheme.pdb_mon_id'].replace(
+            '?', '')) if not isinstance(x['_pdbx_poly_seq_scheme.pdb_mon_id'], float) else np.nan, axis=1)
+
+        def find_charIndex_fun(s, char): return [x for x in range(
+            s.find(char), len(s)) if s[x] == char]
+        df_3['Modification_index'] = df_3.apply(lambda x: find_charIndex_fun(
+            x['_pdbx_poly_seq_scheme.mon_id'], 'X') if not isinstance(x['_pdbx_poly_seq_scheme.mon_id'], float) else np.nan, axis=1)
+        df_3['mis_index'] = df_3.apply(lambda x: find_charIndex_fun(x['_pdbx_poly_seq_scheme.pdb_mon_id'], '?') if not isinstance(
+            x['_pdbx_poly_seq_scheme.pdb_mon_id'], float) else np.nan, axis=1)
+
+        df_3['mis_range'] = df_3.apply(lambda x: MMCIF2Dfrm.getInterval(
+            x['mis_index']) if not isinstance(x['mis_index'], float) else np.nan, axis=1)
+        df_3['resolution_score'] = df_3.apply(lambda x: MMCIF2Dfrm.handleResolution(x['resolution']), axis=1)
+
+        col_list = ['pdb_id', 'chain_id', 'protein_type', 'coordinates_len']
+        pro_chain_grouper = MMCIF2Dfrm.GroupER(
+            col_list[0], ['polypeptide(L)', 'polypeptide(D)'], df_3, 'protein_chain_and_length')
+        df_3['protein_chain_and_length'] = np.nan
+        for i in df_3.index:
+            pro_chain_grouper.check(df_3.loc[i, col_list[0]], (
+                i, df_3.loc[i, col_list[-2]], df_3.loc[i, col_list[-1]], df_3.loc[i, col_list[1]]))
+        pro_chain_grouper.output()
+
+        if os.path.exists(outputPath):
+            self.file_o(outputPath, df_3, mode='a+', header=False)
+        else:
+            self.file_o(outputPath, df_3)
+        return df_3
+
 
 if __name__ == '__main__':
     route = 'C:\\Users\\Nature\\Desktop\\LiGroup\\Filter_new_20190123\\doc_in\\spe\\'
     file_list = os.listdir(route)
     file_p_list = [route + i for i in file_list]
     mmcif_demo = MMCIF2Dfrm()
-    df = mmcif_demo.mmcif_dict2dfrm(file_p_list, useKeyList=['data_', '_entity_poly.type'])
-
-    for i in df.index:
-        print(df.loc[i, ])
+    df = mmcif_demo.mmcif_dict2dfrm(file_p_list)
+    df_new = mmcif_demo.handle_mmcif_dfrm(df)
+    for i in df_new.index:
+        print(df_new.loc[i, ])
