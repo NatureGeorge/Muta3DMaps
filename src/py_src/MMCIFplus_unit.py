@@ -1,7 +1,7 @@
 # @Date:   2019-08-19T19:29:29+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus_unit.py
-# @Last modified time: 2019-09-07T17:09:26+08:00
+# @Last modified time: 2019-09-09T18:49:01+08:00
 from Unit import Unit
 from collections import defaultdict
 import pandas as pd
@@ -37,6 +37,10 @@ class MMCIF_unit(Unit):
             '_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id',
             '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id',
             '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id'],
+        'BIOASS_COL': ['_pdbx_struct_assembly_gen.assembly_id',
+                       '_pdbx_struct_assembly_gen.oper_expression',
+                       '_pdbx_struct_assembly_gen.asym_id_list',
+                       '_pdbx_struct_assembly.oligomeric_count'],
         'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
         'LIGAND_LIST': [
             'ZN', 'MG', 'CA', 'FE', 'NA', 'MN', 'K', 'NI', 'CU', 'CO', 'CD', 'HG', 'PT', 'MO', 'BE', 'AL', 'BA',
@@ -66,7 +70,7 @@ class MMCIF_unit(Unit):
             elif count > 0:
                 return 'ho:%d' % (count + 1)
         elif pli_len > 1:
-            return 'he:' + ';'.join([i[1] for i in pli])
+            return 'he:' + ';'.join(i[1] for i in pli)
 
     def download_cif_file(pdbId, path):
         url = 'https://files.rcsb.org/view/%s.cif' % pdbId
@@ -152,11 +156,12 @@ class MMCIF_unit(Unit):
                 print(path)
                 info_dict['pdb_id'].append(path[-8:-4])
                 MMCIF_unit.get_mmcif_info(
-                    MMCIF_unit.CONFIG['COMMON_COL'] +
-                    MMCIF_unit.CONFIG['ENTITY_COL'] +
-                    MMCIF_unit.CONFIG['TYPE_COL'] +
-                    MMCIF_unit.CONFIG['SEQRES_COL'] +
-                    MMCIF_unit.CONFIG['LIGAND_COL'],
+                    MMCIF_unit.CONFIG['COMMON_COL']
+                    + MMCIF_unit.CONFIG['BIOASS_COL']
+                    + MMCIF_unit.CONFIG['ENTITY_COL']
+                    + MMCIF_unit.CONFIG['TYPE_COL']
+                    + MMCIF_unit.CONFIG['SEQRES_COL']
+                    + MMCIF_unit.CONFIG['LIGAND_COL'],
                     MMCIF_unit.CONFIG['COMMON_COL'][1:],
                     info_dict,
                     path)
@@ -167,7 +172,7 @@ class MMCIF_unit(Unit):
         for i in range(len(info_dict[resides_col_li[0]])):
             for resides_col in resides_col_li:
                 info_dict[resides_col][i] = ''.join(
-                    [mtoTool.multi_letter_convert_to_one_letter(j) for j in info_dict[resides_col][i]])
+                    mtoTool.multi_letter_convert_to_one_letter(j) for j in info_dict[resides_col][i])
 
         def get_index(
             x, y, z): return y[x[z]:x[z + 1]] if len(x) != 1 and z + 1 < len(x) else y[x[z]:]
@@ -246,10 +251,10 @@ class MMCIF_unit(Unit):
                     strand_id_index.append(j)
                     strand_id_li.append(save_id)
 
-            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL']
-                      [0]].append(strand_id_li)
-            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append([get_index(strand_id_index, [
-                                                                       ele[1:] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))])
+            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][0]].append(strand_id_li)
+            info_dict[MMCIF_unit.CONFIG['METAL_LIGAND_COL'][1]].append(
+                [get_index(strand_id_index, [ele[1:] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))]
+            )
 
         df = pd.DataFrame(info_dict)
         # Deal with the date of structure
@@ -263,15 +268,15 @@ class MMCIF_unit(Unit):
         df['mutation_num'] = df.apply(lambda x: [muta_count(
             i) for i in x['_entity.pdbx_mutation']], axis=1)
         # Deal with the resolution
-        df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][3]]
-                                    if 'X-RAY DIFFRACTION' in x[MMCIF_unit.CONFIG['COMMON_COL'][1]] else x[MMCIF_unit.CONFIG['COMMON_COL'][2]], axis=1)
+        df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][3]], axis=1)
+        df['resolution'] = df.apply(lambda x: x[MMCIF_unit.CONFIG['COMMON_COL'][2]] if isinstance(x['resolution'], float) else x['resolution'], axis=1)
         # Deal with chain type
 
         def get_chainType_fun(
             ele): return MMCIF_unit.CONFIG['CHAIN_TYPE_DICT'].get(ele, 'other')
-        df['pdb_contain_chain_type'] = df.apply(lambda x: ','.join(set(map(get_chainType_fun, json.loads(x['_entity_poly.type'].replace('\'', '"')))))
+        df['pdb_contain_chain_type'] = df.apply(lambda x: ','.join(sorted(set(map(get_chainType_fun, json.loads(x['_entity_poly.type'].replace('\'', '"'))))))
                                                 if isinstance(x['_entity_poly.type'], str)
-                                                else ','.join(set(map(get_chainType_fun, x['_entity_poly.type']))), axis=1)
+                                                else ','.join(sorted(set(map(get_chainType_fun, x['_entity_poly.type'])))), axis=1)
         # Deal with UNK_ALL in chain
 
         def get_unk_fun(ele): return len(ele) == ele.count('!')
@@ -287,8 +292,8 @@ class MMCIF_unit(Unit):
         # Change the columns
         df.rename(
             columns={MMCIF_unit.CONFIG['COMMON_COL'][1]: 'method'}, inplace=True)
-        df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0], MMCIF_unit.CONFIG['COMMON_COL']
-                         [2], MMCIF_unit.CONFIG['COMMON_COL'][3]], inplace=True)
+        '''df.drop(columns=[MMCIF_unit.CONFIG['COMMON_COL'][0], MMCIF_unit.CONFIG['COMMON_COL']
+                         [2], MMCIF_unit.CONFIG['COMMON_COL'][3]], inplace=True)'''
 
         if os.path.exists(outputPath):
             self.file_o(outputPath, df, mode='a+', header=False)
@@ -308,11 +313,14 @@ class MMCIF_unit(Unit):
                     a = pd.DataFrame({key: [df.loc[i, key]] for key in spe_col_li})
 
             for common_col in common_col_li:
-                try:
-                    a[common_col] = df.loc[i, common_col]
-                except Exception as e:
-                    print(e)
+                da = df.loc[i, common_col]
+                if isinstance(da, list):
                     a[common_col] = ','.join(df.loc[i, common_col])
+                elif isinstance(da, (str, bool, np.bool_)) or pd.isna(da):
+                    a[common_col] = da
+                else:
+                    print('get_sub_df(): WARNING: %s -> %s(%s)' % (common_col, da, type(da)))
+                    a[common_col] = da
             return a
 
         def sub_handle_df(df, spe_col_li, common_col_li):
@@ -326,7 +334,7 @@ class MMCIF_unit(Unit):
         type_poly_df = sub_handle_df(
             dfrm, MMCIF_unit.CONFIG['TYPE_COL'], ['pdb_id'])
         basic_df = sub_handle_df(dfrm, MMCIF_unit.CONFIG['SEQRES_COL'] + ['UNK_ALL_IN_CHAIN'], ['pdb_id', 'method', 'initial_version_time',
-                                                                                                'newest_version_time', 'resolution', 'pdb_contain_chain_type', 'contains_unk_in_chain_pdb', 'pdb_type_MMCIF'])
+                                                                                                'newest_version_time', 'resolution', 'pdb_contain_chain_type', 'contains_unk_in_chain_pdb', 'pdb_type_MMCIF']+MMCIF_unit.CONFIG['COMMON_COL'][2:4]+MMCIF_unit.CONFIG['BIOASS_COL'])
         ligand_df = sub_handle_df(
             dfrm, MMCIF_unit.CONFIG['METAL_LIGAND_COL'], ['pdb_id'])
 
@@ -368,8 +376,7 @@ class MMCIF_unit(Unit):
 
         df_3['mis_range'] = df_3.apply(lambda x: MMCIF_unit.getInterval(
             x['mis_index']) if not isinstance(x['mis_index'], float) else np.nan, axis=1)
-        df_3['resolution_score'] = df_3.apply(lambda x: x['resolution'] if not isinstance(
-            x['resolution'], float) else 1000, axis=1)
+        df_3['resolution_score'] = df_3.apply(lambda x: MMCIF_unit.handleResolution(x['resolution']), axis=1)
 
         col_list = ['pdb_id', 'chain_id', 'protein_type', 'coordinates_len']
         pro_chain_grouper = MMCIF_unit.GroupER(
@@ -397,7 +404,7 @@ class MMCIF_unit(Unit):
 
 
 if __name__ == '__main__':
-    route = 'C:\\Users\\Nature\\Desktop\\LiGroup\\Filter_new_20190123\\doc_in\\'
+    route = 'C:\\Users\\Nature\\Desktop\\LiGroup\\Filter_new_20190123\\doc_in\\spe\\'
     file_list = os.listdir(route)
     file_p_list = [route + i for i in file_list]
     mmcif_demo = MMCIF_unit()
