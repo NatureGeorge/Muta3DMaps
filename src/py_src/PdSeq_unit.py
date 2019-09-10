@@ -1,13 +1,14 @@
 # @Date:   2019-09-03T16:37:05+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: PdSeq_unit.py
-# @Last modified time: 2019-09-07T23:27:29+08:00
+# @Last modified time: 2019-09-10T15:39:57+08:00
 from Unit import Unit
 import sys
 from Bio import pairwise2
 from Bio.SubsMat import MatrixInfo as matlist
 from Bio import Align
 import json
+import functools
 sys.path.append('./')
 
 
@@ -63,6 +64,7 @@ class PdSeqAlign:
         self.aligner.open_gap_score = -10
         self.aligner.extend_gap_score = -0.5
         self.aligner.substitution_matrix = matlist.blosum62
+        self.alignment_count = 0
 
     def makeAlignment_pairwise2(self, seqa, seqb):
         if seqa == self.seqa and seqb == self.seqb:
@@ -91,3 +93,26 @@ class PdSeqAlign:
             self.range_a, self.range_b = json.dumps(result[0]), json.dumps(result[1])
 
         return self.range_a, self.range_b
+
+    @functools.lru_cache()
+    def new_makeAlignment_align(self, seqa, seqb):
+        alignments = self.aligner.align(seqa, seqb)
+        result = PdSeqAlign.getAlignmentSegment(alignments[0])
+        self.alignment_count += 1
+        print("MAKE ALIGNMENT: %s" % self.alignment_count)
+        return json.dumps(result[0]), json.dumps(result[1])
+
+
+if __name__ == '__main__':
+    seqa = 'MCVGARRLGRGPCAALLLLGLGLSTVTGLHCVGDTYPSNDRCCHECRPGNGMVSRCSRSQNTVCRPCGPGFYNDVVSSKPCKPCTWCNLRSGSERKQLCTATQDTVCRCRAGTQPLDSYKPGVDCAPCPPGHFSPGDNQACKPWTNCTLAGKHTLQPASNSSDAICEDRDPPATQPQETQGPPARPITVQPTEAWPRTSQGPSTRPVEVPGGRAVAAILGLGLVLGLLGPLAILLALYLLRRDQRLPPDAHKPPGGGSFRTPIQEEQADAHSTLAKI'
+    seqb = 'GSHMLHCVGDTYPSNDRCCHECRPGNGMVSRCSRSQNTVCRPCGPGFYNDVVSSKPCKPCTWCNLRSGSERKQLCTATQDTVCRCRAGTQPLDSYKPGVDCAPCPPGHFSPGDNQACKPWTNCTLAGKHTLQPASNSSDAICEDRD'
+
+    seqc = 'MALPSRILLWKLVLLQSSAVLLHSGSSVPAAAGSSVVSESAVSWEAGARAVLRCQSPRMVWTQDRLHDRQRVLHWDLRGPGGGPARRLLDLYSAGEQRVYEARDRGRLELSASAFDDGNFSLLIRAVEETDAGLYTCNLHHHYCHLYESLAVRLEVTDGPPATPAYWDGEKEVLAVARGAPALLTCVNRGHVWTDRHVEEAQQVVHWDRQPPGVPHDRADRLLDLYASGERRAYGPLFLRDRVAVGADAFERGDFSLRIEPLEVADEGTYSCHLHHHYCGLHERRVFHLTVAEPHAEPPPRGSPGNGSSHSGAPGPDPTLARGHNVINVIVPESRAHFFQQLGYVLATLLLFILLLVTVLLAARRRRGGYEYSDQKSGKSKGKDVNLAEFAVAAGDQMLYRSEDIQLDYKNNILKERAELAHSPLPAKYIDLDKGFRKENCK'
+    seqd = 'MGSSVPAAAGSSVVSESAVSWEAGARAVLRCQSPRMVWTQDRLHDRQRVLHWDLRGPGGGPARRLLDLYSAGEQRVYEARDRGRLELSASAFDDGNFSLLIRAVEETDAGLYTCNLHHHYCHLYESLAVRLEVTDGPPATPAYWDGEKEVLAVARGAPALLTCVNRGHVWTDRHVEEAQQVVHWDRQPPGVPHDRADRLLDLYASGERRAYGPLFLRDRVAVGADAFERGDFSLRIEPLEVADEGTYSCHLHHHYCGLHERRVFHLTVA'
+
+    seqli = [(seqa,seqb), (seqc,seqd), (seqa,seqb), (seqc,seqd), (seqa, seqb)]
+
+    aligner = PdSeqAlign()
+
+    for seqpair in seqli:
+        print(aligner.new_makeAlignment_align(seqpair[0], seqpair[1]))

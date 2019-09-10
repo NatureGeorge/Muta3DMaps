@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-09-10T02:41:05+08:00
+# @Last modified time: 2019-09-10T19:45:56+08:00
 import os
 import time
 import requests
@@ -27,7 +27,7 @@ MMCIF_FILE_FOLDER = {
     'MMCIF_NEW_FOLDER': '/home/zzf/Work/SIFTS_Plus_Muta_Maps/data/mmcif_file/',
 }
 
-DEFAULT_COLS = {
+CONFIG = {
     'LIGAND_LIST': [
         'ZN', 'MG', 'CA', 'FE', 'NA', 'MN', 'K', 'NI', 'CU', 'CO', 'CD', 'HG', 'PT', 'MO', 'BE', 'AL', 'BA',
         'RU', 'SR', 'V', 'CS', 'W', 'AU', 'YB', 'LI', 'GD', 'PB', 'Y', 'TL', 'IR', 'RB', 'SM', 'AG',
@@ -40,6 +40,24 @@ DEFAULT_COLS = {
         'polyribonucleotide': 'RNA', 'polydeoxyribonucleotide/polyribonucleotide hybrid': 'DNA+RNA'},
 }
 
+DEFAULT_COLS = {
+    'COMMON_COL': ['data_', '_pdbx_audit_revision_history.revision_date', '_exptl.method', '_em_3d_reconstruction.resolution', '_refine.ls_d_res_high'],
+    'ENTITY_COL': ['_entity.pdbx_mutation', '_entity.id'],
+    'TYPE_COL': ['_entity_poly.entity_id', '_entity_poly.pdbx_strand_id', '_entity_poly.type'],
+    'SEQRES_COL': ['_pdbx_poly_seq_scheme.pdb_strand_id',
+                   '_pdbx_poly_seq_scheme.mon_id', '_pdbx_poly_seq_scheme.pdb_mon_id', '_pdbx_poly_seq_scheme.auth_mon_id',
+                   '_pdbx_poly_seq_scheme.ndb_seq_num', '_pdbx_poly_seq_scheme.pdb_seq_num',
+                   '_pdbx_poly_seq_scheme.auth_seq_num', '_pdbx_poly_seq_scheme.pdb_ins_code'],
+    'LIGAND_COL': [
+        '_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id',
+        '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id',
+        '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id'],
+    'BIOASS_COL': ['_pdbx_struct_assembly_gen.assembly_id',
+                   '_pdbx_struct_assembly_gen.oper_expression',
+                   '_pdbx_struct_assembly_gen.asym_id_list',
+                   '_pdbx_struct_assembly.oligomeric_count'],
+    'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
+}
 
 class MMCIF2DictPlus(MMCIF2Dict):
     """Parse a MMCIF file and return a dictionary"""
@@ -113,24 +131,17 @@ class MMCIF2DictPlus(MMCIF2Dict):
 
 class MMCIF2Dfrm(Unit):
     """Convert MMCIF data into a DataFrame"""
-    DEFAULT_COLS = {
-        'COMMON_COL': ['_pdbx_audit_revision_history.revision_date', '_exptl.method', '_em_3d_reconstruction.resolution', '_refine.ls_d_res_high'],
-        'ENTITY_COL': ['_entity.pdbx_mutation', '_entity.id'],
-        'TYPE_COL': ['_entity_poly.entity_id', '_entity_poly.pdbx_strand_id', '_entity_poly.type'],
-        'SEQRES_COL': ['_pdbx_poly_seq_scheme.pdb_strand_id',
-                       '_pdbx_poly_seq_scheme.mon_id', '_pdbx_poly_seq_scheme.pdb_mon_id', '_pdbx_poly_seq_scheme.auth_mon_id',
-                       '_pdbx_poly_seq_scheme.ndb_seq_num', '_pdbx_poly_seq_scheme.pdb_seq_num',
-                       '_pdbx_poly_seq_scheme.auth_seq_num', '_pdbx_poly_seq_scheme.pdb_ins_code'],
-        'LIGAND_COL': [
-            '_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id',
-            '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id',
-            '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id'],
-        'BIOASS_COL': ['_pdbx_struct_assembly_gen.assembly_id',
-                       '_pdbx_struct_assembly_gen.oper_expression',
-                       '_pdbx_struct_assembly_gen.asym_id_list',
-                       '_pdbx_struct_assembly.oligomeric_count'],
-        'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
-    }
+
+    FUNC_LI_DI = []
+    FUNC_LI_DF = []
+
+    @property
+    def default_use_keys(self):
+        use_keys = []
+        use_col_li = ['COMMON_COL', 'ENTITY_COL', 'TYPE_COL', 'SEQRES_COL', 'LIGAND_COL', 'BIOASS_COL']
+        for col in use_col_li:
+            use_keys.extend(DEFAULT_COLS[col])
+        return use_keys
 
     def checkEntityType(sli, cli):
         if isinstance(sli, str):
@@ -169,42 +180,34 @@ class MMCIF2Dfrm(Unit):
             data = mmcif_dict.get(key, np.nan)
             info_dict[key].append(data)
 
-    def mmcif_dict2dfrm(self, path_list, outputPath=False):
-        '''
-        <h1>Convert MMCIF data into a DataFrame</h1>
-        <b>Creating a DataFrame stores all the target data of related MMCIF file in ```path_list```.</b>
-        <h3>Param</h3>
-        <ul>
-            <li>```path_list```: "The list of MMCIF file path OR open filehandle"</li>
-            <li>```outputPath```: "The savepath of the final DataFrame. Default value:```False```"</li>
-        </ul>
-        <h3>Return</h3>
-        <ul><li>```pandas.DataFrame```</li></ul>
-        '''
-        info_dict = defaultdict(list)
-        for path in path_list:
-            if path[-3:] != 'cif':
-                print('Not a valid MMCIF file path: %s' % path)
-            else:
-                info_dict['pdb_id'].append(path[-8:-4])
-                MMCIF2Dfrm.get_mmcif_dict(
-                    MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL']
-                    + MMCIF2Dfrm.DEFAULT_COLS['BIOASS_COL']
-                    + MMCIF2Dfrm.DEFAULT_COLS['ENTITY_COL']
-                    + MMCIF2Dfrm.DEFAULT_COLS['TYPE_COL']
-                    + MMCIF2Dfrm.DEFAULT_COLS['SEQRES_COL']
-                    + MMCIF2Dfrm.DEFAULT_COLS['LIGAND_COL'],
-                    info_dict, path)
-        resides_col_li = MMCIF2Dfrm.DEFAULT_COLS['SEQRES_COL'][1:4]
+    def dispatch_on_set(keys, func_li):
+        """Decorator to add new dispatch functions."""
+        def register(func):
+            func_li.append((func, set(keys)))
+            return func
+        return register
+
+    def handle_mmcif_data(query, data, fun_li):
+        use = False
+        for func, keySet in fun_li:
+            if set(query) >= keySet:
+                func(data)
+                use = True
+        return use
+
+    def get_index(x, y, z): return y[x[z]:x[z + 1]] if len(x) != 1 and z + 1 < len(x) else y[x[z]:]
+
+    @dispatch_on_set(DEFAULT_COLS['SEQRES_COL'], func_li=FUNC_LI_DI)
+    def handle_seqres_di(info_dict):
+        # Deal with SEQRES_COL
+        resides_col_li = DEFAULT_COLS['SEQRES_COL'][1:4]
         mtoTool = Unit.MultiToOne()
         for i in range(len(info_dict[resides_col_li[0]])):
             for resides_col in resides_col_li:
                 info_dict[resides_col][i] = ''.join(
                     mtoTool.multi_letter_convert_to_one_letter(j) for j in info_dict[resides_col][i])
 
-        def get_index(x, y, z): return y[x[z]:x[z + 1]] if len(x) != 1 and z + 1 < len(x) else y[x[z]:]
-        # Deal with SEQRES_COL
-        pdbx_poly_key = MMCIF2Dfrm.DEFAULT_COLS['SEQRES_COL'][0]
+        pdbx_poly_key = DEFAULT_COLS['SEQRES_COL'][0]
         for i in range(len(info_dict[pdbx_poly_key])):
             strand_id_index = [0]
             li = info_dict[pdbx_poly_key][i]
@@ -217,26 +220,27 @@ class MMCIF2Dfrm(Unit):
                     strand_id_li.append(save_id)
             info_dict[pdbx_poly_key][i] = strand_id_li
 
-            for col in MMCIF2Dfrm.DEFAULT_COLS['SEQRES_COL'][1:4]:
+            for col in DEFAULT_COLS['SEQRES_COL'][1:4]:
                 info_dict[col][i] = [
-                    get_index(strand_id_index, info_dict[col][i], j)
+                    MMCIF2Dfrm.get_index(strand_id_index, info_dict[col][i], j)
                     for j in range(len(strand_id_index))]
 
-            for col in MMCIF2Dfrm.DEFAULT_COLS['SEQRES_COL'][4:]:
+            for col in DEFAULT_COLS['SEQRES_COL'][4:]:
                 info_dict[col][i] = [';'.join(
-                    get_index(strand_id_index, info_dict[col][i], j))
+                    MMCIF2Dfrm.get_index(strand_id_index, info_dict[col][i], j))
                     for j in range(len(strand_id_index))]
 
-        # Deal with LIGAND_COL
-        ligand_col_list = MMCIF2Dfrm.DEFAULT_COLS['LIGAND_COL']
-        metal_li = DEFAULT_COLS['LIGAND_LIST']
+    @dispatch_on_set(DEFAULT_COLS['LIGAND_COL'], func_li=FUNC_LI_DI)
+    def handle_ligand_di(info_dict):
+        ligand_col_list = DEFAULT_COLS['LIGAND_COL']
+        metal_li = CONFIG['LIGAND_LIST']
 
         for i in range(len(info_dict[ligand_col_list[0]])):
             temp = pd.isna(info_dict[ligand_col_list[0]][i])
-            if isinstance(temp, bool) and temp == True:
-                info_dict[MMCIF2Dfrm.DEFAULT_COLS['METAL_LIGAND_COL']
+            if temp is True:
+                info_dict[DEFAULT_COLS['METAL_LIGAND_COL']
                           [0]].append(np.nan)
-                info_dict[MMCIF2Dfrm.DEFAULT_COLS['METAL_LIGAND_COL']
+                info_dict[DEFAULT_COLS['METAL_LIGAND_COL']
                           [1]].append(np.nan)
                 continue
             ligand_col_tp = tuple(info_dict[col][i] for col in ligand_col_list)
@@ -265,9 +269,9 @@ class MMCIF2Dfrm(Unit):
                 save_id = new_metal_ligand_info[0][0]
                 # print(new_metal_ligand_info)
             except IndexError:
-                info_dict[MMCIF2Dfrm.DEFAULT_COLS['METAL_LIGAND_COL']
+                info_dict[DEFAULT_COLS['METAL_LIGAND_COL']
                           [0]].append(np.nan)
-                info_dict[MMCIF2Dfrm.DEFAULT_COLS['METAL_LIGAND_COL']
+                info_dict[DEFAULT_COLS['METAL_LIGAND_COL']
                           [1]].append(np.nan)
                 continue
 
@@ -279,33 +283,42 @@ class MMCIF2Dfrm(Unit):
                     strand_id_index.append(j)
                     strand_id_li.append(save_id)
 
-            info_dict[MMCIF2Dfrm.DEFAULT_COLS['METAL_LIGAND_COL'][0]].append(strand_id_li)
-            info_dict[MMCIF2Dfrm.DEFAULT_COLS['METAL_LIGAND_COL'][1]].append(
-                [get_index(strand_id_index, [ele[1:] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))]
+            info_dict[DEFAULT_COLS['METAL_LIGAND_COL'][0]].append(strand_id_li)
+            info_dict[DEFAULT_COLS['METAL_LIGAND_COL'][1]].append(
+                [MMCIF2Dfrm.get_index(strand_id_index, [ele[1:] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))]
             )
 
-        df = pd.DataFrame(info_dict)
+    @dispatch_on_set(DEFAULT_COLS['COMMON_COL'], func_li=FUNC_LI_DF)
+    def handle_common_df(df):
         # Deal with the date of structure
         df['initial_version_time'] = df.apply(
-            lambda x: x[MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][0]][0], axis=1)
+            lambda x: x[DEFAULT_COLS['COMMON_COL'][1]][0], axis=1)
         df['newest_version_time'] = df.apply(
-            lambda x: x[MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][0]][-1], axis=1)
-        # Deal with the mutations
-
-        def muta_count(x): return x.count(',') + 1 if x != '?' else 0
-        df['mutation_num'] = df.apply(lambda x: [muta_count(
-            i) for i in x['_entity.pdbx_mutation']], axis=1)
+            lambda x: x[DEFAULT_COLS['COMMON_COL'][1]][-1], axis=1)
         # Deal with the resolution
-        df['resolution'] = df.apply(lambda x: x[MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][3]], axis=1)
-        df['resolution'] = df.apply(lambda x: x[MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][2]] if isinstance(x['resolution'], float) else x['resolution'], axis=1)
-        # Deal with chain type
+        df['resolution'] = df.apply(lambda x: x[DEFAULT_COLS['COMMON_COL'][4]], axis=1)
+        df['resolution'] = df.apply(lambda x: x[DEFAULT_COLS['COMMON_COL'][3]] if isinstance(x['resolution'], float) else x['resolution'], axis=1)
 
-        def get_chainType_fun(ele): return DEFAULT_COLS['CHAIN_TYPE_DICT'].get(ele, 'other')
+    @dispatch_on_set(DEFAULT_COLS['ENTITY_COL'], func_li=FUNC_LI_DF)
+    def handle_entity_df(df):
+        # Deal with the mutations
+        def muta_count(x): return x.count(',') + 1 if x != '?' else 0
+        df['mutation_num'] = df.apply(lambda x: [muta_count(i) for i in x['_entity.pdbx_mutation']], axis=1)
+
+    @dispatch_on_set(DEFAULT_COLS['TYPE_COL'], func_li=FUNC_LI_DF)
+    def handle_type_df(df):
+        # Deal with chain type
+        def get_chainType_fun(ele): return CONFIG['CHAIN_TYPE_DICT'].get(ele, 'other')
         df['pdb_contain_chain_type'] = df.apply(lambda x: ','.join(sorted(set(map(get_chainType_fun, json.loads(x['_entity_poly.type'].replace('\'', '"'))))))
                                                 if isinstance(x['_entity_poly.type'], str)
                                                 else ','.join(sorted(set(map(get_chainType_fun, x['_entity_poly.type'])))), axis=1)
-        # Deal with UNK_ALL in chain
+        # Add Info about pdb_type
+        df['pdb_type_MMCIF'] = df.apply(lambda x: MMCIF2Dfrm.checkEntityType(
+            x['_entity_poly.type'], x['_entity_poly.pdbx_strand_id']), axis=1)
 
+    @dispatch_on_set(['_pdbx_poly_seq_scheme.mon_id', '_entity_poly.type'], func_li=FUNC_LI_DF)
+    def handle_unk_df(df):
+        # Deal with UNK_ALL in chain
         def get_unk_fun(ele): return len(ele) == ele.count('!')
         df['UNK_ALL_IN_CHAIN'] = df.apply(lambda x: list(map(get_unk_fun, json.loads(x['_pdbx_poly_seq_scheme.mon_id'].replace('\'', '"'))))
                                           if isinstance(x['_entity_poly.type'], str)
@@ -313,14 +326,41 @@ class MMCIF2Dfrm(Unit):
         # Deal with UNK_ALL in chains of a pdb
         df['contains_unk_in_chain_pdb'] = df.apply(
             lambda x: len(set(x['UNK_ALL_IN_CHAIN'])) == 2, axis=1)
-        # Add Info about pdb_type
-        df['pdb_type_MMCIF'] = df.apply(lambda x: MMCIF2Dfrm.checkEntityType(
-            x['_entity_poly.type'], x['_entity_poly.pdbx_strand_id']), axis=1)
+
+    def mmcif_dict2dfrm(self, path_list, useKeyList=False, outputPath=False):
+        '''
+        <h1>Convert MMCIF data into a DataFrame</h1>
+        <b>Creating a DataFrame stores all the target data of related MMCIF file in ```path_list```.</b>
+        <h3>Param</h3>
+        <ul>
+            <li>```path_list```: "The list of MMCIF file path OR open filehandle"</li>
+            <li>```useKeyList```: "The MMCIF-keys that you want to collect data from."</li>
+            <li>```outputPath```: "The savepath of the final DataFrame. Default value:```False```"</li>
+        </ul>
+        <h3>Return</h3>
+        <ul><li>```pandas.DataFrame```</li></ul>
+        '''
+        info_dict = defaultdict(list)
+        for path in path_list:
+            if path[-3:] != 'cif':
+                print('Not a valid MMCIF file path: %s' % path)
+            else:
+                if not useKeyList:
+                    useKeyList = self.default_use_keys
+                MMCIF2Dfrm.get_mmcif_dict(useKeyList, info_dict, path)
+        # Modify the dict
+        modified_di = MMCIF2Dfrm.handle_mmcif_data(useKeyList, info_dict, MMCIF2Dfrm.FUNC_LI_DI)
+        if modified_di:
+            print('handle_mmcif_data(): Modified Dict')
+        # Transform dict into dfrm
+        df = pd.DataFrame(info_dict)
+        # Modify the dfrm
+        modified_df = MMCIF2Dfrm.handle_mmcif_data(useKeyList, df, MMCIF2Dfrm.FUNC_LI_DF)
+        if modified_df:
+            print('handle_mmcif_data(): Modified Dfrm')
         # Change the columns
         df.rename(
-            columns={MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][1]: 'method'}, inplace=True)
-        '''df.drop(columns=[MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][0], MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL']
-                         [2], MMCIF2Dfrm.DEFAULT_COLS['COMMON_COL'][3]], inplace=True)'''
+            columns={DEFAULT_COLS['COMMON_COL'][0]: 'pdb_id', DEFAULT_COLS['COMMON_COL'][2]: 'method'}, inplace=True)
 
         if os.path.exists(outputPath):
             self.file_o(outputPath, df, mode='a+', header=False)
@@ -334,7 +374,7 @@ if __name__ == '__main__':
     file_list = os.listdir(route)
     file_p_list = [route + i for i in file_list]
     mmcif_demo = MMCIF2Dfrm()
-    df = mmcif_demo.mmcif_dict2dfrm(file_p_list)
+    df = mmcif_demo.mmcif_dict2dfrm(file_p_list, useKeyList=['data_', '_entity_poly.type'])
 
     for i in df.index:
         print(df.loc[i, ])
