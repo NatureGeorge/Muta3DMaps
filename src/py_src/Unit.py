@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-09-12T10:31:27+08:00
+# @Last modified time: 2019-09-12T10:37:28+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -135,7 +135,7 @@ class Unit:
             return self.aa_map.get(a, 'X')
 
     def handleResolution(resolution):
-        float_fun = lambda x: float(x) if x != '?' else 1000
+        float_fun = lambda x: float(x) if x not in '?.' else 1000
         if pd.isna(resolution):
             return 1000
         elif isinstance(resolution, str):
