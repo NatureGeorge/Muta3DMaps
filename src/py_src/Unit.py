@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-09-09T16:15:04+08:00
+# @Last modified time: 2019-09-12T10:31:27+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -142,7 +142,7 @@ class Unit:
             if ',' in resolution:
                 reso_li = map(float_fun, resolution.split(','))
                 return min(reso_li)
-            elif resolution == '?':
+            elif resolution in '?.':
                 return 1000
             else:
                 return float(resolution)
