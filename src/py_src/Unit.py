@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:19:34+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Unit.py
-# @Last modified time: 2019-09-07T15:58:08+08:00
+# @Last modified time: 2019-09-09T16:15:04+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -133,6 +133,21 @@ class Unit:
 
         def multi_letter_convert_to_one_letter(self, a):
             return self.aa_map.get(a, 'X')
+
+    def handleResolution(resolution):
+        float_fun = lambda x: float(x) if x != '?' else 1000
+        if pd.isna(resolution):
+            return 1000
+        elif isinstance(resolution, str):
+            if ',' in resolution:
+                reso_li = map(float_fun, resolution.split(','))
+                return min(reso_li)
+            elif resolution == '?':
+                return 1000
+            else:
+                return float(resolution)
+        else:
+            return resolution
 
     def selectChain(grouped_df, df, rank_list, rankName, rankFormat, rangeName, selectName, r1_cutoff, r2_cutoff):
         def getRange(li):
