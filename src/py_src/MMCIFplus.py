@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-09-10T22:28:43+08:00
+# @Last modified time: 2019-09-12T09:55:33+08:00
 import os
 import sys
 import json
@@ -412,7 +412,7 @@ class MMCIF2Dfrm(Unit):
                 x['_pdbx_struct_assembly_gen.assembly_id'],
                 x['_pdbx_struct_assembly_gen.asym_id_list'],
                 x['_pdbx_struct_assembly.oligomeric_count'],
-                x['_pdbx_poly_seq_scheme.pdb_strand_id']), axis=1)
+                x['_pdbx_poly_seq_scheme.pdb_strand_id']) if not isinstance(x['_pdbx_struct_assembly_gen.assembly_id'], float) else np.nan, axis=1)
 
     def mmcif_dict2dfrm(self, path_list, useKeyList=False, outputPath=False):
         '''
