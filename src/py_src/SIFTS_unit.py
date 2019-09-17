@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-07T23:27:35+08:00
+# @Last modified time: 2019-09-17T17:26:42+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -628,6 +628,73 @@ class SIFTS_unit(Unit):
                     error_li.append('Safe')
 
                 new_muta_site.append(auth_seq_li[seqresSite-1])
+
+        error_li.append(sub_error_li)
+        return new_muta_site
+
+    def map_muta_from_pdb_to_unp(x, muta_col, unp_range_col, pdb_range_col, error_li, unp_fasta_files_path):
+        sub_error_li = []
+        muta_li = x[muta_col]
+        if isinstance(muta_li, str):
+            muta_li = json.loads(muta_li.replace('\'', '"'))
+        unp_range = json.loads(x[unp_range_col])
+        pdb_range = json.loads(x[pdb_range_col])
+
+        unpSeqOb = SeqIO.read(unp_fasta_files_path % x['UniProt'], "fasta")
+        unpSeq = unpSeqOb.seq
+
+        auth_seq_li = x['_pdbx_poly_seq_scheme.auth_seq_num'].split(';')
+        com_seq_li = x['_pdbx_poly_seq_scheme.pdb_seq_num'].split(';')
+        found_muta_1 = x['mutation_content'].split(',')
+        found_muta_2 = [i[1:-1] for i in found_muta_1]
+
+        pdb_li = []
+        unp_li = []
+        new_muta_site = []
+        for ran in pdb_range:
+            pdb_li.extend(list(range(ran[0], ran[1]+1)))
+        for ran in unp_range:
+            unp_li.extend(list(range(ran[0], ran[1]+1)))
+        for muta in muta_li:
+            # muta = auth_seq_li[muta-1]
+            muta_seqres_index = com_seq_li.index(muta[1:-1])
+            try:
+                # seqresSite = pdb_li[unp_li.index(int(muta[1:-1]))]
+                uniprotSite = unp_li[pdb_li.index(muta_seqres_index+1)]
+            except ValueError:
+                new_muta_site.append('#')
+                sub_error_li.append('Unmapped #: %s' % muta)
+                continue
+            except IndexError:
+                new_muta_site.append('$')
+                sub_error_li.append('Unmapped $: %s' % muta)
+                continue
+
+            seq_aa = unpSeq[uniprotSite-1]
+            ref_aa = muta[0]
+            # inscode = inscode_seq_li[seqresSite-1]
+
+            # Analyse the Situation of unsuccessful mapping
+            if seq_aa != ref_aa:
+                try:
+                    found_muta = found_muta_1[found_muta_2.index(muta[1:-1])]
+                except ValueError:
+                    found_muta = False
+
+                error_info = []
+                if found_muta:
+                    # May because the mutation that already found, check the muta aa
+                    if found_muta[0] == ref_aa:
+                        error_info.append('EntityMutation: %s' % found_muta)
+                if seq_aa == 'X':
+                    error_info.append('ModifiedResidue: %s' % (seq_aa))
+                else:
+                    error_info.append('PossibleMutation: %s' % (seq_aa))
+                sub_error_li.append('' + ','.join(error_info))
+            else:
+                sub_error_li.append('Safe')
+
+            new_muta_site.append(uniprotSite)
 
         error_li.append(sub_error_li)
         return new_muta_site
