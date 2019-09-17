@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-09-12T09:55:33+08:00
+# @Last modified time: 2019-09-17T15:27:27+08:00
 import os
 import sys
 import json
@@ -80,14 +80,15 @@ class MMCIF2DictPlus(MMCIF2Dict):
             tokens = self._tokenize(handle)
             try:
                 token = next(tokens)
+                print(token[1])
             except StopIteration:
                 return  # for Python 3.7 and PEP 479
-            self[token[0:5]] = token[5:]
+            self[token[1][0:5]] = token[1][5:]
             i = 0
             n = 0
             use = []
             for token in tokens:
-                if token.lower() == "loop_":
+                if token[1].lower() == "loop_":
                     loop_flag = True
                     keys = []
                     i = 0
@@ -99,22 +100,22 @@ class MMCIF2DictPlus(MMCIF2Dict):
                     # Some mmCIF files (e.g. 4q9r) have values in later columns
                     # starting with an underscore and we don't want to read
                     # these as keys
-                    if token.startswith("_") and (n == 0 or i % n == 0):
+                    if token[1].startswith("_") and (n == 0 or i % n == 0):
                         if i > 0:
                             loop_flag = False
                         else:
                             # Additional statement:focus on target data
-                            if token in useKeyList:
+                            if token[1] in useKeyList and token[0] == 0:
                                 use.append(n)
-                                self[token] = []
-                            keys.append(token)
+                                self[token[1]] = []
+                            keys.append(token[1])
                             n += 1
                             continue
                     else:
                         key_index = i % n
                         try:
                             if key_index in use:
-                                self[keys[key_index]].append(token)
+                                self[keys[key_index]].append(token[1])
                         except Exception as e:
                             print(keys, key_index, use)
                             raise Exception(e)
@@ -122,12 +123,70 @@ class MMCIF2DictPlus(MMCIF2Dict):
                         continue
                 if key is None:
                     # Additional statement:focus on target data
-                    if token in useKeyList:
-                        key = token
+                    if token[1] in useKeyList and token[0] == 0:
+                        key = token[1]
                 else:
                     # Always returns a list
-                    self[key] = [token]
+                    self[key] = [token[1]]
                     key = None
+
+    def _splitline(self, line):
+        # See https://www.iucr.org/resources/cif/spec/version1.1/cifsyntax for the syntax
+        in_token = False
+        # quote character of the currently open quote, or None if no quote open
+        quote_open_char = None
+        start_i = 0
+        for (i, c) in enumerate(line):
+            if c in self.whitespace_chars:
+                if in_token and not quote_open_char:
+                    in_token = False
+                    # yield line[start_i:i]
+                    yield start_i, line[start_i:i]
+            elif c in self.quote_chars:
+                if not quote_open_char:
+                    if in_token:
+                        raise ValueError("Opening quote in middle of word: " + line)
+                    quote_open_char = c
+                    in_token = True
+                    start_i = i + 1
+                elif c == quote_open_char and (i + 1 == len(line) or line[i + 1] in self.whitespace_chars):
+                    quote_open_char = None
+                    in_token = False
+                    # yield line[start_i:i]
+                    yield start_i, line[start_i:i]
+            elif c == "#" and not in_token:
+                # Skip comments. "#" is a valid non-comment char inside of a
+                # quote and inside of an unquoted token (!?!?), so we need to
+                # check that the current char is not in a token.
+                return
+            elif not in_token:
+                in_token = True
+                start_i = i
+        if in_token:
+            # yield line[start_i:]
+            yield start_i, line[start_i:]
+        if quote_open_char:
+            raise ValueError("Line ended with quote open: " + line)
+
+    def _tokenize(self, handle):
+        for line in handle:
+            if line.startswith("#"):
+                continue
+            elif line.startswith(";"):
+                # The spec says that leading whitespace on each line must be
+                # preserved while trailing whitespace may be stripped.  The
+                # trailing newline must be stripped.
+                token_buffer = [line[1:].rstrip()]
+                for line in handle:
+                    line = line.rstrip()
+                    if line == ";":
+                        break
+                    token_buffer.append(line)
+                # yield "\n".join(token_buffer)
+                yield 1, "\n".join(token_buffer)
+            else:
+                for token in self._splitline(line.strip()):
+                    yield token
 
 
 class MMCIF2Dfrm(Unit):
@@ -382,7 +441,7 @@ class MMCIF2Dfrm(Unit):
     @dispatch_on_set(DEFAULT_COLS['BIOASS_COL']+['_pdbx_poly_seq_scheme.pdb_strand_id'], func_li=FUNC_LI_DF)
     def handle_bioas_df(df):
         '''
-        ### Deal with Biological Assemblies in PDB</h3>
+        ### Deal with Biological Assemblies in PDB
         #### Example
         Key|Value
         -|-
