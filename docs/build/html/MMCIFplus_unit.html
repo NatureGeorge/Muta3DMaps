@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>MMCIFplus_unit module &#8212; SIFTS_Plus_Muta_Maps 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          SIFTS_Plus_Muta_Maps</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">MMCIFplus_unit module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/MMCIFplus_unit.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="module-MMCIFplus_unit">
+<span id="mmcifplus-unit-module"></span><h1>MMCIFplus_unit module<a class="headerlink" href="#module-MMCIFplus_unit" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="MMCIFplus_unit.MMCIF_unit">
+<em class="property">class </em><code class="sig-prename descclassname">MMCIFplus_unit.</code><code class="sig-name descname">MMCIF_unit</code><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Unit.html#Unit.Unit" title="Unit.Unit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unit.Unit</span></code></a></p>
+<dl class="attribute">
+<dt id="MMCIFplus_unit.MMCIF_unit.CONFIG">
+<code class="sig-name descname">CONFIG</code><em class="property"> = {'BIOASS_COL': ['_pdbx_struct_assembly_gen.assembly_id', '_pdbx_struct_assembly_gen.oper_expression', '_pdbx_struct_assembly_gen.asym_id_list', '_pdbx_struct_assembly.oligomeric_count'], 'CHAIN_TYPE_DICT': {'polydeoxyribonucleotide': 'DNA', 'polydeoxyribonucleotide/polyribonucleotide hybrid': 'DNA+RNA', 'polypeptide(D)': 'protein', 'polypeptide(L)': 'protein', 'polyribonucleotide': 'RNA'}, 'COMMON_COL': ['_pdbx_audit_revision_history.revision_date', '_exptl.method', '_em_3d_reconstruction.resolution', '_refine.ls_d_res_high'], 'ENTITY_COL': ['_entity.pdbx_mutation', '_entity.id'], 'HEADERS': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134'}, 'LIGAND_COL': ['_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id', '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id', '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id'], 'LIGAND_LIST': ['ZN', 'MG', 'CA', 'FE', 'NA', 'MN', 'K', 'NI', 'CU', 'CO', 'CD', 'HG', 'PT', 'MO', 'BE', 'AL', 'BA', 'RU', 'SR', 'V', 'CS', 'W', 'AU', 'YB', 'LI', 'GD', 'PB', 'Y', 'TL', 'IR', 'RB', 'SM', 'AG', 'OS', 'PR', 'PD', 'EU', 'RH', 'RE', 'TB', 'TA', 'LU', 'HO', 'CR', 'GA', 'LA', 'SN', 'SB', 'CE', 'ZR', 'ER', 'TH', 'TI', 'IN', 'HF', 'SC', 'DY', 'BI', 'PA', 'PU', 'AM', 'CM', 'CF', 'GE', 'NB', 'TC', 'ND', 'PM', 'TM', 'PO', 'FR', 'RA', 'AC', 'NP', 'BK', 'ES', 'FM', 'MD', 'NO', 'LR', 'RF', 'DB', 'SG'], 'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'], 'MMCIF_FOLDER': '/home/zzf/Work/SIFTS_Plus_Muta_Maps/data/mmcif_file/', 'MMCIF_OLD_FOLDER': ['/data1/suntt/process0606/cgc_mmcif_file/', '/data1/suntt/CanDriver/Data/PDB_cgc/cgc_mmcif_file/', '/data1/suntt/CanDriver/Data/PDB_NEW/mmcif_file/'], 'SEQRES_COL': ['_pdbx_poly_seq_scheme.pdb_strand_id', '_pdbx_poly_seq_scheme.mon_id', '_pdbx_poly_seq_scheme.pdb_mon_id', '_pdbx_poly_seq_scheme.auth_mon_id', '_pdbx_poly_seq_scheme.ndb_seq_num', '_pdbx_poly_seq_scheme.pdb_seq_num', '_pdbx_poly_seq_scheme.auth_seq_num', '_pdbx_poly_seq_scheme.pdb_ins_code'], 'TYPE_COL': ['_entity_poly.entity_id', '_entity_poly.pdbx_strand_id', '_entity_poly.type']}</em><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.checkEntityType">
+<code class="sig-name descname">checkEntityType</code><span class="sig-paren">(</span><em class="sig-param">cli</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.checkEntityType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.check_mmcif_file">
+<code class="sig-name descname">check_mmcif_file</code><span class="sig-paren">(</span><em class="sig-param">pdb_list</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.check_mmcif_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.download_cif_file">
+<code class="sig-name descname">download_cif_file</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.download_cif_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.get_data_from_mmcif">
+<code class="sig-name descname">get_data_from_mmcif</code><span class="sig-paren">(</span><em class="sig-param">path_list</em>, <em class="sig-param">outputPath=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.get_data_from_mmcif" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>{</dt><dd><p>‘_pdbx_audit_revision_history.revision_date’: [‘initial_version_time’, ‘newest_version_time’], # sometimes not a list
+‘_entity.pdbx_mutation’: [‘mutation_num’, ‘mutation_content’], # sometimes not a list
+‘_entity.id’: [‘entity_id_aidMuta’], # sometimes not a list
+[‘_em_3d_reconstruction.resolution’,’_refine.ls_d_res_high’]: [‘resolution’], # not a lists
+‘_exptl.method’: [‘method’], # not a list</p>
+</dd>
+</dl>
+<p>}</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.get_mmcif_file_path">
+<code class="sig-name descname">get_mmcif_file_path</code><span class="sig-paren">(</span><em class="sig-param">pdbId</em>, <em class="sig-param">download=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.get_mmcif_file_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.get_mmcif_info">
+<code class="sig-name descname">get_mmcif_info</code><span class="sig-paren">(</span><em class="sig-param">info_key_nli</em>, <em class="sig-param">info_dict</em>, <em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.get_mmcif_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.handle_mmcif_df">
+<code class="sig-name descname">handle_mmcif_df</code><span class="sig-paren">(</span><em class="sig-param">dfrm</em>, <em class="sig-param">outputPath=False</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.handle_mmcif_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="MMCIFplus_unit.MMCIF_unit.pdb_path_li">
+<code class="sig-name descname">pdb_path_li</code><em class="property"> = []</em><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.pdb_path_li" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="MMCIFplus_unit.MMCIF_unit.script_fun">
+<code class="sig-name descname">script_fun</code><span class="sig-paren">(</span><em class="sig-param">pdb_list</em>, <em class="sig-param">outputPath_li</em>, <em class="sig-param">chunksize=100</em><span class="sig-paren">)</span><a class="headerlink" href="#MMCIFplus_unit.MMCIF_unit.script_fun" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019, ZeFengZhu.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

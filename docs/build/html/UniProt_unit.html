@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>UniProt_unit module &#8212; SIFTS_Plus_Muta_Maps 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          SIFTS_Plus_Muta_Maps</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">UniProt_unit module</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/UniProt_unit.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="section" id="module-UniProt_unit">
+<span id="uniprot-unit-module"></span><h1>UniProt_unit module<a class="headerlink" href="#module-UniProt_unit" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="UniProt_unit.UniProt_unit">
+<em class="property">class </em><code class="sig-prename descclassname">UniProt_unit.</code><code class="sig-name descname">UniProt_unit</code><a class="headerlink" href="#UniProt_unit.UniProt_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Unit.html#Unit.Unit" title="Unit.Unit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unit.Unit</span></code></a></p>
+<blockquote>
+<div><dl class="simple">
+<dt>params = {</dt><dd><p>‘from’: ‘ACC+ID’,
+‘to’: ‘ACC’,
+‘format’: ‘tab’,
+‘columns’: ‘id,length,reviewed,comment(ALTERNATIVE%20PRODUCTS),feature(ALTERNATIVE%20SEQUENCE)’…
+‘query’: list_str,</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>self.params[‘from’], params[‘to’] (Particial)
+ACC+ID, ACC, ID, EMBL_ID, P_REFSEQ_AC, PDB_ID, ENSEMBL_TRS_ID, ENSEMBL_ID, …
+(Reference: <a class="reference external" href="https://www.uniprot.org/help/api_idmapping">https://www.uniprot.org/help/api_idmapping</a>)</p>
+<p>—</p>
+<p>self.params[‘columns’] (Particial)
+‘comma-separated list of column names’
+(Reference: <a class="reference external" href="https://www.uniprot.org/help/api_queries">https://www.uniprot.org/help/api_queries</a>)</p>
+<p>Lists the column names for programmatic (RESTful) access to tab-separated
+or Excel downloads of UniProtKB search results.
+(Reference: <a class="reference external" href="https://www.uniprot.org/help/uniprotkb_column_names">https://www.uniprot.org/help/uniprotkb_column_names</a>)</p>
+<p>—</p>
+<p>self.params[‘format’] (All)
+html | tab | xls | fasta | gff | txt | xml | rdf | list | rss
+(Reference: <a class="reference external" href="https://www.uniprot.org/help/api_queries">https://www.uniprot.org/help/api_queries</a>)</p>
+<p>—</p>
+<p>self.params[‘query’]
+(Reference: <a class="reference external" href="https://www.uniprot.org/help/text-search">https://www.uniprot.org/help/text-search</a>)</p>
+<dl class="attribute">
+<dt id="UniProt_unit.UniProt_unit.COLUMNS">
+<code class="sig-name descname">COLUMNS</code><em class="property"> = ['id', 'length', 'reviewed', 'comment(ALTERNATIVE%20PRODUCTS)', 'feature(ALTERNATIVE%20SEQUENCE)', 'genes', 'organism', 'sequence']</em><a class="headerlink" href="#UniProt_unit.UniProt_unit.COLUMNS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="UniProt_unit.UniProt_unit.COLUMN_DICT">
+<code class="sig-name descname">COLUMN_DICT</code><em class="property"> = {'comment(ALTERNATIVE%20PRODUCTS)': 'Alternative products (isoforms)', 'feature(ALTERNATIVE%20SEQUENCE)': 'Alternative sequence (isoforms)', 'genes': 'Gene names', 'id': 'Entry', 'length': 'Length', 'organism': 'Organism', 'reviewed': 'Status', 'sequence': 'Sequence'}</em><a class="headerlink" href="#UniProt_unit.UniProt_unit.COLUMN_DICT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="UniProt_unit.UniProt_unit.URL">
+<code class="sig-name descname">URL</code><em class="property"> = 'https://www.uniprot.org/uploadlists/'</em><a class="headerlink" href="#UniProt_unit.UniProt_unit.URL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="UniProt_unit.UniProt_unit.get_info_from_uniprot">
+<code class="sig-name descname">get_info_from_uniprot</code><span class="sig-paren">(</span><em class="sig-param">usecols</em>, <em class="sig-param">outputPath</em>, <em class="sig-param">from_list=False</em>, <em class="sig-param">from_list_file_path=False</em>, <em class="sig-param">sep='\t'</em>, <em class="sig-param">chunksize=100</em>, <em class="sig-param">header=None</em><span class="sig-paren">)</span><a class="headerlink" href="#UniProt_unit.UniProt_unit.get_info_from_uniprot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="UniProt_unit.UniProt_unit.go_to_uniprot">
+<code class="sig-name descname">go_to_uniprot</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">code='utf-8'</em><span class="sig-paren">)</span><a class="headerlink" href="#UniProt_unit.UniProt_unit.go_to_uniprot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="UniProt_unit.UniProt_unit.handle_unp_info">
+<code class="sig-name descname">handle_unp_info</code><span class="sig-paren">(</span><em class="sig-param">unp_df=False, unp_filPath=False, usecols=['id', 'length', 'reviewed', 'comment(ALTERNATIVE%20PRODUCTS)', 'feature(ALTERNATIVE%20SEQUENCE)', 'genes', 'organism', 'sequence'], outputPath=False</em><span class="sig-paren">)</span><a class="headerlink" href="#UniProt_unit.UniProt_unit.handle_unp_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="UniProt_unit.UniProt_unit.params">
+<code class="sig-name descname">params</code><em class="property"> = {'format': 'tab', 'from': 'ACC+ID', 'to': 'ACC'}</em><a class="headerlink" href="#UniProt_unit.UniProt_unit.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="UniProt_unit.UniProt_unit.split_df">
+<code class="sig-name descname">split_df</code><span class="sig-paren">(</span><em class="sig-param">colName</em>, <em class="sig-param">sep</em><span class="sig-paren">)</span><a class="headerlink" href="#UniProt_unit.UniProt_unit.split_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019, ZeFengZhu.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
