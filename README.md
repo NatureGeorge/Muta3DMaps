@@ -27,3 +27,7 @@ A tool developed by Minghui Li Group.
   * Get SWISS-MODEL Repository Info
 * ```UniProt_unit.py``` __\[FINISHED]__
   * UniProt ID Mapping API
+
+<img src="./docs/figs/code_fig_1.bmp"></img>
+</br>
+<img src="./docs/figs/code_fig_2.bmp"></img>
