@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Interactome3D_unit.py
-# @Last modified time: 2019-08-29T17:32:34+08:00
+# @Last modified time: 2019-09-24T15:45:22+08:00
 import pandas as pd
 import numpy as np
 import wget, time, sys
@@ -52,7 +52,7 @@ class Interactome3D_unit(Unit):
         if related_unp:
             df12 = df12[df12['PROT'].isin(related_unp)]
 
-        if related_pdb:
+        if not isinstance(related_pdb, bool):
             df12 = df12[df12['PDB_ID'].isin(related_pdb)]
 
         self.file_o(outputPath, df12)
