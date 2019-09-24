@@ -125,8 +125,19 @@
 
 ## Columns That You Should Focus On
 
+```json
+[
+  "GENE", "refSeq_protein", "UniProt", "pdb_id", "chain_id", "identity",
+  "sifts_range_tage", "UNK_ALL_IN_CHAIN", "contains_unk_in_chain_pdb", "method",
+  "ne_resolution_score","pdb_contain_chain_type","pdb_type_MMCIF",
+  "bioUnit","new_sifts_unp_range","new_sifts_pdb_range","mutation_unp",
+  "mutation_pdb","muta_map_info","pdb_chain_select"
+]
+
+```
+
 |col|description|
--|-|-
+-|-
 |GENE|Query Gene Name|
 |refSeq_protein|Quert RefSeq Protein Accession Number|
 |UniProt|Isoform ID|
