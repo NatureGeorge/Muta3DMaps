@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-09-17T15:27:27+08:00
+# @Last modified time: 2019-09-24T10:28:43+08:00
 import os
 import sys
 import json
@@ -47,7 +47,8 @@ DEFAULT_COLS = {
     'SEQRES_COL': ['_pdbx_poly_seq_scheme.pdb_strand_id',
                    '_pdbx_poly_seq_scheme.mon_id', '_pdbx_poly_seq_scheme.pdb_mon_id', '_pdbx_poly_seq_scheme.auth_mon_id',
                    '_pdbx_poly_seq_scheme.ndb_seq_num', '_pdbx_poly_seq_scheme.pdb_seq_num',
-                   '_pdbx_poly_seq_scheme.auth_seq_num', '_pdbx_poly_seq_scheme.pdb_ins_code'],
+                   '_pdbx_poly_seq_scheme.auth_seq_num', '_pdbx_poly_seq_scheme.pdb_ins_code',
+                   '_pdbx_poly_seq_scheme.asym_id'],
     'LIGAND_COL': [
         '_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id',
         '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id',
@@ -56,6 +57,8 @@ DEFAULT_COLS = {
                    '_pdbx_struct_assembly_gen.oper_expression',
                    '_pdbx_struct_assembly_gen.asym_id_list',
                    '_pdbx_struct_assembly.oligomeric_count'],
+    'NON_POLY_COL': ['_pdbx_entity_nonpoly.entity_id', '_pdbx_entity_nonpoly.name', '_pdbx_entity_nonpoly.comp_id'],
+    'COORDINATE_MODEL_COL': ['_pdbx_coordinate_model.asym_id', '_pdbx_coordinate_model.type'],
     'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
 }
 
@@ -66,7 +69,7 @@ class MMCIF2DictPlus(MMCIF2Dict):
     def __init__(self, filename, useKeyList):
         """
         <h1>Parse a mmCIF file and return a dictionary</h1>
-        <h3>Override ```__init__``` method of ```Bio.PDB.MMCIF2Dict.MMCIF2Dict```</h3>
+        <h3>Override methods of ```Bio.PDB.MMCIF2Dict.MMCIF2Dict```</h3>
         <ul>
             <li>```filename```: "Name of the PDB file OR an open filehandle."</li>
             <li>```useKeyList```: "Those MMCIF-keys that user want to collect data from."</li>
@@ -199,7 +202,7 @@ class MMCIF2Dfrm(Unit):
     @property
     def default_use_keys(self):
         use_keys = []
-        use_col_li = ['COMMON_COL', 'ENTITY_COL', 'TYPE_COL', 'SEQRES_COL', 'LIGAND_COL', 'BIOASS_COL']
+        use_col_li = ['COMMON_COL', 'ENTITY_COL', 'TYPE_COL', 'SEQRES_COL', 'LIGAND_COL', 'BIOASS_COL', 'NON_POLY_COL', 'COORDINATE_MODEL_COL']
         for col in use_col_li:
             use_keys.extend(DEFAULT_COLS[col])
         return use_keys
@@ -319,6 +322,7 @@ class MMCIF2Dfrm(Unit):
                     mtoTool.multi_letter_convert_to_one_letter(j) for j in info_dict[resides_col][i])
 
         pdbx_poly_key = DEFAULT_COLS['SEQRES_COL'][0]
+        coordinates_model_key = DEFAULT_COLS['SEQRES_COL'][8]
         for i in range(len(info_dict[pdbx_poly_key])):
             strand_id_index = [0]
             li = info_dict[pdbx_poly_key][i]
@@ -336,10 +340,16 @@ class MMCIF2Dfrm(Unit):
                     MMCIF2Dfrm.get_index(strand_id_index, info_dict[col][i], j)
                     for j in range(len(strand_id_index))]
 
-            for col in DEFAULT_COLS['SEQRES_COL'][4:]:
+            for col in DEFAULT_COLS['SEQRES_COL'][4:8]:
                 info_dict[col][i] = [';'.join(
                     MMCIF2Dfrm.get_index(strand_id_index, info_dict[col][i], j))
                     for j in range(len(strand_id_index))]
+
+            new_comodel_li = []
+            for ele in info_dict[coordinates_model_key][i]:
+                if ele not in new_comodel_li:
+                    new_comodel_li.append(ele)
+            info_dict[coordinates_model_key][i] = new_comodel_li
 
     @dispatch_on_set(DEFAULT_COLS['LIGAND_COL'], func_li=FUNC_LI_DI)
     def handle_ligand_di(info_dict):
@@ -553,28 +563,40 @@ class MMCIF2Dfrm(Unit):
                 'contains_unk_in_chain_pdb', 'pdb_type_MMCIF', 'bioUnit'
             ]
             + DEFAULT_COLS['COMMON_COL'][3:5]
-            + DEFAULT_COLS['BIOASS_COL'])
+            + DEFAULT_COLS['BIOASS_COL']
+            + DEFAULT_COLS['NON_POLY_COL'])
         ligand_df = sub_handle_df(
             dfrm, DEFAULT_COLS['METAL_LIGAND_COL'], ['pdb_id'])
 
         new_type_poly_df = type_poly_df.drop(DEFAULT_COLS['TYPE_COL'][1], axis=1).join(
             type_poly_df[DEFAULT_COLS['TYPE_COL'][1]].str.split(',', expand=True).stack().reset_index(level=1, drop=True).rename('chain_id'))
 
+        coordinates_model_df = sub_handle_df(dfrm, DEFAULT_COLS['COORDINATE_MODEL_COL'], ['pdb_id'])
+        coordinates_model_df.rename(columns={'_pdbx_coordinate_model.asym_id': 'asym_id'}, inplace=True)
+
         entity_poly_df.rename(columns={
                               '_entity.pdbx_mutation': 'mutation_content', '_entity.id': 'entity_id'}, inplace=True)
         new_type_poly_df.rename(columns={
                                 '_entity_poly.entity_id': 'entity_id', '_entity_poly.type': 'protein_type'}, inplace=True)
         basic_df.rename(
-            columns={'_pdbx_poly_seq_scheme.pdb_strand_id': 'chain_id'}, inplace=True)
-        ligand_df.rename(
-            columns={DEFAULT_COLS['METAL_LIGAND_COL'][0]: 'chain_id'}, inplace=True)
+            columns={'_pdbx_poly_seq_scheme.pdb_strand_id': 'chain_id', '_pdbx_poly_seq_scheme.asym_id':'asym_id'}, inplace=True)
 
-        if ligand_df['chain_id'].isnull().sum() == len(ligand_df):
+        ligand_df.rename(
+            columns={DEFAULT_COLS['METAL_LIGAND_COL'][0]: 'asym_id'}, inplace=True)
+
+        if ligand_df['asym_id'].isnull().sum() == len(ligand_df):
             basic_df[DEFAULT_COLS['METAL_LIGAND_COL'][1]] = np.nan
             df_1 = basic_df
         else:
             df_1 = pd.merge(basic_df, ligand_df, how='left')
-        df_2 = pd.merge(new_type_poly_df, df_1, how='left')
+
+        if coordinates_model_df['asym_id'].isnull().sum() == len(coordinates_model_df):
+            df_1[DEFAULT_COLS['COORDINATE_MODEL_COL'][1]] = np.nan
+            df_1_1 = df_1
+        else:
+            df_1_1 = pd.merge(df_1, coordinates_model_df, how='left')
+
+        df_2 = pd.merge(new_type_poly_df, df_1_1, how='left')
         df_3 = pd.merge(df_2, entity_poly_df, how='left')
 
         df_3['metal_ligand_num'] = df_3.apply(lambda x: str(x['metal_ligand_content']).count(
