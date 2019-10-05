@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-09-17T17:26:42+08:00
+# @Last modified time: 2019-10-05T15:50:36+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -563,8 +563,12 @@ class SIFTS_unit(Unit):
                     new_muta_site.append('$')
                     sub_error_li.append('Unmapped $: %s' % muta)
                     continue
-
-                seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
+                try:
+                    seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
+                except IndexError:
+                    print(x['pdb_id'],x['UniProt'],x['new_sifts_pdb_range'], x['new_sifts_unp_range'])
+                    print(x['_pdbx_poly_seq_scheme.mon_id'],seqresSite)
+                    raise IndexError
                 ref_aa = muta[0]
                 inscode = inscode_seq_li[seqresSite-1]
 

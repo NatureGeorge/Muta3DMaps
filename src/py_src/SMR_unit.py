@@ -1,7 +1,7 @@
 # @Date:   2019-09-17T18:14:49+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SMR_unit.py
-# @Last modified time: 2019-09-17T20:45:17+08:00
+# @Last modified time: 2019-09-25T19:48:00+08:00
 import sys
 import pandas as pd
 import numpy as np
@@ -19,8 +19,22 @@ class SMR_unit(Unit):
 
     CONFIG = {
             'DOWNLOAD_FOLDER': '/data/zzf/SMR_files/',
-            'SPECIES_DICT': {'Human': '9606', 'Mouse': '10090'},
-            'SMR_INDEX_FILE_PATH': '/data/zzf/SMR_files/SWISS-MODEL_Repository/INDEX',
+            'SPECIES_DICT': {
+                'Human': '9606',
+                'Mouse': '10090',
+                'Caenorhabditis elegans':'6239',
+                'Escherichia coli (K12)': '83333',
+                'Arabidopsis thaliana': '3702',
+                'Drosophila melanogaster': '7227',
+                'Saccharomyces cerevisiae': '559292',
+                'Schizosaccharomyces pombe': '284812',
+                'Caulobacter vibrioides': '190650',
+                'Mycobacterium tuberculosis': '83332',
+                'Pseudomonas aeruginosa': '208964',
+                'Staphylococcus aureus': '93061',
+                'Plasmodium falciparum': '36329'
+            },
+            'SMR_INDEX_FILE_PATH': '/data/zzf/SMR_files/%s/SWISS-MODEL_Repository/INDEX',
         }
 
     def get_SMR_meta(self, species_code='9606', provider='SWISSMODEL', filePath=False, related_unp=False, outputPath=False):
