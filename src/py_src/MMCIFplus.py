@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-09-24T10:28:43+08:00
+# @Last modified time: 2019-10-10T23:56:55+08:00
 import os
 import sys
 import json
@@ -448,7 +448,7 @@ class MMCIF2Dfrm(Unit):
         df['contains_unk_in_chain_pdb'] = df.apply(
             lambda x: len(set(x['UNK_ALL_IN_CHAIN'])) == 2, axis=1)
 
-    @dispatch_on_set(DEFAULT_COLS['BIOASS_COL']+['_pdbx_poly_seq_scheme.pdb_strand_id'], func_li=FUNC_LI_DF)
+    @dispatch_on_set(DEFAULT_COLS['BIOASS_COL']+['_pdbx_poly_seq_scheme.asym_id'], func_li=FUNC_LI_DF)
     def handle_bioas_df(df):
         '''
         ### Deal with Biological Assemblies in PDB
@@ -466,9 +466,10 @@ class MMCIF2Dfrm(Unit):
         _pdbx_struct_assembly.oligomeric_count|[5, 5]
         ---
         ```_pdbx_struct_assembly_gen.asym_id_list``` -> [A,B,C,D,E,~~K,L,~~ F,G,H,I,J,~~M,N~~]
-        ```_pdbx_poly_seq_scheme.pdb_strand_id```
+        ```~~_pdbx_poly_seq_scheme.pdb_strand_id~~ [wrong], _pdbx_poly_seq_scheme.asym_id [correct]```
         > For more examples, please goto [here](https://naturegeorge.github.io/BioinforResearch/md_for_MMCIF2Dfrm.html "Link")
         '''
+
         def getBioUnitInfo(au_id_li, au_asym_id_li, oli, pl_asym_id_li):
             au_dict = defaultdict(list)
             for index in range(len(au_id_li)):
@@ -481,7 +482,8 @@ class MMCIF2Dfrm(Unit):
                 x['_pdbx_struct_assembly_gen.assembly_id'],
                 x['_pdbx_struct_assembly_gen.asym_id_list'],
                 x['_pdbx_struct_assembly.oligomeric_count'],
-                x['_pdbx_poly_seq_scheme.pdb_strand_id']) if not isinstance(x['_pdbx_struct_assembly_gen.assembly_id'], float) else np.nan, axis=1)
+                x['_pdbx_poly_seq_scheme.asym_id']
+                ) if not isinstance(x['_pdbx_struct_assembly_gen.assembly_id'], float) else np.nan, axis=1)
 
     def mmcif_dict2dfrm(self, path_list, useKeyList=False, outputPath=False):
         '''
