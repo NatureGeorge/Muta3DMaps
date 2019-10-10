@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-10-05T15:50:36+08:00
+# @Last modified time: 2019-10-11T00:13:56+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -703,6 +703,71 @@ class SIFTS_unit(Unit):
         error_li.append(sub_error_li)
         return new_muta_site
 
+    def get_muta_interactions_from_sifts(self, muta_li, score_df, target_col='Target_Mutation_unp'):
+        def getCompoPDBIndex(dfrm, target, interactor):
+            target_df = dfrm[dfrm['UniProt'] == target]
+            target_set = target_df['pdb_id'].drop_duplicates()
+            if target != interactor:
+                interactor_df = dfrm[dfrm['UniProt'] == interactor]
+                interactor_set = interactor_df['pdb_id'].drop_duplicates()
+                result_set = pd.merge(target_set,interactor_set)
+                return result_set['pdb_id'], target_df[target_df['pdb_id'].isin(result_set['pdb_id'])].index | interactor_df[interactor_df['pdb_id'].isin(result_set['pdb_id'])].index
+            else:
+                return target_set, target_df[target_df['pdb_id'].isin(target_set)].index
+
+        def is_PDB_pure(sifts_df, mmcif_df, pdb_li):
+            # nucle_key=['chain_id', 'protein_type', 'coordinates_len', '_pdbx_poly_seq_scheme.auth_mon_id']
+            if isinstance(pdb_li, pd.DataFrame):
+                pdb_li = pdb_li['pdb_id']
+            info_di = {}
+            nucle_di = {}
+            for pdb in pdb_li:
+                sifts_entityIdSet = set(sifts_df[sifts_df['pdb_id'] == pdb]['entity_id'])
+                temp = mmcif_df[mmcif_df['pdb_id'] == pdb]
+                mmcif_entityIdSet = set(temp['entity_id'])
+                if mmcif_entityIdSet > sifts_entityIdSet:
+                    info_di[pdb] = False
+                    # nucle_df = temp[~temp['protein_type'].isin(['polypeptide(L)', 'polypeptide(D)'])][nucle_key]
+                    nucle_se = temp[~temp['protein_type'].isin(['polypeptide(L)', 'polypeptide(D)'])]['chain_id']
+                    # nucle_di[pdb] = nucle_df.to_dict('records')
+                    nucle_di[pdb] = nucle_se.to_dict()
+                else:
+                    info_di[pdb] = True
+                    nucle_di[pdb] = {}
+            return info_di, nucle_di
+
+        secols = ['pdb_id', 'chain_id', 'UniProt', 'identity', 'identifier',
+                    'BS', 'ne_resolution_score', 'initial_version_time',
+                    'new_sifts_unp_range','new_sifts_pdb_range',
+                    'mutation_content', 'method', 'pdb_type_MMCIF',
+                    'pdb_contain_chain_type','bioUnit',
+                    '_pdbx_poly_seq_scheme.auth_seq_num',
+                    '_pdbx_poly_seq_scheme.pdb_ins_code',
+                    '_pdbx_poly_seq_scheme.mon_id',
+                    '_pdbx_poly_seq_scheme.pdb_seq_num']
+        copo_df_li = []
+        warn_li = []
+
+        for target, interactor in muta_li.index:
+            pdb_se, index = getCompoPDBIndex(score_df, target, interactor)
+            if len(index) == 0:
+                warn_li.append((target, interactor))
+                continue
+
+            info_di, nucle_di = is_PDB_pure(score_df.loc[index], handle_mmcif_df, pdb_se)
+            copo_df = score_df.loc[index, usecols].copy()
+            copo_df['pure'] = copo_df.apply(lambda x: info_di[x['pdb_id']], axis=1)
+            copo_df['nonProtein'] = copo_df.apply(lambda x: nucle_di[x['pdb_id']], axis=1)
+
+            muta_content = muta_li[target][interactor]
+            copo_df[target_col] = copo_df.apply(lambda x :muta_content if x['UniProt'] == target else np.nan, axis=1)
+            muta_info_li = []
+            copo_df[target_col] = copo_df.apply(lambda x: SIFTS_unit.map_muta_from_unp_to_pdb(x, target_col, 'new_sifts_unp_range', 'new_sifts_pdb_range', muta_info_li) if not isinstance(x['new_sifts_pdb_range'], float) and not isinstance(x[target_col], float) else np.nan, axis=1)
+            copo_df['muta_map_info'] = pd.Series(muta_info_li, index=copo_df.dropna(subset=[target_col]).index)
+            copo_df['compo'] = "%s, %s" % (target, interactor)
+            copo_df_li.append(copo_df)
+
+        return pd.concat(copo_df_li), pd.DataFrame(warn_li,columns=['Target_UniprotID', 'Interactor_UniprotID'])
 
 if __name__ == '__main__':
     demo = SIFTS_unit()
