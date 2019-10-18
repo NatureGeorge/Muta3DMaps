@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-10-11T00:13:56+08:00
+# @Last modified time: 2019-10-18T21:38:29+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -122,9 +122,9 @@ class SIFTS_unit(Unit):
         for i in dfrm.index:
             pdb_list.extend(dfrm.loc[i, 'PDB'].split(';'))
         if related_pdb:
-            return {'pdb_set':set(pdb_list) & related_pdb, 'unp_set':set(dfrm['SP_PRIMARY'])}
+            return {'pdb_set': set(pdb_list) & related_pdb, 'unp_set': set(dfrm['SP_PRIMARY'])}
         else:
-            return {'pdb_set':set(pdb_list), 'unp_set':set(dfrm['SP_PRIMARY'])}
+            return {'pdb_set': set(pdb_list), 'unp_set': set(dfrm['SP_PRIMARY'])}
 
     def handle_SIFTS(self, sifts_filePath=False, skiprows=0, outputPath=False):
         def addSiftsRange(in_df):
@@ -566,8 +566,8 @@ class SIFTS_unit(Unit):
                 try:
                     seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
                 except IndexError:
-                    print(x['pdb_id'],x['UniProt'],x['new_sifts_pdb_range'], x['new_sifts_unp_range'])
-                    print(x['_pdbx_poly_seq_scheme.mon_id'],seqresSite)
+                    print(x['pdb_id'], x['UniProt'], x['new_sifts_pdb_range'], x['new_sifts_unp_range'])
+                    print(x['_pdbx_poly_seq_scheme.mon_id'], seqresSite)
                     raise IndexError
                 ref_aa = muta[0]
                 inscode = inscode_seq_li[seqresSite-1]
@@ -647,8 +647,10 @@ class SIFTS_unit(Unit):
         unpSeqOb = SeqIO.read(unp_fasta_files_path % x['UniProt'], "fasta")
         unpSeq = unpSeqOb.seq
 
-        auth_seq_li = x['_pdbx_poly_seq_scheme.auth_seq_num'].split(';')
+        # auth_seq_li = x['_pdbx_poly_seq_scheme.auth_seq_num'].split(';')
         com_seq_li = x['_pdbx_poly_seq_scheme.pdb_seq_num'].split(';')
+        inscode_seq_li = x['_pdbx_poly_seq_scheme.pdb_ins_code'].replace('.', '').split(';')
+        res_li = ['%s%s' % x for x in zip(com_seq_li, inscode_seq_li)]
         found_muta_1 = x['mutation_content'].split(',')
         found_muta_2 = [i[1:-1] for i in found_muta_1]
 
@@ -661,7 +663,7 @@ class SIFTS_unit(Unit):
             unp_li.extend(list(range(ran[0], ran[1]+1)))
         for muta in muta_li:
             # muta = auth_seq_li[muta-1]
-            muta_seqres_index = com_seq_li.index(muta[1:-1])
+            muta_seqres_index = res_li.index(muta[1:-1])
             try:
                 # seqresSite = pdb_li[unp_li.index(int(muta[1:-1]))]
                 uniprotSite = unp_li[pdb_li.index(muta_seqres_index+1)]
@@ -703,14 +705,14 @@ class SIFTS_unit(Unit):
         error_li.append(sub_error_li)
         return new_muta_site
 
-    def get_muta_interactions_from_sifts(self, muta_li, score_df, target_col='Target_Mutation_unp'):
+    def get_muta_interactions_from_sifts(self, muta_li, score_df, handle_mmcif_df, target_col='Target_Mutation_unp'):
         def getCompoPDBIndex(dfrm, target, interactor):
             target_df = dfrm[dfrm['UniProt'] == target]
             target_set = target_df['pdb_id'].drop_duplicates()
             if target != interactor:
                 interactor_df = dfrm[dfrm['UniProt'] == interactor]
                 interactor_set = interactor_df['pdb_id'].drop_duplicates()
-                result_set = pd.merge(target_set,interactor_set)
+                result_set = pd.merge(target_set, interactor_set)
                 return result_set['pdb_id'], target_df[target_df['pdb_id'].isin(result_set['pdb_id'])].index | interactor_df[interactor_df['pdb_id'].isin(result_set['pdb_id'])].index
             else:
                 return target_set, target_df[target_df['pdb_id'].isin(target_set)].index
@@ -736,7 +738,7 @@ class SIFTS_unit(Unit):
                     nucle_di[pdb] = {}
             return info_di, nucle_di
 
-        secols = ['pdb_id', 'chain_id', 'UniProt', 'identity', 'identifier',
+        usecols = ['pdb_id', 'chain_id', 'UniProt', 'identity', 'identifier',
                     'BS', 'ne_resolution_score', 'initial_version_time',
                     'new_sifts_unp_range','new_sifts_pdb_range',
                     'mutation_content', 'method', 'pdb_type_MMCIF',
@@ -760,14 +762,15 @@ class SIFTS_unit(Unit):
             copo_df['nonProtein'] = copo_df.apply(lambda x: nucle_di[x['pdb_id']], axis=1)
 
             muta_content = muta_li[target][interactor]
-            copo_df[target_col] = copo_df.apply(lambda x :muta_content if x['UniProt'] == target else np.nan, axis=1)
+            copo_df[target_col] = copo_df.apply(lambda x: muta_content if x['UniProt'] == target else np.nan, axis=1)
             muta_info_li = []
             copo_df[target_col] = copo_df.apply(lambda x: SIFTS_unit.map_muta_from_unp_to_pdb(x, target_col, 'new_sifts_unp_range', 'new_sifts_pdb_range', muta_info_li) if not isinstance(x['new_sifts_pdb_range'], float) and not isinstance(x[target_col], float) else np.nan, axis=1)
             copo_df['muta_map_info'] = pd.Series(muta_info_li, index=copo_df.dropna(subset=[target_col]).index)
             copo_df['compo'] = "%s, %s" % (target, interactor)
             copo_df_li.append(copo_df)
 
-        return pd.concat(copo_df_li), pd.DataFrame(warn_li,columns=['Target_UniprotID', 'Interactor_UniprotID'])
+        return pd.concat(copo_df_li), pd.DataFrame(warn_li, columns=['Target_UniprotID', 'Interactor_UniprotID'])
+
 
 if __name__ == '__main__':
     demo = SIFTS_unit()
