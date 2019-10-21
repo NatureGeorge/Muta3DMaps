@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-09-06T23:01:26+08:00
+# @Last modified time: 2019-10-21T19:31:18+08:00
 import urllib.parse
 import urllib.request
 from retrying import retry
@@ -50,11 +50,13 @@ class UniProt_unit(Unit):
     '''
 
     URL = 'https://www.uniprot.org/uploadlists/'
-    COLUMNS = ['id', 'length', 'reviewed', 'comment(ALTERNATIVE%20PRODUCTS)', 'feature(ALTERNATIVE%20SEQUENCE)', 'genes', 'organism', 'sequence']
-    COLUMN_DICT = {'id': 'Entry', 'length': 'Length', 'reviewed': 'Status',
+    COLUMNS = ['id', 'length', 'reviewed', 'comment(ALTERNATIVE%20PRODUCTS)', 'feature(ALTERNATIVE%20SEQUENCE)', 'genes', 'organism', 'sequence', 'protein%20names']
+    COLUMN_DICT = {
+                    'id': 'Entry', 'length': 'Length', 'reviewed': 'Status',
                     'comment(ALTERNATIVE%20PRODUCTS)': 'Alternative products (isoforms)',
                     'feature(ALTERNATIVE%20SEQUENCE)': 'Alternative sequence (isoforms)',
-                    'genes': 'Gene names', 'organism': 'Organism', 'sequence': 'Sequence'}
+                    'genes': 'Gene names', 'organism': 'Organism', 'sequence': 'Sequence',
+                    'protein%20names': 'Protein names'}
     params = {
         'from': 'ACC+ID',
         'to': 'ACC',
@@ -63,7 +65,7 @@ class UniProt_unit(Unit):
 
     @retry(stop_max_attempt_number=3, wait_fixed=1000)
     def go_to_uniprot(url, params, code='utf-8'):
-        sleep(uniform(0.5, 5))
+        sleep(uniform(0.99, 5))
         data = urllib.parse.urlencode(params)
         data = data.encode('utf-8')
         req = urllib.request.Request(url, data)

@@ -1,9 +1,8 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Interactome3D_unit.py
-# @Last modified time: 2019-09-24T15:45:22+08:00
+# @Last modified time: 2019-10-21T18:54:51+08:00
 import pandas as pd
-import numpy as np
 import wget, time, sys
 from urllib import request
 from retrying import retry
@@ -23,7 +22,7 @@ class Interactome3D_unit(Unit):
                                   'interac_SEQ_IDENT', 'interac_COVERAGE',
                                   'interac_DOMAIN', 'interac_model_len',
                                   'interac_model_range'],
-        'DOWNLOAD_URL': 'https://interactome3d.irbbarcelona.org/api/%s?',# %s=%s&%s=%s
+        'DOWNLOAD_URL': 'https://interactome3d.irbbarcelona.org/api/%s?',  # %s=%s&%s=%s
 
     }
 
@@ -39,15 +38,15 @@ class Interactome3D_unit(Unit):
             dfrm = dfrm[dfrm['TYPE'] == struct_type].reset_index(drop=True)
         dfrm['PDB_ID'] = dfrm.apply(lambda x: x['PDB_ID'].upper(), axis=1)
         dfrm['group_compo'] = dfrm.apply(lambda x: '%s_%s' % tuple(sorted([x['PROT1'], x['PROT2']])), axis=1)
-        common_cols = ['TYPE','PDB_ID','BIO_UNIT','FILENAME', 'group_compo']
+        common_cols = ['TYPE', 'PDB_ID', 'BIO_UNIT', 'FILENAME', 'group_compo']
         s_cols = ['PROT', 'CHAIN', 'MODEL', 'SEQ_IDENT', 'COVERAGE', 'SEQ_BEGIN', 'SEQ_END', 'DOMAIN']
         get_s_cols = lambda num: ['%s%s' % (i, num) for i in s_cols]
 
         df1, df2 = dfrm[common_cols+get_s_cols(1)].copy(), dfrm[common_cols+get_s_cols(2)].copy()
         df1.columns, df2.columns = common_cols+s_cols, common_cols+s_cols
-        df12 = pd.concat([df1,df2]).reset_index(drop=True)
+        df12 = pd.concat([df1, df2]).reset_index(drop=True)
         df12['model_len'] = df12.apply(lambda x: x['SEQ_END'] - x['SEQ_BEGIN'] + 1, axis=1)
-        df12['model_range'] = df12.apply(lambda x: '[[%d, %d]]'%(x['SEQ_BEGIN'],x['SEQ_END']), axis=1)
+        df12['model_range'] = df12.apply(lambda x: '[[%d, %d]]' % (x['SEQ_BEGIN'], x['SEQ_END']), axis=1)
 
         if related_unp:
             df12 = df12[df12['PROT'].isin(related_unp)]
@@ -70,15 +69,15 @@ class Interactome3D_unit(Unit):
 
     @retry(stop_max_attempt_number=3, wait_fixed=1000)
     def download_pdb_from_Interactome3D(filename, type='interaction'):
-        url = self.CONFIG['DOWNLOAD_URL'] % 'getPdbFile' + 'filename=%s&type=%s' % (filename ,type)
+        url = Interactome3D_unit.CONFIG['DOWNLOAD_URL'] % 'getPdbFile' + 'filename=%s&type=%s' % (filename, type)
         xmlPage = request.urlopen(url).read()
         xmlPage = xmlPage.decode('utf-8')
         node = ElementTree.XML(xmlPage)
-        with open(self.CONFIG['DOWNLOAD_FOLDER']+filename, 'w') as fw:
+        with open(Interactome3D_unit.CONFIG['DOWNLOAD_FOLDER']+filename, 'w') as fw:
             fw.write(node[0][0][1].text)
             time.sleep(2)
 
-    def download_model_script(self, fileName_list,chunksize=100):
+    def download_model_script(self, fileName_list, chunksize=100):
         for i in range(0, len(fileName_list), chunksize):
             chunk_li = fileName_list[i:i+chunksize]
             pool = Pool(processes=20)
@@ -86,6 +85,6 @@ class Interactome3D_unit(Unit):
 
 
 if __name__ == '__main__':
-    demo = Interactome3D()
+    demo = Interactome3D_unit()
     demo.set_lists(['Test is success.'], [])
     print(demo.pdb_list)
