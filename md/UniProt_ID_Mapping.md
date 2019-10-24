@@ -180,6 +180,7 @@ sp|Q15025-8|TNIP1_HUMAN      ------------------------------------
 ```
 
 Example 2:
+
 |     Entry     |  Gene names   |    Status     |Alternative products (isoforms)|   Organism    | Protein names |   yourlist    |    isomap     |
 |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
 |    Q96NU1     |    SAMD11     |   reviewed    |ALTERNATIVE PRODUCTS:  Event=Alternative promo...|Homo sapiens (Human)|Sterile alpha motif domain-containing protein ...|   ~~NP_689699~~   |      NaN      |
@@ -303,6 +304,15 @@ sp|Q96NU1-6|SAM11_HUMAN      APERELGTGEQPLSPTTATSPYGGGHALAGQTSPKQENGTLALLPGAPDPS
 |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
 |    P01911     |HLA-DRB1 HLA-DRB2|   reviewed    |      NaN      |Homo sapiens (Human)|HLA class II histocompatibility antigen, DRB1-...|      NaN      |Trusted &amp; No Isoform|   NP_002115   |    P01911     |   HLA-DRB1    |     True      |     Error     |
 |    Q29974     |   HLA-DRB1    |   reviewed    |      NaN      |Homo sapiens (Human)|HLA class II histocompatibility antigen, DRB1-...|      NaN      |Trusted &amp; No Isoform|   NP_002115   |    Q29974     |   HLA-DRB1    |     True      |     Error     |
+
+#### Report Statistis
+* all RefSeq Count: 8450
+* Unmapped Results: 34
+* Trusted Results: 8066
+  * ```handled_df[handled_df['Mapping_status'] == 'Yes']```
+* Untrusted Resultes: 350
+  * Error Results: 1 ```{NP_002115: [P01911, Q29974]}, handled_df[handled_df['Mapping_status'] == 'Error']```
+  * Others: ```handled_df[handled_df['Mapping_status'] == 'No']```
 
 ### Deal With Mutation Info
 ```py
