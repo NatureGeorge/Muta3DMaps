@@ -165,7 +165,7 @@ class UniProt_unit(Unit):
             dfrm.loc[special_case, 'canonical_isoform'] = special_se
             self.report.write("# Special Cases of Canonical Info\n")
             self.report.write(str(special_se))
-        return special_case
+        return special_se
 
     def get_raw_ID_Mapping(self, outputPath):
         self.params['from'] = self.id_type
@@ -227,7 +227,7 @@ class UniProt_unit(Unit):
 
         df = self.raw_id_mapping
         # Add New Column: canonical_isoform
-        canonicalInfo_special_case = self.getCanonicalInfo(df)
+        canonicalInfo_special_se = self.getCanonicalInfo(df)
         # Add New Column: unp_map_tage
         df['unp_map_tage'] = np.nan
         # Classification
@@ -273,9 +273,10 @@ class UniProt_unit(Unit):
         df_wi_ne_warn['unp_map_tage'] = 'Untrusted & No Isoform'
 
         # Update UniProt
-        final_df = pd.concat((df_wni_split, df_wi_eq_split, df_wi_ne_split.drop(columns=['checkinglist']), df_wi_ne_warn), sort=False)
+        final_df = pd.concat((df_wni_split, df_wi_eq_split, df_wi_ne_split.drop(columns=['checkinglist']), df_wi_ne_warn), sort=False).reset_index(drop=True)
         final_df['UniProt'] = final_df.apply(lambda x: x['Entry'] if x['UniProt'] == x['canonical_isoform'] else x['UniProt'], axis=1)
-        if len(canonicalInfo_special_case) > 0:
+        if len(canonicalInfo_special_se) > 0:
+            canonicalInfo_special_case = final_df[final_df['canonical_isoform'].isin(canonicalInfo_special_se)].index
             final_df.loc[canonicalInfo_special_case, 'UniProt'] = final_df.loc[canonicalInfo_special_case].apply(lambda x: x['Entry'] if x['UniProt'] in x['canonical_isoform'] else x['UniProt'], axis=1)
         return final_df
 
