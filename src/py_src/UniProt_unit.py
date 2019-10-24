@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-10-24T00:29:38+08:00
+# @Last modified time: 2019-10-24T00:37:24+08:00
 import urllib.parse
 import urllib.request
 from retrying import retry
@@ -126,7 +126,7 @@ class UniProt_unit(Unit):
         tidy_result(outputPath)
         return True
 
-    def __init__(self, dfrm, id_col, id_type, muta_col, muta_type, usecols, reportPath, gene_col=None):
+    def __init__(self, dfrm, id_col, id_type, usecols, reportPath, muta_col=None, muta_type=None, gene_col=None):
         """
         Prerequisite:
         * Assume that the parameters are all legal
@@ -141,7 +141,8 @@ class UniProt_unit(Unit):
         self.muta_type = muta_type
         self.usecols = usecols
         self.gene_col = gene_col
-        self.muta_li = dfrm.groupby(by=[id_col]).apply(lambda x: [i for i in x[muta_col]])
+        if muta_col is not None:
+            self.muta_li = dfrm.groupby(by=[id_col]).apply(lambda x: [i for i in x[muta_col]])
         self.report = open(reportPath, 'w+')
 
     def split_df(dfrm, colName, sep):
@@ -332,9 +333,9 @@ class UniProt_unit(Unit):
         handled_df = self.handle_ID_Mapping()
         self.getGeneStatus(handled_df)
         constraint_dict = {
-            "GENE_status": ("ne", False),
-            "Status": ("eq", "reviewed"),
-            "unp_map_tage": ("ne", "Untrusted & No Isoform")
+            "GENE_status": (False, "ne"),
+            "Status": ("reviewed", "eq"),
+            "unp_map_tage": ("Untrusted & No Isoform", "ne")
         }
         self.label_mapping_status(handled_df, constraint_dict)
         handled_df.to_csv(handledOutputPath, sep='\t', index=False)
