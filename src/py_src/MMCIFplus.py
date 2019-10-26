@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-10-10T23:56:55+08:00
+# @Last modified time: 2019-10-26T18:12:08+08:00
 import os
 import sys
 import json
@@ -10,12 +10,13 @@ import numpy as np
 from collections import defaultdict, Iterable, Iterator
 import time
 import requests
-from urllib import request
-from retrying import retry
+# from urllib import request
+# from retrying import retry
 from multiprocessing.dummy import Pool
 from Bio.File import as_handle
 from Bio.PDB.MMCIF2Dict import MMCIF2Dict
 from Unit import Unit
+from RetrivePDB import MPWrapper
 sys.path.append('./')
 
 MMCIF_FILE_FOLDER = {
@@ -193,11 +194,36 @@ class MMCIF2DictPlus(MMCIF2Dict):
 
 
 class MMCIF2Dfrm(Unit):
-    """# Convert MMCIF data into a DataFrame"""
+    """
+    # Convert MMCIF data into a DataFrame
+    ## Key Feactures of PDB
+    * Which method & resolution (Filter)
+    * Date (Filter)
+    * Whether ATOM ONLY (Filter)
+    * Whether contain UNK residue (Filter)
+    * Whether contain Nucleotide (Filter)
+    * Mo/Ho/He (Filter)
+    * Protein Chains that have length more than 20 aa (Filter)
+    * Nucleotide Chains that have length more than 5 bases (Filter)
+    * BioUnit Component
+    * Mutations
+    * Ligands
+    * Missing Region of each chain
+    * ...
+    ## Ability of Building/Updaeing DataSet
+    """
 
     FUNC_LI_DI = []
     FUNC_LI_DF = []
     pdb_path_li = []
+    protein_filter = {
+        "coordinates_len": (20, "gt"),
+        "_pdbx_coordinate_model.type": (None, "notNull"),
+        "UNK_ALL_IN_CHAIN": (False, "eq"),
+        "contains_unk_in_chain_pdb": (False, "eq"),
+        "proteinChainCount": (26, "le"),
+        "method": (['SOLUTION NMR', 'X-RAY DIFFRACTION'], "isIn")
+    }
 
     @property
     def default_use_keys(self):
@@ -224,55 +250,20 @@ class MMCIF2Dfrm(Unit):
         elif pli_len > 1:
             return 'he:' + ';'.join(i[1] for i in pli)
 
-    def download_cif_file(pdbId, path):
-        url = 'https://files.rcsb.org/view/%s.cif' % pdbId
-        html = request.urlopen(url).read()
-        html = html.decode('utf-8')
-        with open(path, 'w') as fw:
-            fw.write(html)
-            time.sleep(2)
-
-    def get_mmcif_file_path(self, pdbId, download=False):
-        print('get_mmcif_file_path(): Working on [%s]' % pdbId)
-        new_path = '%s%s.cif' % (MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], pdbId)
-
-        for path in MMCIF_FILE_FOLDER['MMCIF_OLD_FOLDER']:
-            old_path = '%s%s.cif' % (path, pdbId)
-            if os.path.exists(old_path):
-                return old_path
-
-        if os.path.exists(new_path):
-            return new_path
-        else:
-            if download:
-                MMCIF2Dfrm.download_cif_file(pdbId, new_path)
-
-            return new_path
-
-    def check_mmcif_file(self, pdb_list):
+    def check_mmcif_file(self, pdb_list, processes=4, maxSleep=3):
         def find_unDownloaded_file(pdbId):
             for path in MMCIF_FILE_FOLDER['MMCIF_OLD_FOLDER'] + [MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER']]:
                 old_path = '%s%s.cif' % (path, pdbId)
                 if os.path.exists(old_path):
                     MMCIF2Dfrm.pdb_path_li.append(old_path)
                     return False
+            MMCIF2Dfrm.pdb_path_li.append(old_path)
             return True
 
         unDownload = list(filter(find_unDownloaded_file, pdb_list))
-
-        @retry(stop_max_attempt_number=3, wait_fixed=1000)
-        def download_mmcif_file(pdbId):
-            path = '%s%s.cif' % (MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], pdbId)
-            print('download_mmcif_file(): %s' % path)
-            url = 'https://files.rcsb.org/view/%s.cif' % pdbId
-            r = requests.get(url, headers=CONFIG['HEADERS'])
-            with open(path, 'wb+') as fw:
-                fw.write(r.content)
-                time.sleep(2)
-                MMCIF2Dfrm.pdb_path_li.append(path)
-
-        pool = Pool(processes=20)
-        pool.map(download_mmcif_file, unDownload)
+        mpw = MPWrapper(MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], processes=processes, maxSleep=maxSleep)
+        # @retry(stop_max_attempt_number=3, wait_fixed=1000)
+        mpw.http_retrive(unDownload)
 
     def get_mmcif_dict(info_key, info_dict, path):
         '''

@@ -1,7 +1,7 @@
 # @Date:   2019-10-24T23:35:42+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: RetrivePDB.py
-# @Last modified time: 2019-10-26T12:22:18+08:00
+# @Last modified time: 2019-10-26T18:05:20+08:00
 import wget
 import gzip
 import urllib
@@ -9,7 +9,9 @@ import ftplib
 import shutil
 import os
 from collections import Iterable, Iterator
-
+from multiprocessing.dummy import Pool
+from time import sleep
+from random import uniform
 """
 Requirement:
 1. Fast and Legal
@@ -30,7 +32,8 @@ _RCSB_DIVIDED = "pub/pdb/data/structures/divided"
 _PDBE_DIVIDED = "pub/databases/pdb/data/structures/divided"
 _PDBJ_DIVIDED = "pub/pdb/data/structures/divided"
 # _DIVIDED_PATH = {"RCSB": _RCSB_DIVIDED, "PDBE": _PDBE_DIVIDED, "PDBJ": _PDBJ_DIVIDED}
-_DIVIDED_PATH = dict(zip(_FTP_SITE, [_RCSB_DIVIDED, _PDBE_DIVIDED, _PDBJ_DIVIDED]))
+_DIVIDED_PATH = dict(
+    zip(_FTP_SITE, [_RCSB_DIVIDED, _PDBE_DIVIDED, _PDBJ_DIVIDED]))
 _COMPLETE_TAGE = "226"  # "226-File successfully transferred", "226 Transfer complete"
 _FORMAT_DICT = {
     "XML": ".xml",
@@ -58,6 +61,9 @@ class RetrivePDB:
         def append(self, block):
             self.handle.write(block)
 
+        def close(self):
+            self.handle.close()
+
     def __init__(self, downloadPath, pdbs=None, ftpSite="PDBE", format="mmCIF"):
         self.setDownloadPath(downloadPath)
         self.setFormat(format)
@@ -81,7 +87,7 @@ class RetrivePDB:
 
     def __repr__(self):
         format = "%s: %s, "
-        string = "FTP_PDB: {%s}"
+        string = "RetrivePDB: {%s}"
         content = ""
         for key, value in self.__dict__.items():
             if key not in ['pdbs', 'fail']:
@@ -103,7 +109,8 @@ class RetrivePDB:
         * PDBJ
         """
         if ftpSite not in _FTP_SITE:
-            raise ValueError("Illegal site name. Please select from %s" % _FTP_SITE)
+            raise ValueError(
+                "Illegal site name. Please select from %s" % _FTP_SITE)
         else:
             self.ftpSite = ftpSite
             self.host = _FTP_HOST[ftpSite]
@@ -116,7 +123,8 @@ class RetrivePDB:
         * XML
         """
         if format not in _FORMAT_DICT.keys():
-            raise ValueError("Illegal format name. Please select from mmCIF, pdb, XML")
+            raise ValueError(
+                "Illegal format name. Please select from mmCIF, pdb, XML")
         else:
             self.format = format
             self.tail = _FORMAT_DICT[format]
@@ -142,7 +150,7 @@ class RetrivePDB:
         if isinstance(pdbs, str):
             self.pdbs = [pdbs]
         elif isinstance(pdbs, Iterable):
-            self.pdbs = sorted(pdbs, key=lambda x: x[1:3]+x[0]+x[3])
+            self.pdbs = sorted(pdbs, key=lambda x: x[1:3] + x[0] + x[3])
         elif isinstance(pdbs, Iterator):
             self.pdbs = pdbs
         elif pdbs is None:
@@ -166,63 +174,44 @@ class RetrivePDB:
         # Connect
         with ftplib.FTP(self.host) as ftp:
             print(ftp.getwelcome())
-            try:
-                ftp.login()  # anonymous account
-                ftp.cwd("%s/%s" % (self.dividedPath, self.format))
-                # print(ftp.pwd())
-                # Start to retrive
-                cur = ""
-                for pdb in self.pdbs:
-                    pdb = pdb.lower()
-                    subPath = pdb[1:3]
-                    try:
-                        """
-                        # Check PDB id
-                        if subPath not in ftp.nlst():
-                            self.fail.append(pdb)
-                            continue
-                        """
-                        if cur != subPath:
-                            if cur == "":
-                                ftp.cwd(subPath)
-                                print(ftp.pwd())
-                            else:
-                                ftp.cwd("../%s" % subPath)
-                                print(ftp.pwd())
-                            cur = subPath
-                        file_orig = "%s%s%s.gz" % (self.prefix, pdb, self.raw_tail)
-                        """
-                        # Check PDB id
-                        if file_orig not in ftp.nlst():
-                            self.fail.append(pdb)
-                            continue
-                        """
-                        # Start to download
-                        filename = os.path.join(self.downloadPath, "%s%s.gz" % (pdb, self.tail))
-                        print("Downloading File: %s" % filename)
-                        data = self.HandleIO(open(filename, 'w+b'))
-                        res = ftp.retrbinary('RETR ' + file_orig, data.append)
-                        data.handle.close()
-                        # Check Data Completeness
-                        if not res.startswith(_COMPLETE_TAGE):
-                            print('Download failed', res)
-                            if os.path.isfile(filename):
-                                os.remove(filename)
-                            # ftp.cwd("../")
-                            self.fail.append(pdb)
-                            continue
-                        self.decompression(filename, remove=remove)
-                        # ftp.cwd("../")
-                    except ftplib.error_perm as e:
-                        print('FTP error:', e)
-                        if 'filename' in locals().keys():
-                            data.handle.close()
+            ftp.login()  # anonymous account
+            ftp.cwd("%s/%s" % (self.dividedPath, self.format))
+            # Start to retrive
+            cur = ""
+            for pdb in self.pdbs:
+                pdb = pdb.lower()
+                subPath = pdb[1:3]
+                try:
+                    if cur != subPath:
+                        if cur == "":
+                            ftp.cwd(subPath)
+                        else:
+                            ftp.cwd("../%s" % subPath)
+                        cur = subPath
+                    file_orig = "%s%s%s.gz" % (self.prefix, pdb, self.raw_tail)
+                    # Start to download
+                    filename = os.path.join(
+                        self.downloadPath, "%s%s.gz" % (pdb, self.tail))
+                    print("Downloading File: %s" % filename)
+                    data = self.HandleIO(open(filename, 'w+b'))
+                    res = ftp.retrbinary('RETR ' + file_orig, data.append)
+                    data.close()
+                    # Check Data Completeness
+                    if not res.startswith(_COMPLETE_TAGE):
+                        print('Download failed', res)
+                        if os.path.isfile(filename):
                             os.remove(filename)
                         self.fail.append(pdb)
                         continue
-            except ftplib.all_errors as e:
-                print('FTP error:', e)
-        print("Close FTP")
+                    self.decompression(filename, remove=remove)
+                except ftplib.error_perm as e:
+                    print('FTP error:', e)
+                    if 'filename' in locals().keys():
+                        data.close()
+                        os.remove(filename)
+                    self.fail.append(pdb)
+                    continue
+        print("FTP Closed")
 
     def decompression(self, path, extension=".gz", remove=True, outputPath=None):
         """
@@ -252,7 +241,8 @@ class RetrivePDB:
         """
         pdb = pdb.lower()
         file_orig = "%s%s%s.gz" % (self.prefix, pdb, self.raw_tail)
-        site = "%s%s/%s/%s/%s/%s" % (_FTP_HEADER, self.host, self.dividedPath, self.format, pdb[1:3], file_orig)
+        site = "%s%s/%s/%s/%s/%s" % (_FTP_HEADER, self.host,
+                                     self.dividedPath, self.format, pdb[1:3], file_orig)
         path = os.path.join(self.downloadPath, "%s%s.gz" % (pdb, self.tail))
         print("Downloading File: %s" % path)
         try:
@@ -271,7 +261,8 @@ class RetrivePDB:
             fileName = "%s%s" % (pdb, self.tail)
             url = "%s%s" % (_RCSB_HTTP_VIEW, fileName)
         else:
-            fileName = "{pdb}{tail}{bioAssembly}{extension}".format(pdb=pdb, tail=self.tail, bioAssembly=bioAssembly, extension=extension)
+            fileName = "{pdb}{tail}{bioAssembly}{extension}".format(
+                pdb=pdb, tail=self.tail, bioAssembly=bioAssembly, extension=extension)
             url = "{site}{fileName}".format(site=_RCSB_HTTP, fileName=fileName)
         # r = requests.get(url)
         path = os.path.join(self.downloadPath, fileName)
@@ -287,16 +278,119 @@ class RetrivePDB:
             else:
                 wget.download(url, out=path)
         except urllib.error.URLError:
-                print("Download failed")
-                return
+            print("Download failed")
+            return
         # Whether to decompress
         if not view and extension == '.gz':
             self.decompression(path, remove=remove)
 
 
+class MPWrapper:
+    """
+    Multiprocessing wrapper for ```RetrivePDB```
+    """
+
+    def __init__(self, downloadPath, processes=3, maxSleep=3, ftpSite="RCSB", format="mmCIF"):
+        self.setProcesses(processes, maxSleep)
+        self.retrivePDB = RetrivePDB(
+            downloadPath, ftpSite=ftpSite, format=format)
+
+    def setProcesses(self, processes, maxSleep):
+        if processes > 20:
+            print("MPWrapper: Too many processes. Be careful !")
+        self.processes = processes
+        self.maxSleep = maxSleep
+
+    def http_retrive(self, pdbs, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
+        def register(pdb):
+            stop = uniform(0, self.maxSleep)
+            sleep(stop)
+            self.retrivePDB.quick_http_retrive(pdb, module=module, view=view, bioAssembly=bioAssembly, extension=extension, remove=remove)
+            # print(pdb, stop)
+
+        pool = Pool(processes=self.processes)
+        pool.map(register, pdbs)
+
+    def ftp_retrive_wget(self, pdbs, remove=True):
+        def register(pdb):
+            stop = uniform(0, self.maxSleep)
+            sleep(stop)
+            self.retrivePDB.quick_ftp_retrive(pdb, remove=remove)
+            # print(pdb, stop)
+
+        pool = Pool(processes=self.processes)
+        pool.map(register, pdbs)
+
+    def ftp_retrive_batch(self, pdbs, remove=True, chunksize=100):
+        assert isinstance(
+            pdbs, Iterable), "pdbs should be an Iterable object in this function!"
+
+        def register(chunk):
+            sleep(uniform(0, self.maxSleep))
+            self.retrivePDB.ftp_retrive(pdbs=chunk, remove=remove)
+            # print(chunk)
+
+        chunks = [pdbs[i:i + chunksize]
+                  for i in range(0, len(pdbs), chunksize)]
+        pool = Pool(processes=self.processes)
+        pool.map(register, chunks)
+
+
 if __name__ == "__main__":
-    ftpPDB = RetrivePDB("C:/Users/Nature/Downloads/PDBJ/", ftpSite="PDBJ", format="pdb")
-    # ftpPDB.ftp_retrive(pdbs=['5jp8', '5jp5'], remove=True)
+    # ftpPDB = RetrivePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
+    # ftpPDB.ftp_retrive(pdbs=['10z1', '10z2', '10z3'], remove=True)
     # ftpPDB.quick_ftp_retrive('5js8', remove=False)
     # ftpPDB.quick_http_retrive('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
     # print(ftpPDB)
+    # printList(ftpPDB.getFail())
+    pdbs = ['1A02',
+            '3KBZ',
+            '3KC0',
+            '3KC1',
+            '3KMU',
+            '3KMW',
+            '3KYC',
+            '3KYD',
+            '3L3C',
+            '3L5P',
+            '3L5R',
+            '3L5S',
+            '3L5T',
+            '3L5U',
+            '3L5V',
+            '3L7U',
+            '3LHR',
+            '3M0D',
+            '3M1D',
+            '3MK4',
+            '3MUD',
+            '3MUP',
+            '3NR2',
+            '3OD5',
+            '3OQ9',
+            '3OZ1',
+            '3P0E',
+            '3P45',
+            '3P4U',
+            '3P87',
+            '3PHB',
+            '3Q0K',
+            '3Q4F',
+            '3Q84',
+            '3Q91',
+            '3QNI',
+            '3R1H',
+            '3R1L',
+            '3R5J',
+            '3R6G',
+            '3R6L',
+            '3R7B',
+            '3R7N',
+            '3R7S',
+            '3REP',
+            '3RJM']
+    mpw = MPWrapper("C:/Users/Nature/Downloads/")  # 1.1: 79s 1.2: 90s 2: 114s 3:154s
+    # mpw.http_retrive(pdbs)  # 79s
+    # mpw.http_retrive(pdbs, module="urllib")  # 90s
+    # mpw.ftp_retrive_wget(pdbs)  # 114s
+    # mpw.ftp_retrive_batch(pdbs)  # 154s
