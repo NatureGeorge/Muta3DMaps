@@ -1,7 +1,7 @@
 # @Date:   2019-10-24T23:35:42+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: RetrivePDB.py
-# @Last modified time: 2019-10-26T18:05:20+08:00
+# @Last modified time: 2019-10-27T00:36:57+08:00
 import wget
 import gzip
 import urllib
@@ -53,7 +53,9 @@ def printList(list):
 
 
 class RetrivePDB:
-
+    """
+    Retrive PDB File
+    """
     class HandleIO:
         def __init__(self, handle):
             self.handle = handle
@@ -103,10 +105,11 @@ class RetrivePDB:
         return self.fail
 
     def setFTPSite(self, ftpSite):
-        """Set the value of PDB FTP site
-        * RCSB
-        * PDBE
-        * PDBJ
+        """
+        Set the value of PDB FTP site
+
+        :param str ftpSite: The FTP site of retriving PDB files, default value: `RCSB`, {RCSB, PDBE, PDBJ}
+
         """
         if ftpSite not in _FTP_SITE:
             raise ValueError(
@@ -117,10 +120,11 @@ class RetrivePDB:
             self.dividedPath = _DIVIDED_PATH[ftpSite]
 
     def setFormat(self, format):
-        """Set the format of PDB file
-        * mmCIF
-        * pdb
-        * XML
+        """
+        Set the format of PDB file
+
+        :param str format: The file format of PDB file, default value: `mmCIF`, {mmCIF, pdb, XML}
+
         """
         if format not in _FORMAT_DICT.keys():
             raise ValueError(
@@ -144,8 +148,13 @@ class RetrivePDB:
     def setPDBs(self, pdbs):
         """
         Set the value of PDB id(s)
-        * str: single PDB id
-        * Iterable, Iterator: PDB ids
+
+        :param pdbs: single PDB id or PDB ids
+        :type pdbs: Iterable or Iterator or str
+
+        * ``str``: single PDB id
+        * ``Iterable, Iterator``: PDB ids
+
         """
         if isinstance(pdbs, str):
             self.pdbs = [pdbs]
@@ -160,9 +169,12 @@ class RetrivePDB:
 
     def ftp_retrive(self, **kwargs):
         """
-        Retrive PDB files
-        * pdbs: PDB ids
-        * remove: whether remove the compressed file
+        Retrive PDB files via FTP Connection
+
+        :param pdbs: single PDB id or PDB ids
+        :param bool remove: whether remove the compressed file, default value: `True`
+        :type pdbs: Iterable or Iterator or str
+
         """
         # Check PDB List
         pdbs = kwargs.get('pdbs', False)
@@ -215,7 +227,12 @@ class RetrivePDB:
 
     def decompression(self, path, extension=".gz", remove=True, outputPath=None):
         """
-        Decompression gz file
+        Decompress gz file
+
+        :param str path: The file path of the compressed file
+        :param str extension: Compressed file tail, default value: `.gz`
+        :param bool remove: Whether remove the compressed file, default value: `True`
+        :param str outputPath: File safe path, default value: `None`
         """
 
         """
@@ -237,7 +254,12 @@ class RetrivePDB:
 
     def quick_ftp_retrive(self, pdb, remove=True):
         """
-        Download PDB file via ftp with ```wget```
+        Download PDB file via FTP with ``wget``
+
+        *Download only one file at a time*
+
+        :param str pdb: single PDB id
+        :param bool remove: whether remove the compressed file, default value: `True`
         """
         pdb = pdb.lower()
         file_orig = "%s%s%s.gz" % (self.prefix, pdb, self.raw_tail)
@@ -253,8 +275,17 @@ class RetrivePDB:
 
     def quick_http_retrive(self, pdb, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
         """
-        Download PDB file via http with ```wget.download``` or ```urllib.request.urlopen```
-        * RCSB Only
+        Download PDB file via HTTP with ``wget.download`` or ``urllib.request.urlopen``
+
+        *RCSB Only*
+
+        :param str pdb: single PDB id
+        :param str module: For user to select the module, default value: `wget`, {"wget", "urllib"}
+        :param bool view: Whether get the PDB data from the web pages
+        :param str bioAssembly: The bioAssembly id, default value: `''`
+        :param str extension: Compressed file tail, default value: `.gz`
+        :param bool remove: whether remove the compressed file, default value: `True`
+
         """
         # Whether download from web page
         if view:
@@ -287,7 +318,17 @@ class RetrivePDB:
 
 class MPWrapper:
     """
-    Multiprocessing wrapper for ```RetrivePDB```
+    Multiprocessing wrapper for ``RetrivePDB``
+
+    When there is a large number of PDB files to download, this class is helpful.
+    But Need to be careful with the numbers of processes and the time of sleep.
+
+    :param str downloadPath: File folder of Downloaded PDB files
+    :param int processes: Number of processes, default value: `3`
+    :param int maxSleep: Max sleep time, default value: `3`
+    :param str ftpSite: The FTP site of retriving PDB files, default value: `RCSB`, {RCSB, PDBE, PDBJ}
+    :param str format: The file format of PDB file, default value: `mmCIF`, {mmCIF, pdb, XML}
+
     """
 
     def __init__(self, downloadPath, processes=3, maxSleep=3, ftpSite="RCSB", format="mmCIF"):
@@ -296,12 +337,33 @@ class MPWrapper:
             downloadPath, ftpSite=ftpSite, format=format)
 
     def setProcesses(self, processes, maxSleep):
+        """
+        Set the value of ``processes`` and ``maxSleep``
+
+        :param int processes: Number of processes
+        :param int maxSleep: Max sleep time
+        """
         if processes > 20:
             print("MPWrapper: Too many processes. Be careful !")
         self.processes = processes
         self.maxSleep = maxSleep
 
     def http_retrive(self, pdbs, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
+        """
+        Retrive PDB file via http with ``wget.download`` or ``urllib.request.urlopen``
+
+        **HTTP SITE: RCSB ONLY**
+
+        :param pdbs: An object containing the PDB ids that need to be download
+        :param str module: For user to select the module, default value: `wget`, {"wget", "urllib"}
+        :param bool view: Whether get the PDB data from the web pages, default value: `False`
+        :param str bioAssembly: The bioAssembly id, default value: `''`
+        :param str extension: Compressed file tail, default value: `.gz`
+        :param bool remove: whether remove the compressed file, default value: `True`
+        :type pdbs: Iterable or Iterator
+        :return: A fail list that contains the PDB ids falied to download
+        :rtype: list(str)
+        """
         def register(pdb):
             stop = uniform(0, self.maxSleep)
             sleep(stop)
@@ -310,8 +372,16 @@ class MPWrapper:
 
         pool = Pool(processes=self.processes)
         pool.map(register, pdbs)
+        return self.retrivePDB.getFail()
 
     def ftp_retrive_wget(self, pdbs, remove=True):
+        """
+        Download PDB file via FTP with ``wget``
+
+        :param pdbs: An object containing the PDB ids that need to be download
+        :param bool remove: whether remove the compressed file, default value: `True`
+        :type pdbs: Iterable or Iterator
+        """
         def register(pdb):
             stop = uniform(0, self.maxSleep)
             sleep(stop)
@@ -322,8 +392,16 @@ class MPWrapper:
         pool.map(register, pdbs)
 
     def ftp_retrive_batch(self, pdbs, remove=True, chunksize=100):
-        assert isinstance(
-            pdbs, Iterable), "pdbs should be an Iterable object in this function!"
+        """
+        Retrive PDB files via FTP Connection
+
+        :param pdbs: An object containing the PDB ids that need to be download
+        :param bool remove: whether remove the compressed file, default value: `True`
+        :param int chunksize: the size of PDBs that query during a single FTP connection, default value: `100`
+        :type pdbs: Iterable or Iterator
+
+        """
+        assert isinstance(pdbs, Iterable), "pdbs should be an Iterable object in this function!"
 
         def register(chunk):
             sleep(uniform(0, self.maxSleep))

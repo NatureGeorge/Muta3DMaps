@@ -1,7 +1,7 @@
-# @Date:   2019-09-19T20:04:25+08:00
+# @Date:   2019-10-26T19:07:53+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: conf.py
-# @Last modified time: 2019-09-19T20:23:06+08:00
+# @Last modified time: 2019-10-26T23:27:56+08:00
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -16,18 +16,18 @@
 #
 import os
 import sys
-import sphinx_bootstrap_theme
+# import sphinx_bootstrap_theme
 sys.path.insert(0, os.path.abspath('../../src/py_src'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'SIFTS_Plus_Muta_Maps'
-copyright = '2019, ZeFengZhu'
-author = 'ZeFengZhu'
+copyright = '2019, ZeFeng Zhu'
+author = 'ZeFeng Zhu'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,13 +36,13 @@ release = '0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'recommonmark',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
-    'sphinx.ext.mathjax'
-    ]
+    'sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,7 +58,8 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'bootstrap'
+# html_theme = 'bootstrap'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
