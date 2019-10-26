@@ -1,7 +1,7 @@
 # @Date:   2019-10-24T23:35:42+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: RetrivePDB.py
-# @Last modified time: 2019-10-27T00:36:57+08:00
+# @Last modified time: 2019-10-27T01:20:38+08:00
 import wget
 import gzip
 import urllib
@@ -55,6 +55,19 @@ def printList(list):
 class RetrivePDB:
     """
     Retrive PDB File
+
+    Script:
+
+    .. code-block:: python
+        :linenos:
+
+        ftpPDB = RetrivePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
+        ftpPDB.ftp_retrive(pdbs=['10z1', '10z2', '2xyn', '10z3'], remove=True)
+        print(ftpPDB)
+        printList(ftpPDB.getFail())
+        ftpPDB.quick_ftp_retrive('5js8', remove=False)
+        ftpPDB.quick_http_retrive('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
+
     """
     class HandleIO:
         def __init__(self, handle):
@@ -271,6 +284,7 @@ class RetrivePDB:
             wget.download(site, out=path)
         except urllib.error.URLError:
             print("Download failed")
+            self.fail.append(pdb)
         self.decompression(path, remove=remove)
 
     def quick_http_retrive(self, pdb, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
@@ -310,6 +324,7 @@ class RetrivePDB:
                 wget.download(url, out=path)
         except urllib.error.URLError:
             print("Download failed")
+            self.fail.append(pdb)
             return
         # Whether to decompress
         if not view and extension == '.gz':
@@ -322,6 +337,19 @@ class MPWrapper:
 
     When there is a large number of PDB files to download, this class is helpful.
     But Need to be careful with the numbers of processes and the time of sleep.
+
+    Script:
+
+    .. code-block:: python
+        :linenos:
+
+        pdbs = ['1A02', '3KBZ', '3KC0', '3KC1', '3KMU', '3KMW', '3KYC', '3KYD', ...]
+        mpw = MPWrapper("C:/Users/Nature/Downloads/")
+        # fail = mpw.http_retrive(pdbs)
+        # fail = mpw.http_retrive(pdbs, module="urllib")
+        # fail = mpw.ftp_retrive_wget(pdbs)
+        fail = mpw.ftp_retrive_batch(pdbs)
+        printList(fail)
 
     :param str downloadPath: File folder of Downloaded PDB files
     :param int processes: Number of processes, default value: `3`
@@ -381,6 +409,8 @@ class MPWrapper:
         :param pdbs: An object containing the PDB ids that need to be download
         :param bool remove: whether remove the compressed file, default value: `True`
         :type pdbs: Iterable or Iterator
+        :return: A fail list that contains the PDB ids falied to download
+        :rtype: list(str)
         """
         def register(pdb):
             stop = uniform(0, self.maxSleep)
@@ -390,6 +420,7 @@ class MPWrapper:
 
         pool = Pool(processes=self.processes)
         pool.map(register, pdbs)
+        return self.retrivePDB.getFail()
 
     def ftp_retrive_batch(self, pdbs, remove=True, chunksize=100):
         """
@@ -399,6 +430,8 @@ class MPWrapper:
         :param bool remove: whether remove the compressed file, default value: `True`
         :param int chunksize: the size of PDBs that query during a single FTP connection, default value: `100`
         :type pdbs: Iterable or Iterator
+        :return: A fail list that contains the PDB ids falied to download
+        :rtype: list(str)
 
         """
         assert isinstance(pdbs, Iterable), "pdbs should be an Iterable object in this function!"
@@ -412,6 +445,7 @@ class MPWrapper:
                   for i in range(0, len(pdbs), chunksize)]
         pool = Pool(processes=self.processes)
         pool.map(register, chunks)
+        return self.retrivePDB.getFail()
 
 
 if __name__ == "__main__":

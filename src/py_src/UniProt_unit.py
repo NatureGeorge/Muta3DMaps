@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-10-24T00:37:24+08:00
+# @Last modified time: 2019-10-27T01:38:26+08:00
 import urllib.parse
 import urllib.request
 from retrying import retry
@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from random import uniform
 from time import sleep
-import os, sys, re
+import os, sys, re, json
 from collections import Counter
 sys.path.append('./')
 from Unit import Unit
@@ -17,6 +17,13 @@ from Unit import Unit
 
 class UniProt_unit(Unit):
     '''
+    Use UniProt ID Mapping API
+
+    Key parameters in using UniProt ID Mapping API:
+
+    .. code-block:: python
+        :linenos:
+
         params = {
             'from': 'ACC+ID',
             'to': 'ACC',
@@ -25,30 +32,34 @@ class UniProt_unit(Unit):
             'query': list_str,
         }
 
-       self.params['from'], params['to'] (Particial)
-       ACC+ID, ACC, ID, EMBL_ID, P_REFSEQ_AC, PDB_ID, ENSEMBL_TRS_ID, ENSEMBL_ID, ...
-       (Reference: https://www.uniprot.org/help/api_idmapping)
+    .. csv-table:: Details of ID Abbreviation
+        :header: "Abbreviation", "Name", "Direction"
 
-       ---
+        "ACC+ID", "UniProtKB AC/ID", "from"
+        "ACC", "UniProtKB AC", "both"
+        "ID", "UniProtKB ID", "both"
+        "EMBL_ID", "EMBL/GenBank/DDBJ", "both"
+        "REFSEQ_NT_ID", "RefSeq Nucleotide", "both"
+        "P_REFSEQ_AC", "RefSeq Protein", "both"
+        "PDB_ID", "PDB", "both"
+        "ENSEMBL_TRS_ID", "Ensembl Transcript", "both"
+        "ENSEMBL_ID", "Ensembl", "both"
+        "...", "...", "..."
 
-       self.params['columns'] (Particial)
-       'comma-separated list of column names'
-       (Reference: https://www.uniprot.org/help/api_queries)
+    Here is the `Reference`_.
 
-       Lists the column names for programmatic (RESTful) access to tab-separated
-       or Excel downloads of UniProtKB search results.
-       (Reference: https://www.uniprot.org/help/uniprotkb_column_names)
+    .. _Reference: https://www.uniprot.org/help/api_idmapping
 
-       ---
+    Following table show the details of rest params:
 
-       self.params['format'] (All)
-       html | tab | xls | fasta | gff | txt | xml | rdf | list | rss
-       (Reference: https://www.uniprot.org/help/api_queries)
+    .. csv-table:: Details of other parameters
+        :header: "param", "Explanation", "Reference"
 
-       ---
+        "columns", "comma-separated list of column names", "https://www.uniprot.org/help/api_queries"
+        "columns", "Lists the column names for programmatic (RESTful) access to tab-separated or Excel downloads of UniProtKB search results", "https://www.uniprot.org/help/uniprotkb_column_names"
+        "format", "html | tab | xls | fasta | gff | txt | xml | rdf | list | rss", "https://www.uniprot.org/help/api_queries"
+        "query", "query text/id(s)", "https://www.uniprot.org/help/text-search"
 
-       self.params['query']
-       (Reference: https://www.uniprot.org/help/text-search)
     '''
 
     URL = 'https://www.uniprot.org/uploadlists/'
@@ -153,8 +164,8 @@ class UniProt_unit(Unit):
     def getCanonicalInfo(self, dfrm):
         """
         Will Change the dfrm
+
         * Add new column (canonical_isoform)
-        * ~~Add new varaible in the object (canonicalInfo_special_case)~~
         """
         canonical_pattern = re.compile(r'IsoId=([0-9A-Z-]+); Sequence=Displayed')
         dfrm['canonical_isoform'] = dfrm.apply(lambda x: ','.join(canonical_pattern.findall(x['Alternative products (isoforms)'])) if not isinstance(x['Alternative products (isoforms)'], float) else np.nan, axis=1)
@@ -168,6 +179,9 @@ class UniProt_unit(Unit):
         return special_se
 
     def get_raw_ID_Mapping(self, outputPath):
+        """
+        Get Raw ID MApping Result
+        """
         self.params['from'] = self.id_type
         status = self.get_info_from_uniprot(
             self.usecols,
@@ -187,42 +201,44 @@ class UniProt_unit(Unit):
 
     def set_raw_id_mapping(self, raw_id_mapping):
         """
-        Set the ```pandas.DataFrame``` object that will be deal with in ```handle_ID_Mapping()```
+        Set the ``pandas.DataFrame`` object that will be deal with in ``handle_ID_Mapping()``
         """
         # assert isinstance(raw_id_mapping, pd.DataFrame), "WARNING, raw_id_mapping should a pandas.DataFrame"
         self.raw_id_mapping = raw_id_mapping
 
     def handle_ID_Mapping(self):
         """
-        * Add New Columns: ```unp_map_tage``` -> Description for the reliability of mapping, ```canonical_isoform```
-        * Split DataFrame
-        * Classification
+        Deal with different situations
 
-        <h4>About unp_map_tage</h4>
-        * ```Untrusted & No Isoform```
-        <h5>是指UniProt存在Isoform但是Mapping结果没有明确给出是Map上哪条Isoform,转录本序列与蛋白序列不一致</h5>
-        <h5>It means that there are isoforms in UniProt, but the mapping result does not clearly indicate which isoform is correspond with the transcript(e.g), and the transcript sequence is inconsistent with the protein sequence.</h5>
-        * ```Trusted & No Isoform```
-        <h5>是指UniProt不存在Isoform,Mapping结果没问题</h5>
-        * ```Trusted & Isoform```
-        <h5>是指UniProt存在Isoform,Mapping结果没问题</h5>
+        1. Add New Columns: ``unp_map_tage`` -> Description for the reliability of mapping, ``canonical_isoform``
+        2. Split DataFrame
+        3. Classification
 
-        <h4>Split DataFrame Example 1</h4>
+        **About unp_map_tage**
 
-        |Entry|Gene names|Status|Alternative products (isoforms)|Organism|Protein names|yourlist|isomap|
-        |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
-        |O94827|PLEKHG5 KIAA0720|reviewed|ALTERNATIVE PRODUCTS:  Event=Alternative splic...|Homo sapiens (Human)|Pleckstrin homology domain-containing family G...|NP_065682,NP_001252521|NP_001252521 -> O94827-6,NP_065682 -> O94827-5|
+        * ``Untrusted & No Isoform``
+            * 是指UniProt存在Isoform但是Mapping结果没有明确给出是Map上哪条Isoform,转录本序列与蛋白序列不一致
+            * It means that there are isoforms in UniProt, but the mapping result does not clearly indicate which isoform is correspond with the transcript(e.g), and the transcript sequence is inconsistent with the protein sequence.
+        * ``Trusted & No Isoform``
+            * 是指UniProt不存在Isoform,Mapping结果没问题
+        * ``Trusted & Isoform``
+            * 是指UniProt存在Isoform,Mapping结果没问题
 
-        ---
 
-        |Entry|Gene names|Status|Alternative products (isoforms)|Organism|Protein names|yourlist|UniProt|
-        |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
-        |O94827|PLEKHG5 KIAA0720|reviewed|ALTERNATIVE PRODUCTS:  Event=Alternative splic...|Homo sapiens (Human)|Pleckstrin homology domain-containing family G...|NP_065682|O94827-5|
-        |O94827|PLEKHG5 KIAA0720|reviewed|ALTERNATIVE PRODUCTS:  Event=Alternative splic...|Homo sapiens (Human)|Pleckstrin homology domain-containing family G...|NP_001252521|O94827-6|
+        .. csv-table:: Split DataFrame Example 1
+            :header: "Entry", "Gene names", "Status", "Alternative products (isoforms)", "Organism", "Protein names", "yourlist", "isomap"
 
-        <h4>Split DataFrame Example 2</h4>
+            "O94827", "PLEKHG5 KIAA0720", "reviewed", "ALTERNATIVE PRODUCTS:  Event=Alternative splic...", "Homo sapiens (Human)", "Pleckstrin homology domain-containing family G...", "NP_065682,NP_001252521", "NP_001252521 -> O94827-6,NP_065682 -> O94827-5"
+
+        .. csv-table:: Splited DataFrame Example 1
+            :header: "Entry", "Gene names", "Status", "Alternative products (isoforms)", "Organism", "Protein names", "yourlist", "UniProt"
+
+            "O94827", "PLEKHG5 KIAA0720", "reviewed", "ALTERNATIVE PRODUCTS:  Event=Alternative splic...", "Homo sapiens (Human)", "Pleckstrin homology domain-containing family G...", "NP_065682", "O94827-5"
+            "O94827", "PLEKHG5 KIAA0720", "reviewed", "ALTERNATIVE PRODUCTS:  Event=Alternative splic...", "Homo sapiens (Human)", "Pleckstrin homology domain-containing family G...", "NP_001252521", "O94827-6"
+
         ...
 
+        For more details, please go to https://github.com/NatureGeorge/SIFTS_Plus_Muta_Maps/blob/master/md/UniProt_ID_Mapping.md
         """
 
         df = self.raw_id_mapping
@@ -282,9 +298,16 @@ class UniProt_unit(Unit):
 
     def getGeneStatus(self, handled_df):
         """
-        Will Change the dfrm
+        Will Change the dfrm, add Gene Status
+
         * Add new column (GENE)
         * Add new column (GENE_status)
+
+        **About GENE_status**
+
+        * ``False`` : First element of Gene names is not correspond with refSeq's GENE (e.g)
+        * others(corresponding GENE)
+
         """
         if not self.gene_col:
             return None
@@ -296,8 +319,27 @@ class UniProt_unit(Unit):
 
     def label_mapping_status(self, dfrm, constraint_dict):
         """
-        Will Change the dfrm
+        Will Change the dfrm, label Mapping Status
+
         * Add new column (Mapping_status)
+
+        **About Mapping_status**
+
+        * ``Yes``: 可信的结果，进行后续的PDB Mapping; 通过 ``constraint_dict`` 的限制
+        * ``Error``: 一个id对应多个UniProt; 通过 ``constraint_dict`` 的限制
+        * ``No``: 不可信的结果; 未通过 ``constraint_dict`` 的限制
+
+        Example of ``constraint_dict``:
+
+        .. code-block:: python
+            :linenos:
+
+            constraint_dict = {
+                "GENE_status": (False, "ne"),  # 'ne' for !=
+                "Status": ("reviewed", "eq"),  # 'eq' for ==
+                "unp_map_tage": ("Untrusted & No Isoform", "ne")
+            }
+
         """
         dfrm['Mapping_status'] = 'No'
         # pass_index = dfrm[(dfrm['GENE_status'] != False) & (dfrm['Status'] == 'reviewed') & (dfrm['unp_map_tage'] != 'Untrusted & No Isoform')].index
@@ -315,7 +357,7 @@ class UniProt_unit(Unit):
 
         # Write Report
         all_id = set(self.dfrm[self.id_col])
-        self.report.write("# All id: %s\n" % len(all_id))
+        self.report.write("\n# All id: %s\n" % len(all_id))
         unmapped_id = all_id - set(dfrm['yourlist'])
         self.report.write("# Unmapped id: %s\n" % len(unmapped_id))
         for i in sorted(unmapped_id):
@@ -328,6 +370,42 @@ class UniProt_unit(Unit):
         self.report.write(str(dfrm.loc[err_index]))
 
     def script(self, rawOutputPath, handledOutputPath):
+        """
+        .. code-block:: python
+            :linenos:
+
+            from UniProt_unit import UniProt_unit
+            id_col = 'RefSeq_protein'
+            id_type = 'P_REFSEQ_AC'
+            muta_col = 'mutation_unp'
+            gene_col = 'GENE'
+            usecols = ['id', 'genes', 'reviewed', 'comment(ALTERNATIVE%20PRODUCTS)', 'organism', 'protein%20names']  # Necessary Columns
+            reportPath = '/data/zzf/UniProt_files/id_mapping_files/HGMD_RefSeq_protein_mapping_Report_1021.txt'  # Report of Data Processing
+            rawOutputPath = '/data/zzf/UniProt_files/id_mapping_files/HGMD_RefSeq_protein_mapping_1021.tsv' # OutPut File of ID Mapping (RAW)
+            handledOutputPath = '/data/zzf/groupWorks/HGMD_RefSeq_protein_mapping_modified_1024.tsv'  # OutPut File of ID Mapping (Final Result)
+            # Add constraint/filter to data
+            constraint_dict = {
+                "GENE_status": (False, "ne"),  # 'ne' for !=
+                "Status": ("reviewed", "eq"),  # 'eq' for ==
+                "unp_map_tage": ("Untrusted & No Isoform", "ne")
+            }
+
+            # Initial
+            unp_demo = UniProt_unit(group_df, id_col, id_type, usecols, reportPath, muta_col=muta_col, gene_col=gene_col)
+            # Return True if get RAW Result Successfully
+            unp_demo.get_raw_ID_Mapping(rawOutputPath)
+            # Deal with different situations
+            handled_df = unp_demo.handle_ID_Mapping()
+            # Add Gene Status
+            unp_demo.getGeneStatus(handled_df)
+            # Label Mapping Status
+            unp_demo.label_mapping_status(handled_df, constraint_dict)
+            # close the file-handle of report
+            unp_demo.report.close()
+            # Output the final result
+            handled_df.to_csv(handledOutputPath, sep='\t', index=False)
+
+        """
         step1 = self.get_raw_ID_Mapping(rawOutputPath)
         if not step1:
             return None
@@ -338,5 +416,7 @@ class UniProt_unit(Unit):
             "Status": ("reviewed", "eq"),
             "unp_map_tage": ("Untrusted & No Isoform", "ne")
         }
+        self.report.write("Constraint Dict\n"+json.dumps(constraint_dict)+"\n")
         self.label_mapping_status(handled_df, constraint_dict)
         handled_df.to_csv(handledOutputPath, sep='\t', index=False)
+        self.report.close()

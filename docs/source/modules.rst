@@ -10,7 +10,9 @@ py_src
    MMCIFplus_setup
    MMCIFplus_unit
    MMCIFtoDict
+   Map_Muta_Script
    PdSeq_unit
+   RetrivePDB
    SIFTS_Utils
    SIFTS_unit
    SMR_unit
