@@ -77,6 +77,20 @@ It means that there are isoforms in UniProt, but the mapping result does not cle
 * ```Error```: 一个id对应多个UniProt; 通过```constraint_dict```的限制
 * ```No```: 不可信的结果; 未通过```constraint_dict```的限制
 
+##### About ```GENE_status```
+* ```False```: First element of ```Gene names``` is not correspond with refSeq's ```GENE```
+* others(corresponding ```GENE```)
+
+Example:
+
+|     Entry     |  Gene names   |    Status     |Alternative products (isoforms)|   Organism    | Protein names |canonical_isoform| unp_map_tage  |   yourlist    |    UniProt    |     GENE      |  GENE_status  |Mapping_status |
+|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
+|    Q4VBY6     |    CDC2L2     |  unreviewed   |      NaN      |Homo sapiens (Human)|CDC2L2 protein (Fragment)|      NaN      |Trusted & No Isoform|   NP_076916   |    Q4VBY6     |    CDK11A     |     False     |      No       |
+|    Q9C0B2     |CFAP74 C1orf222 KIAA1751|   reviewed    |ALTERNATIVE PRODUCTS:  Event=Alternative splic...|Homo sapiens (Human)|Cilia- and flagella-associated protein 74|   Q9C0B2-1    |Untrusted & No Isoform| NP_001291289  |    Q9C0B2     |   KIAA1751    |     False     |      No       |
+|    Q96NU1     |    SAMD11     |   reviewed    |ALTERNATIVE PRODUCTS:  Event=Alternative promo...|Homo sapiens (Human)|Sterile alpha motif domain-containing protein ...|   Q96NU1-3    |Untrusted & No Isoform|   NP_689699   |    Q96NU1     |    SAMD11     |     True      |      No       |
+|    P43489     |TNFRSF4 TXGP1L |   reviewed    |      NaN      |Homo sapiens (Human)|Tumor necrosis factor receptor superfamily mem...|      NaN      |Trusted & No Isoform|   NP_003318   |    P43489     |    TNFRSF4    |     True      |      Yes      |
+
+
 #### RAW ID Mapping File
 ##### with no isomap data
 |     Entry     |  Gene names   |    Status     |Alternative products (isoforms)|   Organism    | Protein names |   yourlist    |    isomap     |
@@ -302,8 +316,8 @@ sp|Q96NU1-6|SAM11_HUMAN      APERELGTGEQPLSPTTATSPYGGGHALAGQTSPKQENGTLALLPGAPDPS
 ##### Error Results
 |     Entry     |  Gene names   |    Status     |Alternative products (isoforms)|   Organism    | Protein names |canonical_isoform| unp_map_tage  |   yourlist    |    UniProt    |     GENE      |  GENE_status  |Mapping_status |
 |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
-|    P01911     |HLA-DRB1 HLA-DRB2|   reviewed    |      NaN      |Homo sapiens (Human)|HLA class II histocompatibility antigen, DRB1-...|      NaN      |Trusted &amp; No Isoform|   NP_002115   |    P01911     |   HLA-DRB1    |     True      |     Error     |
-|    Q29974     |   HLA-DRB1    |   reviewed    |      NaN      |Homo sapiens (Human)|HLA class II histocompatibility antigen, DRB1-...|      NaN      |Trusted &amp; No Isoform|   NP_002115   |    Q29974     |   HLA-DRB1    |     True      |     Error     |
+|    P01911     |HLA-DRB1 HLA-DRB2|   reviewed    |      NaN      |Homo sapiens (Human)|HLA class II histocompatibility antigen, DRB1-...|      NaN      |Trusted & No Isoform|   NP_002115   |    P01911     |   HLA-DRB1    |     True      |     Error     |
+|    Q29974     |   HLA-DRB1    |   reviewed    |      NaN      |Homo sapiens (Human)|HLA class II histocompatibility antigen, DRB1-...|      NaN      |Trusted & No Isoform|   NP_002115   |    Q29974     |   HLA-DRB1    |     True      |     Error     |
 
 #### Report Statistis
 * all RefSeq Count: 8450
