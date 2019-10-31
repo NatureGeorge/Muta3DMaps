@@ -1,7 +1,7 @@
 # @Date:   2019-10-24T23:35:42+08:00
 # @Email:  1730416009@stu.suda.edu.cn
-# @Filename: RetrivePDB.py
-# @Last modified time: 2019-10-27T01:20:38+08:00
+# @Filename: RetrievePDB.py
+# @Last modified time: 2019-10-28T11:39:11+08:00
 import wget
 import gzip
 import urllib
@@ -52,23 +52,39 @@ def printList(list):
     print(string)
 
 
-class RetrivePDB:
+class RetrievePDB:
     """
-    Retrive PDB File
+    Retrieve PDB File
+
+    PDB Archive Reference: wwPDB [1]_ [2]_ [3]_ [4]_, RCSB [5]_ [6]_, PDBe [7]_, PDBj [8]_
+    FTP Site Reference: [9]_
+    Code Reference: [10]_
+
+    .. [1] http://www.wwpdb.org/
+    .. [2] H.M. Berman, K. Henrick, H. Nakamura (2003) Announcing the worldwide Protein Data Bank Nature Structural Biology 10 (12): 980.
+    .. [3] H.M. Berman, K. Henrick, H.Nakamura, J.L. Markley (2007) The Worldwide Protein Data Bank (wwPDB): Ensuring a single, uniform archive of PDB data Nucleic Acids Res. 35 (Database issue): D301-3.
+    .. [4] wwPDB consortium. (2019) Protein Data Bank: the single global archive for 3D macromolecular structure data. Nucleic Acids Res 47: D520-D528 doi: 10.1093/nar/gky949.
+    .. [5] http://www.rcsb.org/
+    .. [6] H.M. Berman, J. Westbrook, Z. Feng, G. Gilliland, T.N. Bhat, H. Weissig, I.N. Shindyalov, P.E. Bourne. (2000) The Protein Data Bank Nucleic Acids Research, 28: 235-242.
+    .. [7] https://www.ebi.ac.uk/pdbe/
+    .. [8] https://pdbj.org/
+    .. [9] http://www.wwpdb.org/ftp/pdb-ftp-sites
+    .. [10] http://zetcode.com/python/ftp/
 
     Script:
 
     .. code-block:: python
         :linenos:
 
-        ftpPDB = RetrivePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
-        ftpPDB.ftp_retrive(pdbs=['10z1', '10z2', '2xyn', '10z3'], remove=True)
+        ftpPDB = RetrievePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
+        ftpPDB.ftp_retrieve(pdbs=['10z1', '10z2', '2xyn', '10z3'], remove=True)
         print(ftpPDB)
         printList(ftpPDB.getFail())
-        ftpPDB.quick_ftp_retrive('5js8', remove=False)
-        ftpPDB.quick_http_retrive('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
+        ftpPDB.quick_ftp_retrieve('5js8', remove=False)
+        ftpPDB.quick_http_retrieve('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
 
     """
+
     class HandleIO:
         def __init__(self, handle):
             self.handle = handle
@@ -102,7 +118,7 @@ class RetrivePDB:
 
     def __repr__(self):
         format = "%s: %s, "
-        string = "RetrivePDB: {%s}"
+        string = "RetrievePDB: {%s}"
         content = ""
         for key, value in self.__dict__.items():
             if key not in ['pdbs', 'fail']:
@@ -180,9 +196,9 @@ class RetrivePDB:
         else:
             raise ValueError("Invalid Input")
 
-    def ftp_retrive(self, **kwargs):
+    def ftp_retrieve(self, **kwargs):
         """
-        Retrive PDB files via FTP Connection
+        Retrieve PDB files via FTP Connection
 
         :param pdbs: single PDB id or PDB ids
         :param bool remove: whether remove the compressed file, default value: `True`
@@ -201,7 +217,7 @@ class RetrivePDB:
             print(ftp.getwelcome())
             ftp.login()  # anonymous account
             ftp.cwd("%s/%s" % (self.dividedPath, self.format))
-            # Start to retrive
+            # Start to retrieve
             cur = ""
             for pdb in self.pdbs:
                 pdb = pdb.lower()
@@ -265,7 +281,7 @@ class RetrivePDB:
         except Exception as e:
             print(e)
 
-    def quick_ftp_retrive(self, pdb, remove=True):
+    def quick_ftp_retrieve(self, pdb, remove=True):
         """
         Download PDB file via FTP with ``wget``
 
@@ -287,7 +303,7 @@ class RetrivePDB:
             self.fail.append(pdb)
         self.decompression(path, remove=remove)
 
-    def quick_http_retrive(self, pdb, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
+    def quick_http_retrieve(self, pdb, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
         """
         Download PDB file via HTTP with ``wget.download`` or ``urllib.request.urlopen``
 
@@ -333,7 +349,7 @@ class RetrivePDB:
 
 class MPWrapper:
     """
-    Multiprocessing wrapper for ``RetrivePDB``
+    Multiprocessing wrapper for ``RetrievePDB``
 
     When there is a large number of PDB files to download, this class is helpful.
     But Need to be careful with the numbers of processes and the time of sleep.
@@ -345,10 +361,10 @@ class MPWrapper:
 
         pdbs = ['1A02', '3KBZ', '3KC0', '3KC1', '3KMU', '3KMW', '3KYC', '3KYD', ...]
         mpw = MPWrapper("C:/Users/Nature/Downloads/")
-        # fail = mpw.http_retrive(pdbs)
-        # fail = mpw.http_retrive(pdbs, module="urllib")
-        # fail = mpw.ftp_retrive_wget(pdbs)
-        fail = mpw.ftp_retrive_batch(pdbs)
+        # fail = mpw.http_retrieve(pdbs)
+        # fail = mpw.http_retrieve(pdbs, module="urllib")
+        # fail = mpw.ftp_retrieve_wget(pdbs)
+        fail = mpw.ftp_retrieve_batch(pdbs)
         printList(fail)
 
     :param str downloadPath: File folder of Downloaded PDB files
@@ -361,7 +377,7 @@ class MPWrapper:
 
     def __init__(self, downloadPath, processes=3, maxSleep=3, ftpSite="RCSB", format="mmCIF"):
         self.setProcesses(processes, maxSleep)
-        self.retrivePDB = RetrivePDB(
+        self.retrievePDB = RetrievePDB(
             downloadPath, ftpSite=ftpSite, format=format)
 
     def setProcesses(self, processes, maxSleep):
@@ -376,9 +392,9 @@ class MPWrapper:
         self.processes = processes
         self.maxSleep = maxSleep
 
-    def http_retrive(self, pdbs, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
+    def http_retrieve(self, pdbs, module="wget", view=False, bioAssembly="", extension=".gz", remove=True):
         """
-        Retrive PDB file via http with ``wget.download`` or ``urllib.request.urlopen``
+        Retrieve PDB file via http with ``wget.download`` or ``urllib.request.urlopen``
 
         **HTTP SITE: RCSB ONLY**
 
@@ -395,14 +411,14 @@ class MPWrapper:
         def register(pdb):
             stop = uniform(0, self.maxSleep)
             sleep(stop)
-            self.retrivePDB.quick_http_retrive(pdb, module=module, view=view, bioAssembly=bioAssembly, extension=extension, remove=remove)
+            self.retrievePDB.quick_http_retrieve(pdb, module=module, view=view, bioAssembly=bioAssembly, extension=extension, remove=remove)
             # print(pdb, stop)
 
         pool = Pool(processes=self.processes)
         pool.map(register, pdbs)
-        return self.retrivePDB.getFail()
+        return self.retrievePDB.getFail()
 
-    def ftp_retrive_wget(self, pdbs, remove=True):
+    def ftp_retrieve_wget(self, pdbs, remove=True):
         """
         Download PDB file via FTP with ``wget``
 
@@ -415,16 +431,16 @@ class MPWrapper:
         def register(pdb):
             stop = uniform(0, self.maxSleep)
             sleep(stop)
-            self.retrivePDB.quick_ftp_retrive(pdb, remove=remove)
+            self.retrievePDB.quick_ftp_retrieve(pdb, remove=remove)
             # print(pdb, stop)
 
         pool = Pool(processes=self.processes)
         pool.map(register, pdbs)
-        return self.retrivePDB.getFail()
+        return self.retrievePDB.getFail()
 
-    def ftp_retrive_batch(self, pdbs, remove=True, chunksize=100):
+    def ftp_retrieve_batch(self, pdbs, remove=True, chunksize=100):
         """
-        Retrive PDB files via FTP Connection
+        Retrieve PDB files via FTP Connection
 
         :param pdbs: An object containing the PDB ids that need to be download
         :param bool remove: whether remove the compressed file, default value: `True`
@@ -438,21 +454,21 @@ class MPWrapper:
 
         def register(chunk):
             sleep(uniform(0, self.maxSleep))
-            self.retrivePDB.ftp_retrive(pdbs=chunk, remove=remove)
+            self.retrievePDB.ftp_retrieve(pdbs=chunk, remove=remove)
             # print(chunk)
 
         chunks = [pdbs[i:i + chunksize]
                   for i in range(0, len(pdbs), chunksize)]
         pool = Pool(processes=self.processes)
         pool.map(register, chunks)
-        return self.retrivePDB.getFail()
+        return self.retrievePDB.getFail()
 
 
 if __name__ == "__main__":
-    # ftpPDB = RetrivePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
-    # ftpPDB.ftp_retrive(pdbs=['10z1', '10z2', '10z3'], remove=True)
-    # ftpPDB.quick_ftp_retrive('5js8', remove=False)
-    # ftpPDB.quick_http_retrive('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
+    # ftpPDB = RetrievePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
+    # ftpPDB.ftp_retrieve(pdbs=['10z1', '10z2', '10z3'], remove=True)
+    # ftpPDB.quick_ftp_retrieve('5js8', remove=False)
+    # ftpPDB.quick_http_retrieve('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
     # print(ftpPDB)
     # printList(ftpPDB.getFail())
     pdbs = ['1A02',
@@ -502,7 +518,7 @@ if __name__ == "__main__":
             '3REP',
             '3RJM']
     mpw = MPWrapper("C:/Users/Nature/Downloads/")  # 1.1: 79s 1.2: 90s 2: 114s 3:154s
-    # mpw.http_retrive(pdbs)  # 79s
-    # mpw.http_retrive(pdbs, module="urllib")  # 90s
-    # mpw.ftp_retrive_wget(pdbs)  # 114s
-    # mpw.ftp_retrive_batch(pdbs)  # 154s
+    # mpw.http_retrieve(pdbs)  # 79s
+    # mpw.http_retrieve(pdbs, module="urllib")  # 90s
+    # mpw.ftp_retrieve_wget(pdbs)  # 114s
+    # mpw.ftp_retrieve_batch(pdbs)  # 154s

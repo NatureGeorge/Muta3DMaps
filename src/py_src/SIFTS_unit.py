@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-10-18T21:38:29+08:00
+# @Last modified time: 2019-10-19T19:28:02+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -254,7 +254,7 @@ class SIFTS_unit(Unit):
                 mis_li = json.loads(li.replace('\'', '"'))
             except Exception:
                 return 0
-            if not isinstance(head, float) and not isinstance(tail, float): # WARNING
+            if not isinstance(head, float) and not isinstance(tail, float):  # WARNING
                 return len(list(filter(lambda x: (x >= head+5) & (x <= tail-5), mis_li)))
             else:
                 return 0
@@ -279,7 +279,7 @@ class SIFTS_unit(Unit):
             mat.index = ele_list
             for i in ele_list:
                 for j in ele_list:
-                    mat[i][j] = com_dict.get((i,j), 1)
+                    mat[i][j] = com_dict.get((i, j), 1)
             x = mat.values
             y = 1/x
             value, vector = np.linalg.eig(np.triu(x.T).T + np.triu(y.T) - np.diag(x.diagonal()))
@@ -770,6 +770,10 @@ class SIFTS_unit(Unit):
             copo_df_li.append(copo_df)
 
         return pd.concat(copo_df_li), pd.DataFrame(warn_li, columns=['Target_UniprotID', 'Interactor_UniprotID'])
+
+    def get_unp_len_from_fasta(self, unp, unp_fasta_files_path):
+        unpSeqOb = SeqIO.read(unp_fasta_files_path % unp, "fasta")
+        return len(unpSeqOb.seq)
 
 
 if __name__ == '__main__':

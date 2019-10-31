@@ -1,22 +1,17 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-10-26T18:12:08+08:00
+# @Last modified time: 2019-10-29T17:37:00+08:00
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
 from collections import defaultdict, Iterable, Iterator
-import time
-import requests
-# from urllib import request
-# from retrying import retry
-from multiprocessing.dummy import Pool
 from Bio.File import as_handle
 from Bio.PDB.MMCIF2Dict import MMCIF2Dict
 from Unit import Unit
-from RetrivePDB import MPWrapper
+from RetrievePDB import MPWrapper
 sys.path.append('./')
 
 MMCIF_FILE_FOLDER = {
@@ -196,7 +191,9 @@ class MMCIF2DictPlus(MMCIF2Dict):
 class MMCIF2Dfrm(Unit):
     """
     # Convert MMCIF data into a DataFrame
+
     ## Key Feactures of PDB
+
     * Which method & resolution (Filter)
     * Date (Filter)
     * Whether ATOM ONLY (Filter)
@@ -210,7 +207,8 @@ class MMCIF2Dfrm(Unit):
     * Ligands
     * Missing Region of each chain
     * ...
-    ## Ability of Building/Updaeing DataSet
+
+    ## Ability of Building/Updating DataSet
     """
 
     FUNC_LI_DI = []
@@ -264,6 +262,16 @@ class MMCIF2Dfrm(Unit):
         mpw = MPWrapper(MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], processes=processes, maxSleep=maxSleep)
         # @retry(stop_max_attempt_number=3, wait_fixed=1000)
         mpw.http_retrive(unDownload)
+
+    def update_mmcif_result(self, rawOutputPath, handledOutputPath, chunksize=100, finished=[]):
+        mmcif_file_li = []
+        for path in self.pdb_path_li:
+            if path[-8:-4] not in finished:
+                mmcif_file_li.append(path)
+        for i in range(0, len(mmcif_file_li), chunksize):
+            chunk_li = mmcif_file_li[i:i+chunksize]
+            chunk_df = self.mmcif_dict2dfrm(chunk_li, outputPath=rawOutputPath)
+            self.handle_mmcif_dfrm(chunk_df, outputPath=handledOutputPath)
 
     def get_mmcif_dict(info_key, info_dict, path):
         '''
@@ -572,7 +580,7 @@ class MMCIF2Dfrm(Unit):
         new_type_poly_df.rename(columns={
                                 '_entity_poly.entity_id': 'entity_id', '_entity_poly.type': 'protein_type'}, inplace=True)
         basic_df.rename(
-            columns={'_pdbx_poly_seq_scheme.pdb_strand_id': 'chain_id', '_pdbx_poly_seq_scheme.asym_id':'asym_id'}, inplace=True)
+            columns={'_pdbx_poly_seq_scheme.pdb_strand_id': 'chain_id', '_pdbx_poly_seq_scheme.asym_id': 'asym_id'}, inplace=True)
 
         ligand_df.rename(
             columns={DEFAULT_COLS['METAL_LIGAND_COL'][0]: 'asym_id'}, inplace=True)
