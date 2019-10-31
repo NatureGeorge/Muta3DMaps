@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-10-27T01:38:26+08:00
+# @Last modified time: 2019-10-31T22:51:23+08:00
 import urllib.parse
 import urllib.request
 from retrying import retry
@@ -115,7 +115,7 @@ class UniProt_unit(Unit):
                 iter_io(chunk[0], self.params, self.URL, outputPath)
         else:
             if os.path.exists(outputPath):
-                new_colNames = [self.CONFIG['COLUMN_DICT'].get(i, i) for i in usecols] + ['yourlist', 'isomap']
+                new_colNames = [self.COLUMN_DICT.get(i, i) for i in usecols] + ['yourlist', 'isomap']
                 finish = pd.read_csv(outputPath, sep='\t', usecols=['yourlist'], names=new_colNames, skiprows=1, header=None)['yourlist']
                 finish_li = []
                 for i in finish:
@@ -191,7 +191,7 @@ class UniProt_unit(Unit):
         if not status:
             return False
 
-        new_colNames = [self.CONFIG['COLUMN_DICT'].get(i, i) for i in self.usecols] + ['yourlist', 'isomap']
+        new_colNames = [self.COLUMN_DICT.get(i, i) for i in self.usecols] + ['yourlist', 'isomap']
         dfrm = pd.read_csv(outputPath, sep='\t', names=new_colNames, skiprows=1, header=None)
         # WRITE REPORT
         self.report.write("# RAW ID MAPPING FILE RESULT\n# %s\n" % (outputPath))
@@ -275,21 +275,25 @@ class UniProt_unit(Unit):
 
         # In subClass 2
         df_wi_ne = df_with_isomap.loc[wi_yourlist_count[wi_yourlist_count != wi_isomap_count].index]
-        df_wi_ne_split = UniProt_unit.split_df(df_wi_ne, 'isomap', ',')
-        df_wi_ne_split.rename(columns={'yourlist': 'checkinglist'}, inplace=True)
-        df_wi_ne_split['yourlist'], df_wi_ne_split['UniProt'] = df_wi_ne_split['isomap'].str.split(' -> ', 1).str
-        df_wi_ne_split.drop(columns=['isomap'], inplace=True)
-        df_wi_ne_split['unp_map_tage'] = 'Trusted & Isoform & Contain Warnings'
-        # 'Entry', 'Gene names', 'Status', 'Alternative products (isoforms)', 'Organism', 'yourlist', 'UniProt', 'checkinglist'
-        # Find out special cases 2
-        usecols = pd.Index(set(df_wi_ne_split.columns) - {'yourlist', 'UniProt'})
-        df_wi_ne_warn = UniProt_unit.split_df(df_wi_ne_split[usecols].drop_duplicates(), 'checkinglist', ',')
-        df_wi_ne_warn = df_wi_ne_warn[~df_wi_ne_warn['checkinglist'].isin(df_wi_ne_split['yourlist'])].rename(columns={'checkinglist': 'yourlist'})
-        df_wi_ne_warn['UniProt'] = df_wi_ne_warn['Entry']
-        df_wi_ne_warn['unp_map_tage'] = 'Untrusted & No Isoform'
+        if len(df_wi_ne) > 0:
+            df_wi_ne_split = UniProt_unit.split_df(df_wi_ne, 'isomap', ',')
+            df_wi_ne_split.rename(columns={'yourlist': 'checkinglist'}, inplace=True)
+            df_wi_ne_split['yourlist'], df_wi_ne_split['UniProt'] = df_wi_ne_split['isomap'].str.split(' -> ', 1).str
+            df_wi_ne_split.drop(columns=['isomap'], inplace=True)
+            df_wi_ne_split['unp_map_tage'] = 'Trusted & Isoform & Contain Warnings'
+            # 'Entry', 'Gene names', 'Status', 'Alternative products (isoforms)', 'Organism', 'yourlist', 'UniProt', 'checkinglist'
+            # Find out special cases 2
+            usecols = pd.Index(set(df_wi_ne_split.columns) - {'yourlist', 'UniProt'})
+            df_wi_ne_warn = UniProt_unit.split_df(df_wi_ne_split[usecols].drop_duplicates(), 'checkinglist', ',')
+            df_wi_ne_warn = df_wi_ne_warn[~df_wi_ne_warn['checkinglist'].isin(df_wi_ne_split['yourlist'])].rename(columns={'checkinglist': 'yourlist'})
+            df_wi_ne_warn['UniProt'] = df_wi_ne_warn['Entry']
+            df_wi_ne_warn['unp_map_tage'] = 'Untrusted & No Isoform'
 
-        # Update UniProt
-        final_df = pd.concat((df_wni_split, df_wi_eq_split, df_wi_ne_split.drop(columns=['checkinglist']), df_wi_ne_warn), sort=False).reset_index(drop=True)
+            # Update UniProt
+            final_df = pd.concat((df_wni_split, df_wi_eq_split, df_wi_ne_split.drop(columns=['checkinglist']), df_wi_ne_warn), sort=False).reset_index(drop=True)
+        else:
+            final_df = pd.concat((df_wni_split, df_wi_eq_split), sort=False).reset_index(drop=True)
+
         final_df['UniProt'] = final_df.apply(lambda x: x['Entry'] if x['UniProt'] == x['canonical_isoform'] else x['UniProt'], axis=1)
         if len(canonicalInfo_special_se) > 0:
             canonicalInfo_special_case = final_df[final_df['canonical_isoform'].isin(canonicalInfo_special_se)].index
