@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-10-31T22:51:23+08:00
+# @Last modified time: 2019-10-31T23:11:02+08:00
 import urllib.parse
 import urllib.request
 from retrying import retry
@@ -154,7 +154,7 @@ class UniProt_unit(Unit):
         self.gene_col = gene_col
         if muta_col is not None:
             self.muta_li = dfrm.groupby(by=[id_col]).apply(lambda x: [i for i in x[muta_col]])
-        self.report = open(reportPath, 'w+')
+        self.report = open(reportPath, 'a+')
 
     def split_df(dfrm, colName, sep):
         """Split DataFrame"""

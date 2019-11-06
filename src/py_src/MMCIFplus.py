@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-10-29T17:37:00+08:00
+# @Last modified time: 2019-11-06T15:58:17+08:00
 import os
 import sys
 import json
@@ -18,9 +18,12 @@ MMCIF_FILE_FOLDER = {
     'MMCIF_OLD_FOLDER': [
         '/data1/suntt/process0606/cgc_mmcif_file/',
         '/data1/suntt/CanDriver/Data/PDB_cgc/cgc_mmcif_file/',
-        '/data1/suntt/CanDriver/Data/PDB_NEW/mmcif_file/'
+        '/data1/suntt/CanDriver/Data/PDB_NEW/mmcif_file/',
+        '/home/zzf/Work/SIFTS_Plus_Muta_Maps/data/mmcif_file/'
         ],
-    'MMCIF_NEW_FOLDER': '/home/zzf/Work/SIFTS_Plus_Muta_Maps/data/mmcif_file/',
+    'MMCIF_NEW_FOLDER': [
+        '/data/zzf/MMCIF_files/CIF/'
+    ],
 }
 
 CONFIG = {
@@ -250,7 +253,8 @@ class MMCIF2Dfrm(Unit):
 
     def check_mmcif_file(self, pdb_list, processes=4, maxSleep=3):
         def find_unDownloaded_file(pdbId):
-            for path in MMCIF_FILE_FOLDER['MMCIF_OLD_FOLDER'] + [MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER']]:
+            # for path in MMCIF_FILE_FOLDER['MMCIF_OLD_FOLDER'] + [MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER']]:
+            for path in MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER']:
                 old_path = '%s%s.cif' % (path, pdbId)
                 if os.path.exists(old_path):
                     MMCIF2Dfrm.pdb_path_li.append(old_path)
@@ -261,7 +265,7 @@ class MMCIF2Dfrm(Unit):
         unDownload = list(filter(find_unDownloaded_file, pdb_list))
         mpw = MPWrapper(MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'], processes=processes, maxSleep=maxSleep)
         # @retry(stop_max_attempt_number=3, wait_fixed=1000)
-        mpw.http_retrive(unDownload)
+        mpw.http_retrieve(unDownload)
 
     def update_mmcif_result(self, rawOutputPath, handledOutputPath, chunksize=100, finished=[]):
         mmcif_file_li = []
