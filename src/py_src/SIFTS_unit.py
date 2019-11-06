@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:24:17+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: SIFTS_unit.py
-# @Last modified time: 2019-10-19T19:28:02+08:00
+# @Last modified time: 2019-11-06T18:56:37+08:00
 import pandas as pd
 import numpy as np
 import json, wget, gzip, time, sys
@@ -589,14 +589,16 @@ class SIFTS_unit(Unit):
                     else:
                         error_info.append('PossibleMutation: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
                     sub_error_li.append('' + ','.join(error_info))
+                elif auth_seq_li[seqresSite-1] == "?":
+                    sub_error_li.append('Missing')
                 else:
                     sub_error_li.append('Safe')
 
                 # Check inscode
                 if inscode != '.':
-                    new_muta_site.append('%s%s' % (auth_seq_li[seqresSite-1], inscode))
+                    new_muta_site.append('%s%s' % (com_seq_li[seqresSite-1], inscode))
                 else:
-                    new_muta_site.append(auth_seq_li[seqresSite-1])
+                    new_muta_site.append(com_seq_li[seqresSite-1])
         else:
             for muta in muta_li:
                 try:
@@ -627,11 +629,13 @@ class SIFTS_unit(Unit):
                         error_info.append('ModifiedResidue: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
                     else:
                         error_info.append('PossibleMutation: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
-                    error_li.append('' + ','.join(error_info))
+                    sub_error_li.append('' + ','.join(error_info))
+                elif auth_seq_li[seqresSite-1] == "?":
+                    sub_error_li.append('Missing')
                 else:
-                    error_li.append('Safe')
+                    sub_error_li.append('Safe')
 
-                new_muta_site.append(auth_seq_li[seqresSite-1])
+                new_muta_site.append(com_seq_li[seqresSite-1])
 
         error_li.append(sub_error_li)
         return new_muta_site
