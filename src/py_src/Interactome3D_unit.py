@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Interactome3D_unit.py
-# @Last modified time: 2019-10-21T18:54:51+08:00
+# @Last modified time: 2019-11-07T21:56:39+08:00
 import pandas as pd
 import wget, time, sys
 from urllib import request
@@ -81,7 +81,7 @@ class Interactome3D_unit(Unit):
         for i in range(0, len(fileName_list), chunksize):
             chunk_li = fileName_list[i:i+chunksize]
             pool = Pool(processes=20)
-            pool.map(download_pdb_from_Interactome3D, chunk_li)
+            pool.map(Interactome3D_unit.download_pdb_from_Interactome3D, chunk_li)
 
 
 if __name__ == '__main__':

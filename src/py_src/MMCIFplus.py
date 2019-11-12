@@ -1,7 +1,7 @@
 # @Date:   2019-09-09T16:32:43+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: MMCIFplus.py
-# @Last modified time: 2019-11-06T18:39:45+08:00
+# @Last modified time: 2019-11-12T18:43:21+08:00
 import os
 import sys
 import json
@@ -50,7 +50,9 @@ DEFAULT_COLS = {
     'LIGAND_COL': [
         '_struct_conn.conn_type_id', '_struct_conn.ptnr1_auth_comp_id', '_struct_conn.ptnr2_auth_comp_id',
         '_struct_conn.ptnr1_auth_asym_id', '_struct_conn.ptnr2_auth_asym_id',
-        '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id'],
+        '_struct_conn.ptnr1_auth_seq_id', '_struct_conn.ptnr2_auth_seq_id',
+        '_struct_conn.pdbx_ptnr1_PDB_ins_code', '_struct_conn.pdbx_ptnr2_PDB_ins_code',
+        '_struct_conn.ptnr1_label_seq_id', '_struct_conn.ptnr2_label_seq_id'],
     'BIOASS_COL': ['_pdbx_struct_assembly_gen.assembly_id',
                    '_pdbx_struct_assembly_gen.oper_expression',
                    '_pdbx_struct_assembly_gen.asym_id_list',
@@ -370,22 +372,25 @@ class MMCIF2Dfrm(Unit):
             ligand_col_zip_li = list(zip(*ligand_col_tp))
 
             aa_li = list(MMCIF2Dfrm.SEQ_DICT.keys())[:21]
+            '''
             metal_ligand_info = list(
-                filter(lambda x: x[0] == 'metalc', ligand_col_zip_li))
-            # chain_id: _struct_conn.ptnr2_auth_asym_id [4]
+                filter(lambda x: x[0] != 'covale', ligand_col_zip_li))
+            '''
+            metal_ligand_info = ligand_col_zip_li
+            # chain_id: _struct_conn.ptnr2_auth_asym_id [4] x[1] in metal_li and
             sub_metal_ligand_info_1 = filter(
-                lambda x: x[1] in metal_li and x[2] in aa_li, metal_ligand_info)
-            # chain_id: _struct_conn.ptnr1_auth_asym_id [3]
+                lambda x: x[2] in aa_li, metal_ligand_info)
+            # chain_id: _struct_conn.ptnr1_auth_asym_id [3] x[2] in metal_li and
             sub_metal_ligand_info_2 = filter(
-                lambda x: x[2] in metal_li and x[1] in aa_li, metal_ligand_info)
+                lambda x: x[1] in aa_li, metal_ligand_info)
 
             new_metal_ligand_info = []
             for tp in sub_metal_ligand_info_1:
                 new_metal_ligand_info.append(
-                    (tp[4], tp[1], tp[5], tp[2], tp[6]))
+                    (tp[4], tp[0], tp[1], tp[5], tp[2], tp[6], tp[7], tp[10]))
             for tp in sub_metal_ligand_info_2:
                 new_metal_ligand_info.append(
-                    (tp[3], tp[2], tp[6], tp[1], tp[5]))
+                    (tp[3], tp[0], tp[2], tp[6], tp[1], tp[5], tp[8], tp[9]))
 
             new_metal_ligand_info.sort(key=lambda x: x[0])
             try:
@@ -641,10 +646,15 @@ class MMCIF2Dfrm(Unit):
 
 if __name__ == '__main__':
     route = 'C:\\Users\\Nature\\Desktop\\LiGroup\\Filter_new_20190123\\doc_in\\spe\\'
-    file_list = os.listdir(route)
-    file_p_list = [route + i for i in file_list]
+    pdbs = pd.read_csv(route+"warn.txt", sep="\t", header=None, skiprows=70)
+    MMCIF_FILE_FOLDER['MMCIF_NEW_FOLDER'] = route
     mmcif_demo = MMCIF2Dfrm()
-    df = mmcif_demo.mmcif_dict2dfrm(file_p_list)
+    mmcif_demo.check_mmcif_file(pdbs[0])
+    df = mmcif_demo.mmcif_dict2dfrm(MMCIF2Dfrm.pdb_path_li)
     df_new = mmcif_demo.handle_mmcif_dfrm(df)
     for i in df_new.index:
-        print(df_new.loc[i, ])
+        if not isinstance(df_new.loc[i, 'metal_ligand_content'], float):
+            print(df_new.loc[i, 'pdb_id'])
+            print(df_new.loc[i, 'chain_id'])
+            print(df_new.loc[i, 'asym_id'])
+            print(df_new.loc[i, 'metal_ligand_content'])
