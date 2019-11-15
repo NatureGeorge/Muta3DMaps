@@ -1,7 +1,7 @@
 # @Date:   2019-10-24T23:35:42+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: RetrievePDB.py
-# @Last modified time: 2019-10-28T11:39:11+08:00
+# @Last modified time: 2019-11-15T15:01:00+08:00
 import wget
 import gzip
 import urllib
@@ -43,6 +43,8 @@ _FORMAT_DICT = {
 _RAW_FORMAT = {".pdb": ".ent"}
 _RCSB_HTTP_VIEW = "https://files.rcsb.org/view/"
 _RCSB_HTTP = "https://files.rcsb.org/download/"
+_RCSB_REPORT_HTTP = "https://files.rcsb.org/pub/pdb/validation_reports/"
+_XML_REPORT_KEY = ["percent-rota-outliers", "percent-rama-outliers", "clashscore"]
 
 
 def printList(list):
@@ -346,6 +348,21 @@ class RetrievePDB:
         if not view and extension == '.gz':
             self.decompression(path, remove=remove)
 
+    def quick_http_retrieve_report(self, pdb, remove=True):
+        # https://files.rcsb.org/pub/pdb/validation_reports/g9/3g96/3g96_validation.xml.gz
+        pdb = pdb.lower()
+        fileName = "{pdb}_validation.xml.gz".format(pdb=pdb)
+        url = "{reportSite}{sub}/{pdb}/{fileName}".format(reportSite=_RCSB_REPORT_HTTP, sub=pdb[1:3], pdb=pdb, fileName=fileName)
+        path = os.path.join(self.downloadPath, fileName)
+        print("Downloading File: %s" % path)
+        try:
+            wget.download(url, out=path)
+        except urllib.error.URLError:
+            print("Download failed")
+            self.fail.append(pdb)
+            return
+        self.decompression(path, remove=remove)
+
 
 class MPWrapper:
     """
@@ -412,6 +429,17 @@ class MPWrapper:
             stop = uniform(0, self.maxSleep)
             sleep(stop)
             self.retrievePDB.quick_http_retrieve(pdb, module=module, view=view, bioAssembly=bioAssembly, extension=extension, remove=remove)
+            # print(pdb, stop)
+
+        pool = Pool(processes=self.processes)
+        pool.map(register, pdbs)
+        return self.retrievePDB.getFail()
+
+    def http_retrieve_report(self, pdbs, remove=True):
+        def register(pdb):
+            stop = uniform(0, self.maxSleep)
+            sleep(stop)
+            self.retrievePDB.quick_http_retrieve_report(pdb, remove=remove)
             # print(pdb, stop)
 
         pool = Pool(processes=self.processes)
@@ -518,7 +546,7 @@ if __name__ == "__main__":
             '3REP',
             '3RJM']
     mpw = MPWrapper("C:/Users/Nature/Downloads/")  # 1.1: 79s 1.2: 90s 2: 114s 3:154s
-    # mpw.http_retrieve(pdbs)  # 79s
+    mpw.http_retrieve_report(pdbs[:10])  # 79s
     # mpw.http_retrieve(pdbs, module="urllib")  # 90s
     # mpw.ftp_retrieve_wget(pdbs)  # 114s
     # mpw.ftp_retrieve_batch(pdbs)  # 154s
