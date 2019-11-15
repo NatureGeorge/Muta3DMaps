@@ -234,7 +234,7 @@ class RetrievePDB:
                     file_orig = "%s%s%s.gz" % (self.prefix, pdb, self.raw_tail)
                     # Start to download
                     filename = os.path.join(
-                        self.downloadPath, "%s%s.gz" % (pdb, self.tail))
+                        self.downloadPath, "%s%s.gz" % (pdb.upper(), self.tail))
                     print("Downloading File: %s" % filename)
                     data = self.HandleIO(open(filename, 'w+b'))
                     res = ftp.retrbinary('RETR ' + file_orig, data.append)
@@ -296,7 +296,7 @@ class RetrievePDB:
         file_orig = "%s%s%s.gz" % (self.prefix, pdb, self.raw_tail)
         site = "%s%s/%s/%s/%s/%s" % (_FTP_HEADER, self.host,
                                      self.dividedPath, self.format, pdb[1:3], file_orig)
-        path = os.path.join(self.downloadPath, "%s%s.gz" % (pdb, self.tail))
+        path = os.path.join(self.downloadPath, "%s%s.gz" % (pdb.upper(), self.tail))
         print("Downloading File: %s" % path)
         try:
             wget.download(site, out=path)
