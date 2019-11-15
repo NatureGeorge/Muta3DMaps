@@ -2,16 +2,16 @@
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
 # @Last modified time: 2019-11-14T20:30:58+08:00
-# import urllib.parse
-# import urllib.request
-import requests
+import urllib.parse
+import urllib.request
+# import requests
+# from multiprocessing import Pool
 import pandas as pd
 import numpy as np
 from random import uniform
 from time import sleep
 import os, sys, re, json
 from collections import Counter
-from multiprocessing import Pool
 sys.path.append('./')
 from Unit import Unit
 
