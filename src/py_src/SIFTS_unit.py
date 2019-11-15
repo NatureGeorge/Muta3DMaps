@@ -115,7 +115,7 @@ class SIFTS_unit(Unit):
             self.file_list.append(filePath)
 
         dfrm = pd.read_csv(filePath, sep=',', header=1)
-        dfrm['PDB'] = dfrm.apply(lambda x: x['PDB'].upper(), axis=1)
+        # dfrm['PDB'] = dfrm.apply(lambda x: x['PDB'].upper(), axis=1)
         pdb_list = []
         if related_unp:
             dfrm = dfrm[dfrm['SP_PRIMARY'].isin(related_unp)]

@@ -1,16 +1,17 @@
 # @Date:   2019-08-16T20:26:58+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: UniProt_unit.py
-# @Last modified time: 2019-10-31T23:11:02+08:00
-import urllib.parse
-import urllib.request
-from retrying import retry
+# @Last modified time: 2019-11-14T20:30:58+08:00
+# import urllib.parse
+# import urllib.request
+import requests
 import pandas as pd
 import numpy as np
 from random import uniform
 from time import sleep
 import os, sys, re, json
 from collections import Counter
+from multiprocessing import Pool
 sys.path.append('./')
 from Unit import Unit
 
@@ -63,6 +64,7 @@ class UniProt_unit(Unit):
     '''
 
     URL = 'https://www.uniprot.org/uploadlists/'
+    USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE'
     COLUMNS = ['id', 'length', 'reviewed', 'comment(ALTERNATIVE%20PRODUCTS)', 'feature(ALTERNATIVE%20SEQUENCE)', 'genes', 'organism', 'sequence', 'protein%20names']
     COLUMN_DICT = {
                     'id': 'Entry', 'length': 'Length', 'reviewed': 'Status',
@@ -76,15 +78,27 @@ class UniProt_unit(Unit):
         'format': 'tab',
     }
 
-    @retry(stop_max_attempt_number=3, wait_fixed=1000)
+    # @retry(stop_max_attempt_number=3, wait_fixed=1000)
     def go_to_uniprot(url, params, code='utf-8'):
         sleep(uniform(0.99, 5))
         data = urllib.parse.urlencode(params)
         data = data.encode('utf-8')
-        req = urllib.request.Request(url, data)
+        req = urllib.request.Request(url, data, headers={'User-Agent': 'User-Agent:Mozilla/5.0'})
         with urllib.request.urlopen(req) as f:
             response = f.read()
         return response.decode(code)
+        '''
+        session = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(max_retries=2)
+        session.mount('https://', adapter)
+        session.mount('http://', adapter)
+        session.headers.update({'User-Agent': UniProt_unit.USER_AGENT})
+
+        with session.get(url, params=params) as r:
+            result = r.text
+        return result
+        # with requests.get(url, params=params, headers={'User-Agent': UniProt_unit.USER_AGENT}, stream=True) as r:
+        '''
 
     def get_info_from_uniprot(self, usecols, outputPath, from_list=None, from_list_file_path=None, sep='\t', chunksize=100, header=None):
 
@@ -116,7 +130,14 @@ class UniProt_unit(Unit):
         else:
             if os.path.exists(outputPath):
                 new_colNames = [self.COLUMN_DICT.get(i, i) for i in usecols] + ['yourlist', 'isomap']
-                finish = pd.read_csv(outputPath, sep='\t', usecols=['yourlist'], names=new_colNames, skiprows=1, header=None)['yourlist']
+                try:
+                    finish = pd.read_csv(outputPath, sep='\t', usecols=['yourlist'], names=new_colNames, skiprows=1, header=None)['yourlist']
+                except Exception:
+                    finish = pd.read_csv(outputPath, sep='\t', names=new_colNames[:-1], skiprows=1, header=None)
+                    finish['isomap'] = np.nan
+                    finish.to_csv(outputPath, sep="\t", index=False)
+                    finish = finish['yourlist']
+
                 finish_li = []
                 for i in finish:
                     if i.count(',') > 0:
@@ -176,9 +197,12 @@ class UniProt_unit(Unit):
             dfrm.loc[special_case, 'canonical_isoform'] = special_se
             self.report.write("# Special Cases of Canonical Info\n")
             self.report.write(str(special_se))
+        else:
+            special_se = pd.Series([])
+
         return special_se
 
-    def get_raw_ID_Mapping(self, outputPath):
+    def get_raw_ID_Mapping(self, outputPath, chunksize=100):
         """
         Get Raw ID MApping Result
         """
@@ -186,7 +210,9 @@ class UniProt_unit(Unit):
         status = self.get_info_from_uniprot(
             self.usecols,
             outputPath,
-            self.dfrm[self.id_col].drop_duplicates())
+            self.dfrm[self.id_col].drop_duplicates(),
+            chunksize=chunksize
+        )
 
         if not status:
             return False
@@ -304,7 +330,7 @@ class UniProt_unit(Unit):
         """
         Will Change the dfrm, add Gene Status
 
-        * Add new column (GENE)
+        * Add new column (GENE) # if id_col != gene_col
         * Add new column (GENE_status)
 
         **About GENE_status**
@@ -313,13 +339,16 @@ class UniProt_unit(Unit):
         * others(corresponding GENE)
 
         """
-        if not self.gene_col:
+        if self.gene_col is None:
             return None
-        gene_map = self.dfrm[[self.id_col, self.gene_col]].drop_duplicates()
-        gene_map.index = gene_map[self.id_col]
-        gene_map.drop(columns=[self.id_col], inplace=True)
-        handled_df['GENE'] = handled_df.apply(lambda z: gene_map['GENE'][z['yourlist']], axis=1)
-        handled_df['GENE_status'] = handled_df.apply(lambda x: x['GENE'] == x['Gene names'].split(' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
+        if self.id_col != self.gene_col:
+            gene_map = self.dfrm[[self.id_col, self.gene_col]].drop_duplicates()
+            gene_map.index = gene_map[self.id_col]
+            gene_map.drop(columns=[self.id_col], inplace=True)
+            handled_df['GENE'] = handled_df.apply(lambda z: gene_map[self.gene_col][z['yourlist']], axis=1)
+            handled_df['GENE_status'] = handled_df.apply(lambda x: x['GENE'] == x['Gene names'].split(' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
+        else:
+            handled_df['GENE_status'] = handled_df.apply(lambda x: x['yourlist'] == x['Gene names'].split(' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
 
     def label_mapping_status(self, dfrm, constraint_dict):
         """
