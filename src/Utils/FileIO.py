@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T18:33:41+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: FileIO.py
-# @Last modified time: 2019-11-20T19:32:12+08:00
+# @Last modified time: 2019-11-20T21:23:12+08:00
 import os
 import gzip
 import shutil
@@ -43,7 +43,7 @@ def file_i(path, df, va_tp, sep='\t'):
     except Exception:
         dfrm = df
         if not isinstance(dfrm, pd.DataFrame):
-            raise Exception('Input: %s=pd.DataFrame() or %s=str' % va_tp)
+            raise Exception('Input: %s=str or %s=pd.DataFrame()' % va_tp)
     return dfrm
 
 

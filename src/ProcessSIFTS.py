@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T16:59:18+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessSIFTS.py
-# @Last modified time: 2019-11-20T19:43:45+08:00
+# @Last modified time: 2019-11-20T23:15:20+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -9,6 +9,8 @@ import time
 import wget
 import os
 from urllib import request
+from random import uniform
+from multiprocessing.dummy import Pool
 from Utils.Logger import RunningLogger
 from Utils.FileIO import decompression, file_i, file_o
 from Utils.Tools import Gadget
@@ -70,12 +72,33 @@ class RetrieveSIFTS:
         else:
             return None
 
-    def retrieve_raw_SIFTS(self, pdbs, outputPath=None, sleepTime=1.5):
-        def addHeader(rows):
-            if rows == 0:
+    def retrieve_raw_SIFTS(self, pdbs, outputPath=None, sleepTime=1.5, processes=10):
+
+        def addHeader(rows, outputPath):
+            if rows == 0 and not os.path.exists(outputPath):
                 return RAW_SIFTS_COLUMNS
             else:
                 return False
+
+        def retrieve(pdbId):
+            pdbId = pdbId.lower()
+            stop = uniform(0, sleepTime)
+            time.sleep(stop)
+            url = SIFTS_URL % (pdbId)
+            try:
+                req = request.Request(url)
+                page = request.urlopen(req).read()
+                page = page.decode('utf-8')
+                info = json.loads(page)[pdbId]['UniProt']
+                if info:
+                    df = self.sort_SIFTS_info(pdbId, info)
+                    if df is not None:
+                        df.to_csv(outputPath, index=False, sep='\t', mode='a+', header=addHeader(rows, outputPath))
+            except Exception as e:
+                self.Logger.logger.error('%s, %s' % (pdbId, e))
+                fail_list.append(pdbId)
+            self.current += 1
+            self.Logger.logger.info('retrieve_raw_SIFTS: End a circle. %s, cur:%s, sum:%s' % (pdbId, self.current, self.allPDB))
 
         if outputPath is None:
             outputPath = self.rawSIFTSpath
@@ -86,24 +109,9 @@ class RetrieveSIFTS:
             rows = 0
 
         fail_list = []
-        allPDB, current = len(pdbs), 0
-        for pdbId in pdbs:
-            time.sleep(sleepTime)
-            url = SIFTS_URL % (pdbId)
-            try:
-                req = request.Request(url)
-                page = request.urlopen(req).read()
-                page = page.decode('utf-8')
-                info = json.loads(page)[pdbId]['UniProt']
-                if info:
-                    df = self.sort_SIFTS_info(pdbId, info)
-                    if df is not None:
-                        df.to_csv(outputPath, index=False, sep='\t', mode='a+', header=addHeader(rows))
-            except Exception as e:
-                self.Logger.logger.error('%s, %s' % (pdbId, e))
-                fail_list.append(pdbId)
-            current += 1
-            self.Logger.logger.info('retrieve_raw_SIFTS: End a circle. %s, cur:%s, sum:%s' % (pdbId, current, allPDB))
+        self.allPDB, self.current = len(pdbs), 0
+        pool = Pool(processes=processes)
+        pool.map(retrieve, pdbs)
         return rows, fail_list
 
     def get_info_from_uniprot_pdb_file(self, filePath=None, related_unp=None, related_pdb=None):
@@ -161,7 +169,7 @@ def handle_SIFTS(filePath, skiprows=0, outputPath=None):
     return new_sifts_df
 
 
-def deal_with_insertionDeletion_SIFTS(self, sifts_df=None, sifts_filePath=None, outputPath=None):
+def deal_with_insertionDeletion_SIFTS(sifts_df=None, sifts_filePath=None, outputPath=None):
     def get_gap_list(li):
         gap_num = len(li) - 1
         gap_list = []
@@ -204,3 +212,40 @@ def deal_with_insertionDeletion_SIFTS(self, sifts_df=None, sifts_filePath=None, 
     add_tage_to_range(dfrm, tage_name='sifts_range_tage')
     file_o(outputPath, dfrm)
     return dfrm
+
+
+if __name__ == "__main__":
+    retrieveOb = RetrieveSIFTS(
+        loggingPath=r"C:\Users\Nature\Downloads\logging.log",
+        rawSIFTSpath=r"C:\Users\Nature\Downloads\rawSIFTS.tsv",
+        downloadFolder="C:\\Users\\Nature\\Downloads\\"
+    )
+    rows, fail_list = retrieveOb.retrieve_raw_SIFTS([
+            '1A02',
+            '3KBZ',
+            '3KC0',
+            '3KC1',
+            '3KMU',
+            '3KMW',
+            '3KYC',
+            '3KYD',
+            '3L3C',
+            '3L5P',
+            '3L5R',
+            '3L5S',
+            '3L5T',
+            '3L5U',
+            '3L5V',
+            '3L7U',
+            '3LHR',
+            '3M0D',
+            '3M1D',
+            '3MK4',
+            '3MUD',
+            '3MUP',
+            '3NR2',
+            '3OD5'])
+    deal_with_insertionDeletion_SIFTS(
+        sifts_df=handle_SIFTS(r"C:\Users\Nature\Downloads\rawSIFTS.tsv"),
+        outputPath=r"C:\Users\Nature\Downloads\handledSIFTS.tsv"
+    )
