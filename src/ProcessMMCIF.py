@@ -1,7 +1,7 @@
 # @Date:   2019-11-21T14:21:09+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessMMCIF.py
-# @Last modified time: 2019-11-22T15:01:38+08:00
+# @Last modified time: 2019-11-24T00:02:14+08:00
 import os
 import json
 import pandas as pd
@@ -634,11 +634,55 @@ class MMCIF2Dfrm:
                 i, df_3.loc[i, col_list[-2]], df_3.loc[i, col_list[-1]], df_3.loc[i, col_list[1]]))
         pro_chain_grouper.output()
 
+        df_3 = reTageMMCIF(df_3)
+
         if os.path.exists(outputPath):
             file_o(outputPath, df_3, mode='a+', header=False)
         else:
             file_o(outputPath, df_3)
         return df_3
+
+
+def reTageMMCIF(dfrm, name="pdb_type_filtered"):
+    focus_col = ["pdb_id", "chain_id", "pdb_type_MMCIF"]
+    ed = dfrm[(dfrm['coordinates_len'] <= 20) & (dfrm["protein_type"].isin(["polypeptide(L)", "polypeptide(D)"]))][focus_col].drop_duplicates()
+    tp_li = []
+    for pdb, data in ed.groupby("pdb_id"):
+        info = data.loc[data.index[0], "pdb_type_MMCIF"]
+        tage = info[:2]
+        if tage == "he":
+            info = info[3:]
+
+            info = info.split(";")
+            info = [i.split(",") for i in info]
+
+            for index in range(len(info)):
+                info[index] = [i for i in info[index] if i not in data["chain_id"].values]
+            info = [i for i in info if i]
+
+            if len(info) > 1:
+                tp_li.append((pdb, "he"))
+            elif len(info) == 1:
+                if len(info[0]) > 1:
+                    tp_li.append((pdb, "ho"))
+                else:
+                    tp_li.append((pdb, "mo"))
+            else:
+                tp_li.append((pdb, "0"))
+        elif tage == "ho":
+            res = int(info[3:]) - len(data["chain_id"])
+            if res == 1:
+                tp_li.append((pdb, "mo"))
+            elif res > 1:
+                tp_li.append((pdb, "ho"))
+            else:
+                tp_li.append((pdb, "0"))
+
+        elif tage == "mo":
+            tp_li.append((pdb, "0"))
+    dfrm = pd.merge(dfrm, pd.DataFrame(tp_li, columns=["pdb_id", name]), how="left")
+    dfrm[name] = dfrm.apply(lambda x: x["pdb_type_MMCIF"][:2] if isinstance(x[name], float) else x[name], axis=1)
+    return dfrm
 
 
 if __name__ == '__main__':

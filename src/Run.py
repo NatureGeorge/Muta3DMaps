@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-23T21:23:01+08:00
+# @Last modified time: 2019-11-24T00:41:41+08:00
 import click
 import configparser
 import os
@@ -11,6 +11,7 @@ from numpy import nan
 from ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
 from ProcessMMCIF import MMCIF2Dfrm
 from ProcessUniProt import MapUniProtID, retrieveUniProtSeq
+from ProcessI3D import RetrieveI3D
 from Utils.Logger import RunningLogger
 
 
@@ -107,7 +108,7 @@ def initMMCIF(pdbfolder, pdbsfile, pdbcol, sep):
     if pdbsfile == "":
         pdbsfile = _SIFTS_PDB
     pdbs = read_csv(pdbsfile, usecols=[pdbcol], sep=sep)[pdbcol].drop_duplicates()
-    mmcif_demo = MMCIF2Dfrm(loggingPath=_LOGGER_PATH, downloadFolder=_FOLDER)
+    mmcif_demo = MMCIF2Dfrm(loggingPath=_LOGGER_PATH, downloadFolder=pdbfolder)
     mmcif_demo.check_mmcif_file(pdbs)
     mmcif_demo.update_mmcif_result(_MMCIF_RAW_PATH, _MMCIF_MODIFIED_PATH)
 
@@ -180,7 +181,7 @@ def initUnpFASTA(fastafolder, unreviewed, isoform, split, mode):
 @interface.command()
 @click.option("--fastaFolder", default="./", help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
 @click.option("--siteInfoFile", default="", help="The file that comtains site info.", type=click.Path())
-def mappingFromUnpToPDB(fastafolder, siteInfoFile):
+def unp2PDB(fastafolder, siteInfoFile):
     click.echo(colorClick("Mapping"))
     logger = RunningLogger("mappingFromUnpToPDB", _LOGGER_PATH).logger
     sifts_df = read_csv(_SIFTS_MODIFIED_PATH, sep="\t", converters=_CONVERTER).drop_duplicates(subset=['UniProt', 'pdb_id', 'chain_id'], keep='last')
@@ -225,13 +226,15 @@ def constraintMapping():
         & (intergrate_df['pdb_contain_chain_type'].isin(["protein", "DNA,protein", "protein,DNA", "RNA,protein", "protein,RNA"]))
     ].reset_index(drop=True)
 
+    interactDemo = RetrieveI3D(downloadFolder=_FOLDER, loggingPath=_LOGGER_PATH)
+    interact_df = interactDemo.get_interactions_meta(outputPath=interactDemo.CONFIG['DOWNLOAD_FOLDER']+'interactions_modified.tsv')
 
 
 interface.add_command(initUniProt)
 interface.add_command(initUnpFASTA)
 interface.add_command(initSIFTS)
 interface.add_command(initMMCIF)
-interface.add_command(mappingFromUnpToPDB)
+interface.add_command(unp2PDB)
 interface.add_command(constraintMapping)
 
 
