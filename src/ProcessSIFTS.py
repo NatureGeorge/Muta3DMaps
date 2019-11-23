@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T16:59:18+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessSIFTS.py
-# @Last modified time: 2019-11-20T23:15:20+08:00
+# @Last modified time: 2019-11-23T20:28:31+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -11,6 +11,9 @@ import os
 from urllib import request
 from random import uniform
 from multiprocessing.dummy import Pool
+from Bio import Align, SeqIO
+from Bio.SubsMat import MatrixInfo as matlist
+import functools
 from Utils.Logger import RunningLogger
 from Utils.FileIO import decompression, file_i, file_o
 from Utils.Tools import Gadget
@@ -128,12 +131,12 @@ class RetrieveSIFTS:
             try:
                 wget.download(url, out=filePath)
                 decompression(filePath, remove=True, logger=self.Logger.logger)
-            except Exception:
-                self.Logger.logger.error("Download failed: %s" % filePath)
+            except Exception as e:
+                self.Logger.logger.error("Download failed: %s; Exception: %s" % (filePath, e))
 
             self.Logger.logger.info("Download File: %s" % filePath[:-3])
 
-        dfrm = pd.read_csv(filePath, sep=',', header=1)
+        dfrm = pd.read_csv(filePath[:-3], sep=',', header=1)
         pdb_list = []
         if related_unp is not None:
             dfrm = dfrm[dfrm['SP_PRIMARY'].isin(related_unp)]
@@ -165,7 +168,11 @@ def handle_SIFTS(filePath, skiprows=0, outputPath=None):
     new_sifts_df['sifts_unp_range'] = new_sifts_df.apply(lambda x: x['rangeInfo'].split('|')[1], axis=1)
     new_sifts_df.drop(columns=['rangeInfo'], inplace=True)
 
-    file_o(outputPath, new_sifts_df)
+    if outputPath is not None and os.path.exists(outputPath):
+        header = False
+    else:
+        header = True
+    file_o(outputPath, new_sifts_df, header=header)
     return new_sifts_df
 
 
@@ -196,7 +203,7 @@ def deal_with_insertionDeletion_SIFTS(sifts_df=None, sifts_filePath=None, output
         df.loc[df[
             (df['group_info'] != 1) &
             ((df['var_0_count'] != df['group_info']) |
-            (df['unp_GAP_0_count'] != (df['group_info'] -1)))].index, tage_name] = 'Insertion & Deletion'
+            (df['unp_GAP_0_count'] != (df['group_info'] - 1)))].index, tage_name] = 'Insertion & Deletion'
 
     dfrm = file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
     dfrm['pdb_GAP_list'] = dfrm.apply(lambda x: json.dumps(get_gap_list(json.loads(x['sifts_pdb_range']))), axis=1)
@@ -210,42 +217,150 @@ def deal_with_insertionDeletion_SIFTS(sifts_df=None, sifts_filePath=None, output
     dfrm['sifts_unp_pdb_var'] = dfrm.apply(lambda x: json.loads(x['var_list'])[0], axis=1)
 
     add_tage_to_range(dfrm, tage_name='sifts_range_tage')
-    file_o(outputPath, dfrm)
+    if outputPath is not None and os.path.exists(outputPath):
+        header = False
+    else:
+        header = True
+    file_o(outputPath, dfrm, header=header)
     return dfrm
 
 
-if __name__ == "__main__":
-    retrieveOb = RetrieveSIFTS(
-        loggingPath=r"C:\Users\Nature\Downloads\logging.log",
-        rawSIFTSpath=r"C:\Users\Nature\Downloads\rawSIFTS.tsv",
-        downloadFolder="C:\\Users\\Nature\\Downloads\\"
-    )
-    rows, fail_list = retrieveOb.retrieve_raw_SIFTS([
-            '1A02',
-            '3KBZ',
-            '3KC0',
-            '3KC1',
-            '3KMU',
-            '3KMW',
-            '3KYC',
-            '3KYD',
-            '3L3C',
-            '3L5P',
-            '3L5R',
-            '3L5S',
-            '3L5T',
-            '3L5U',
-            '3L5V',
-            '3L7U',
-            '3LHR',
-            '3M0D',
-            '3M1D',
-            '3MK4',
-            '3MUD',
-            '3MUP',
-            '3NR2',
-            '3OD5'])
-    deal_with_insertionDeletion_SIFTS(
-        sifts_df=handle_SIFTS(r"C:\Users\Nature\Downloads\rawSIFTS.tsv"),
-        outputPath=r"C:\Users\Nature\Downloads\handledSIFTS.tsv"
-    )
+class PdSeqAlign:
+    def getAlignmentSegment(alignment):
+        segments1 = []
+        segments2 = []
+        i1, i2 = alignment.path[0]
+        for node in alignment.path[1:]:
+            j1, j2 = node
+            if j1 > i1 and j2 > i2:
+                segment1 = [i1 + 1, j1]
+                segment2 = [i2 + 1, j2]
+                segments1.append(segment1)
+                segments2.append(segment2)
+            i1, i2 = j1, j2
+        return segments1, segments2
+
+    def __init__(self):
+        self.seqa = ''
+        self.seqb = ''
+        self.aligner = Align.PairwiseAligner()
+        self.aligner.mode = 'global'
+        self.aligner.open_gap_score = -10
+        self.aligner.extend_gap_score = -0.5
+        self.aligner.substitution_matrix = matlist.blosum62
+        self.alignment_count = 0
+
+    @functools.lru_cache()
+    def makeAlignment_align(self, seqa, seqb):
+        alignments = self.aligner.align(seqa, seqb)
+        result = PdSeqAlign.getAlignmentSegment(alignments[0])
+        self.alignment_count += 1
+        # print("MAKE ALIGNMENT: %s" % self.alignment_count)
+        return json.dumps(result[0]), json.dumps(result[1])
+
+
+def update_range_SIFTS(unp_fasta_files_path, new_range_cols=('new_sifts_unp_range', 'new_sifts_pdb_range'), sifts_df=False, sifts_filePath=False, outputPath=False):
+    sifts_dfrm = file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
+    focus = ['Deletion', 'Insertion & Deletion']
+    focus_index = sifts_dfrm[sifts_dfrm['sifts_range_tage'].isin(focus)].index
+
+    da1 = []
+    da2 = []
+    pdSeqAligner = PdSeqAlign()
+    for index in focus_index:
+        pdbSeq = sifts_dfrm.loc[index, '_pdbx_poly_seq_scheme.mon_id']
+        unpSeqOb = SeqIO.read(unp_fasta_files_path % sifts_dfrm.loc[index, 'UniProt'], "fasta")
+        da = pdSeqAligner.makeAlignment_align(unpSeqOb.seq, pdbSeq)
+        da1.append(da[0])
+        da2.append(da[1])
+
+    df = pd.DataFrame({new_range_cols[0]: da1, new_range_cols[1]: da2}, index=focus_index)
+    new_sifts_df = pd.merge(sifts_dfrm, df, left_index=True, right_index=True, how='left')
+    new_sifts_df[new_range_cols[0]] = new_sifts_df.apply(lambda x: x['sifts_unp_range'] if isinstance(x[new_range_cols[0]], float) else x[new_range_cols[0]], axis=1)
+    new_sifts_df[new_range_cols[1]] = new_sifts_df.apply(lambda x: x['sifts_pdb_range'] if isinstance(x[new_range_cols[1]], float) else x[new_range_cols[1]], axis=1)
+
+    file_o(outputPath, new_sifts_df)
+    return new_sifts_df
+
+
+def map_muta_from_unp_to_pdb(x, muta_col, unp_range_col, pdb_range_col, error_li):
+    sub_error_li = []
+    muta_li = x[muta_col]
+    if isinstance(muta_li, str):
+        muta_li = json.loads(muta_li.replace('\'', '"'))
+    unp_range = json.loads(x[unp_range_col])
+    pdb_range = json.loads(x[pdb_range_col])
+
+    auth_seq_li = x['_pdbx_poly_seq_scheme.auth_seq_num'].split(';')
+    com_seq_li = x['_pdbx_poly_seq_scheme.pdb_seq_num'].split(';')
+    inscode_seq_li = x['_pdbx_poly_seq_scheme.pdb_ins_code'].split(';')
+    found_muta_1 = x['mutation_content'].split(',')
+    found_muta_2 = [i[1:-1] for i in found_muta_1]
+
+    pdb_li = []
+    unp_li = []
+    new_muta_site = []
+    for ran in pdb_range:
+        pdb_li.extend(list(range(ran[0], ran[1]+1)))
+    for ran in unp_range:
+        unp_li.extend(list(range(ran[0], ran[1]+1)))
+
+    for muta in muta_li:
+        try:
+            int(muta[0])
+            site, mutaType = int(muta), False
+        except ValueError:
+            site, mutaType = int(muta[1:-1]), True
+
+        try:
+            seqresSite = pdb_li[unp_li.index(site)]
+        except ValueError:
+            new_muta_site.append('#')
+            sub_error_li.append('Unmapped #: %s' % muta)
+            continue
+        except IndexError:
+            new_muta_site.append('$')
+            sub_error_li.append('Unmapped $: %s' % muta)
+            continue
+        '''
+        try:
+            seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
+        except IndexError:
+            print(x['pdb_id'], x['UniProt'], x['new_sifts_pdb_range'], x['new_sifts_unp_range'])
+            print(x['_pdbx_poly_seq_scheme.mon_id'], seqresSite)
+            raise IndexError
+        '''
+        seq_aa = x['_pdbx_poly_seq_scheme.mon_id'][seqresSite-1]
+        ref_aa = muta[0]
+        inscode = inscode_seq_li[seqresSite-1]
+
+        # Analyse the Situation of unsuccessful mapping
+        if seq_aa != ref_aa and mutaType:
+            try:
+                found_muta = found_muta_1[found_muta_2.index(com_seq_li[seqresSite-1])]
+            except ValueError:
+                found_muta = False
+
+            error_info = []
+            if found_muta:
+                # May because the mutation that already found, check the muta aa
+                if found_muta[0] == ref_aa:
+                    error_info.append('EntityMutation: %s' % found_muta)
+            if seq_aa == 'X':
+                error_info.append('ModifiedResidue: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
+            else:
+                error_info.append('PossibleMutation: %s%s%s' % (seq_aa, com_seq_li[seqresSite-1], inscode))
+            sub_error_li.append('' + ','.join(error_info))
+        elif auth_seq_li[seqresSite-1] == "?":
+            sub_error_li.append('Missing')
+        else:
+            sub_error_li.append('Safe')
+
+        # Check inscode
+        if inscode != '.':
+            new_muta_site.append('%s%s' % (com_seq_li[seqresSite-1], inscode))
+        else:
+            new_muta_site.append(com_seq_li[seqresSite-1])
+
+    error_li.append(sub_error_li)
+    return new_muta_site

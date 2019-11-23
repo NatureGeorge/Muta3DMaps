@@ -1,14 +1,14 @@
 # @Date:   2019-11-20T18:33:41+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: FileIO.py
-# @Last modified time: 2019-11-20T21:23:12+08:00
+# @Last modified time: 2019-11-23T15:01:24+08:00
 import os
 import gzip
 import shutil
 import pandas as pd
 
 
-def decompression(self, path, extension=".gz", remove=True, outputPath=None, logger=None):
+def decompression(path, extension=".gz", remove=True, outputPath=None, logger=None):
     """
     Decompress gz file
 
@@ -36,6 +36,8 @@ def decompression(self, path, extension=".gz", remove=True, outputPath=None, log
     except Exception as e:
         logger.error(e)
 
+    return outputPath
+
 
 def file_i(path, df, va_tp, sep='\t'):
     try:
@@ -50,3 +52,14 @@ def file_i(path, df, va_tp, sep='\t'):
 def file_o(path, df, mode='a+', header=True):
     if isinstance(path, str):
         df.to_csv(path, sep='\t', index=False, mode=mode, header=header)
+
+
+class HandleIO:
+    def __init__(self, handle):
+        self.handle = handle
+
+    def append(self, block):
+        self.handle.write(block)
+
+    def close(self):
+        self.handle.close()

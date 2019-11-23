@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T18:01:14+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Logger.py
-# @Last modified time: 2019-11-20T18:17:40+08:00
+# @Last modified time: 2019-11-23T13:48:32+08:00
 import logging
 
 
@@ -21,7 +21,7 @@ class RunningLogger:
         self.logger.setLevel(logging.DEBUG)
 
         streamHandler = logging.StreamHandler()
-        streamHandler.setLevel(logging.WARNING)
+        streamHandler.setLevel(logging.INFO)
         streamHandler.setFormatter(formatter)
         self.logger.addHandler(streamHandler)
 
