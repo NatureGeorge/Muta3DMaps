@@ -1,23 +1,23 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-24T18:06:14+08:00
+# @Last modified time: 2019-11-25T00:52:36+08:00
 import click
 import configparser
 import os
 import json
 from pandas import read_csv, merge, Series
 from numpy import nan
-from ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
-from ProcessMMCIF import MMCIF2Dfrm
-from ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fasta
-from ProcessI3D import RetrieveI3D
-from Utils.Logger import RunningLogger
+from Muta3DMaps.Mods.ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
+from Muta3DMaps.Mods.ProcessMMCIF import MMCIF2Dfrm
+from Muta3DMaps.Mods.ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fasta
+from Muta3DMaps.Mods.ProcessI3D import RetrieveI3D
+from Muta3DMaps.Utils.Logger import RunningLogger
 
 
 _FOLDER = ""
 _config = configparser.RawConfigParser()
-_config.read('settings.ini', encoding='utf8')
+_config.read('\\'.join(__file__.split("\\")[:-1] + ['settings.ini']), encoding='utf8')
 _LOGGER_PATH = _config.get("DEFAULT", "LOGGER_PATH")
 _SIFTS_RAW_PATH = _config.get("DEFAULT", "SIFTS_RAW_PATH")
 _SIFTS_MODIFIED_PATH = _config.get("DEFAULT", "SIFTS_MODIFIED_PATH")
@@ -223,7 +223,7 @@ def unp2PDB(fastafolder, siteinfofile):
     if os.path.exists(siteinfofile):
         siteSe = read_csv(siteinfofile, sep="\t", index_col=0)['site']
         siteSe = siteSe.apply(json.loads)
-        sifts_mmcif_df['mutation_unp'] = sifts_mmcif_df.apply(lambda x: siteSe[x['yourlist']], axis=1)
+        sifts_mmcif_df['mutation_unp'] = sifts_mmcif_df.apply(lambda x: siteSe[x['yourlist']] if not isinstance(x['yourlist'], float) else nan, axis=1)
         muta_info_li = []
 
         sifts_mmcif_df['mutation_pdb'] = sifts_mmcif_df.apply(lambda x: map_muta_from_unp_to_pdb(
@@ -267,7 +267,7 @@ def i3dMap(i3dpath):
     ho_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"] == "ho"])
     he_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"] == "he"])
     discard_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"].isnull()])
-    logger.info("\nThere are %s rows related to mo, \n%s rows related to ho, \n%s rows related to he and\n %s rows to discard." % (mo_len, ho_len, he_len, discard_len))
+    logger.info("\nThere are %s rows related to mo, \n%s rows related to ho, \n%s rows related to he and \n%s rows to discard." % (mo_len, ho_len, he_len, discard_len))
 
 
 interface.add_command(initUniProt)

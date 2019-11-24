@@ -267,3 +267,15 @@ Create columns that help examine the quality of pdb chain with corresponding uni
   ```
 
 ---
+
+### self.select_PDB_SIFTS()
+
+#### Parameters
+
+```py
+def select_PDB_SIFTS(self, groupby_list, sifts_df=False, sifts_filePath=False, outputPath=False):[...]
+```
+
+#### Usage
+Select the represent set of the groupby_list, composed of pdb chains
+* ```groupby_list``` can be ```['UniProt']``` or ```['UniProt', 'pdb_type_MMCIF']``` or ```['UniProt', 'interaction_compo']``` .etc

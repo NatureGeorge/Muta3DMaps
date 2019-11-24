@@ -1,0 +1,649 @@
+<!DOCTYPE html><html><head>
+      <title>Guidence</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///C:\Users\Nature\.atom\packages\markdown-preview-enhanced\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+
+      
+      
+      
+      
+      
+      
+      
+
+      <style>
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}
+
+/* highlight */
+pre[data-line] {
+  position: relative;
+  padding: 1em 0 1em 3em;
+}
+pre[data-line] .line-highlight-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  display: block;
+  width: 100%;
+}
+
+pre[data-line] .line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: inherit 0;
+  margin-top: 1em;
+  background: hsla(24, 20%, 50%,.08);
+  background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
+  pointer-events: none;
+  line-height: inherit;
+  white-space: pre;
+}
+
+pre[data-line] .line-highlight:before, 
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-start);
+  position: absolute;
+  top: .4em;
+  left: .6em;
+  min-width: 1em;
+  padding: 0 .5em;
+  background-color: hsla(24, 20%, 50%,.4);
+  color: hsl(24, 20%, 95%);
+  font: bold 65%/1.5 sans-serif;
+  text-align: center;
+  vertical-align: .3em;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 1px white;
+}
+
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-end);
+  top: auto;
+  bottom: .4em;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview  ">
+      <h1 class="mume-header" id="guidence">Guidence</h1>
+
+<h2 class="mume-header" id="%E5%BB%BA%E7%AB%8B%E6%95%B0%E6%8D%AE%E9%9B%86">&#x5EFA;&#x7ACB;&#x6570;&#x636E;&#x96C6;</h2>
+
+<h3 class="mume-header" id="uniprot-id-mapping%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E5%88%9B%E5%BB%BA">UniProt ID Mapping&#x6570;&#x636E;&#x96C6;&#x7684;&#x521B;&#x5EFA;</h3>
+
+<h4 class="mume-header" id="%E8%BE%93%E5%85%A5%E6%95%B0%E6%8D%AE%E6%A0%B7%E4%BE%8B">&#x8F93;&#x5165;&#x6570;&#x636E;&#x6837;&#x4F8B;</h4>
+
+<ul>
+<li><code>group_df</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">CHROM</th>
+<th style="text-align:center">POS</th>
+<th style="text-align:center">ID</th>
+<th style="text-align:center">REF</th>
+<th style="text-align:center">ALT</th>
+<th style="text-align:center">QUAL</th>
+<th style="text-align:center">FILTER</th>
+<th style="text-align:center">MUT</th>
+<th style="text-align:center">DNA</th>
+<th style="text-align:center">PROT</th>
+<th style="text-align:center">DB</th>
+<th style="text-align:center">PHEN</th>
+<th style="text-align:center">RANKSCORE</th>
+<th style="text-align:center">GENE</th>
+<th style="text-align:center">CLASS</th>
+<th style="text-align:center">STRAND</th>
+<th style="text-align:center">mutation_unp</th>
+<th style="text-align:center">missense</th>
+<th style="text-align:center">RefSeq_protein</th>
+<th style="text-align:center">RefSeq_nucleotide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">930215</td>
+<td style="text-align:center">CM1613956</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">[G]</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">ALT</td>
+<td style="text-align:center">NM_152486.2:c.133A&gt;G</td>
+<td style="text-align:center">NP_689699.2:p.K45E</td>
+<td style="text-align:center">rs903331232</td>
+<td style="text-align:center">&quot;Retinitis_pigmentosa&quot;</td>
+<td style="text-align:center">0.21</td>
+<td style="text-align:center">SAMD11</td>
+<td style="text-align:center">DM?</td>
+<td style="text-align:center">+</td>
+<td style="text-align:center">K45E</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">NP_689699</td>
+<td style="text-align:center">NM_152486</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">942143</td>
+<td style="text-align:center">CM1511864</td>
+<td style="text-align:center">C</td>
+<td style="text-align:center">[G]</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">ALT</td>
+<td style="text-align:center">NM_152486.2:c.877C&gt;G</td>
+<td style="text-align:center">NP_689699.2:p.P293A</td>
+<td style="text-align:center">rs200195897</td>
+<td style="text-align:center">&quot;Autism_spectrum_disorder&quot;</td>
+<td style="text-align:center">0.1</td>
+<td style="text-align:center">SAMD11</td>
+<td style="text-align:center">DM?</td>
+<td style="text-align:center">+</td>
+<td style="text-align:center">P293A</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">NP_689699</td>
+<td style="text-align:center">NM_152486</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1022225</td>
+<td style="text-align:center">CM148517</td>
+<td style="text-align:center">G</td>
+<td style="text-align:center">[A]</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">ALT</td>
+<td style="text-align:center">NM_198576.3:c.226G&gt;A</td>
+<td style="text-align:center">NP_940978.2:p.G76S</td>
+<td style="text-align:center">rs756623659</td>
+<td style="text-align:center">&quot;Congenital_myasthenic_syndrome_with_distal_mu...</td>
+<td style="text-align:center">0.15</td>
+<td style="text-align:center">AGRN</td>
+<td style="text-align:center">DM</td>
+<td style="text-align:center">+</td>
+<td style="text-align:center">G76S</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">NP_940978</td>
+<td style="text-align:center">NM_198576</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1022313</td>
+<td style="text-align:center">CM148518</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">[T]</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">ALT</td>
+<td style="text-align:center">NM_198576.3:c.314A&gt;T</td>
+<td style="text-align:center">NP_940978.2:p.N105I</td>
+<td style="text-align:center">rs879253787</td>
+<td style="text-align:center">&quot;Congenital_myasthenic_syndrome_with_distal_mu...</td>
+<td style="text-align:center">0.91</td>
+<td style="text-align:center">AGRN</td>
+<td style="text-align:center">DM</td>
+<td style="text-align:center">+</td>
+<td style="text-align:center">N105I</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">NP_940978</td>
+<td style="text-align:center">NM_198576</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1041648</td>
+<td style="text-align:center">CM1613410</td>
+<td style="text-align:center">G</td>
+<td style="text-align:center">[T]</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">ALT</td>
+<td style="text-align:center">NM_198576.3:c.1123G&gt;T</td>
+<td style="text-align:center">NP_940978.2:p.A375S</td>
+<td style="text-align:center">rs138031468</td>
+<td style="text-align:center">&quot;Ovarian_cancer_epithelial_reduced_risk&quot;</td>
+<td style="text-align:center">0.12000000000000001</td>
+<td style="text-align:center">AGRN</td>
+<td style="text-align:center">DP</td>
+<td style="text-align:center">+</td>
+<td style="text-align:center">A375S</td>
+<td style="text-align:center">yes</td>
+<td style="text-align:center">NP_940978</td>
+<td style="text-align:center">NM_198576</td>
+</tr>
+</tbody>
+</table>
+<h4 class="mume-header" id="%E7%9B%AE%E6%A0%87%E5%88%97%E5%8F%8A%E5%AF%B9%E5%BA%94%E4%BF%A1%E6%81%AF">&#x76EE;&#x6807;&#x5217;&#x53CA;&#x5BF9;&#x5E94;&#x4FE1;&#x606F;</h4>
+
+<ul>
+<li>id_col: <code>RefSeq_protein</code></li>
+<li>muta_col: <code>mutation_unp</code></li>
+<li>gene_col: <code>GENE</code></li>
+<li>id_type: Refseq Protein -&gt; P_REFSEQ_AC</li>
+<li>muta_type: mutation in UniProt Site</li>
+</ul>
+<h4 class="mume-header" id="%E6%A0%B7%E4%BE%8B%E8%84%9A%E6%9C%AC">&#x6837;&#x4F8B;&#x811A;&#x672C;</h4>
+
+<pre data-role="codeBlock" data-info="py" class="language-python"><span class="token keyword">from</span> UniProt_unit <span class="token keyword">import</span> UniProt_unit
+<span class="token comment"># &#x8BBE;&#x7F6E;&#x521D;&#x59CB;&#x53C2;&#x6570;&#x503C;</span>
+id_col <span class="token operator">=</span> <span class="token string">&apos;RefSeq_protein&apos;</span>
+id_type <span class="token operator">=</span> <span class="token string">&apos;P_REFSEQ_AC&apos;</span>
+muta_col <span class="token operator">=</span> <span class="token string">&apos;mutation_unp&apos;</span>
+gene_col <span class="token operator">=</span> <span class="token string">&apos;GENE&apos;</span>
+usecols <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token string">&apos;id&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;genes&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;reviewed&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;comment(ALTERNATIVE%20PRODUCTS)&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;organism&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;protein%20names&apos;</span><span class="token punctuation">]</span>  <span class="token comment"># Necessary Columns</span>
+reportPath <span class="token operator">=</span> <span class="token string">&apos;RefSeq_protein_mapping_Report.txt&apos;</span>  <span class="token comment"># Report of Data Processing</span>
+rawOutputPath <span class="token operator">=</span> <span class="token string">&apos;RefSeq_protein_mapping.tsv&apos;</span> <span class="token comment"># OutPut File of ID Mapping (RAW)</span>
+handledOutputPath <span class="token operator">=</span> <span class="token string">&apos;RefSeq_protein_mapping_modified.tsv&apos;</span>  <span class="token comment"># OutPut File of ID Mapping (Final Result)</span>
+<span class="token comment"># Add constraint/filter to data</span>
+constraint_dict <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">&quot;GENE_status&quot;</span><span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token boolean">False</span><span class="token punctuation">,</span> <span class="token string">&quot;ne&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment"># &apos;ne&apos; for !=</span>
+    <span class="token string">&quot;Status&quot;</span><span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">&quot;reviewed&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;eq&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment"># &apos;eq&apos; for ==</span>
+    <span class="token string">&quot;unp_map_tage&quot;</span><span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token string">&quot;Untrusted &amp; No Isoform&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;ne&quot;</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment"># &#x521D;&#x59CB;&#x5316;</span>
+unp_demo <span class="token operator">=</span> UniProt_unit<span class="token punctuation">(</span>group_df<span class="token punctuation">,</span> id_col<span class="token punctuation">,</span> id_type<span class="token punctuation">,</span> usecols<span class="token punctuation">,</span> reportPath<span class="token punctuation">,</span> muta_col<span class="token operator">=</span>muta_col<span class="token punctuation">,</span> gene_col<span class="token operator">=</span>gene_col<span class="token punctuation">)</span>
+<span class="token comment"># Return True if get RAW Result Successfully</span>
+unp_demo<span class="token punctuation">.</span>get_raw_ID_Mapping<span class="token punctuation">(</span>rawOutputPath<span class="token punctuation">)</span>
+<span class="token comment"># Deal with different situations</span>
+handled_df <span class="token operator">=</span> unp_demo<span class="token punctuation">.</span>handle_ID_Mapping<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment"># Add Gene Status</span>
+unp_demo<span class="token punctuation">.</span>getGeneStatus<span class="token punctuation">(</span>handled_df<span class="token punctuation">)</span>
+<span class="token comment"># Label Mapping Status</span>
+unp_demo<span class="token punctuation">.</span>label_mapping_status<span class="token punctuation">(</span>handled_df<span class="token punctuation">,</span> constraint_dict<span class="token punctuation">)</span>
+<span class="token comment"># close the file-handle of report</span>
+unp_demo<span class="token punctuation">.</span>report<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment"># Output the final result</span>
+handled_df<span class="token punctuation">.</span>to_csv<span class="token punctuation">(</span>handledOutputPath<span class="token punctuation">,</span> sep<span class="token operator">=</span><span class="token string">&apos;\t&apos;</span><span class="token punctuation">,</span> index<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+</pre><h4 class="mume-header" id="%E6%A0%87%E7%AD%BE%E4%BB%A5%E5%8F%8A%E6%8A%A5%E5%91%8A%E7%9A%84%E8%A7%A3%E9%87%8A">&#x6807;&#x7B7E;&#x4EE5;&#x53CA;&#x62A5;&#x544A;&#x7684;&#x89E3;&#x91CA;</h4>
+
+<h5 class="mume-header" id="%E5%85%B3%E4%BA%8E-unp_map_tage">&#x5173;&#x4E8E; <code>unp_map_tage</code></h5>
+
+<ul>
+<li><code>Untrusted &amp; No Isoform</code></li>
+</ul>
+<p>&#x662F;&#x6307;UniProt&#x5B58;&#x5728;Isoform&#x4F46;&#x662F;Mapping&#x7ED3;&#x679C;&#x6CA1;&#x6709;&#x660E;&#x786E;&#x7ED9;&#x51FA;&#x662F;Map&#x4E0A;&#x54EA;&#x6761;Isoform,&#x8F6C;&#x5F55;&#x672C;&#x5E8F;&#x5217;&#x4E0E;&#x86CB;&#x767D;&#x5E8F;&#x5217;&#x4E0D;&#x4E00;&#x81F4;</p>
+<ul>
+<li><code>Trusted &amp; No Isoform</code></li>
+</ul>
+<p>&#x662F;&#x6307;UniProt&#x4E0D;&#x5B58;&#x5728;Isoform,Mapping&#x7ED3;&#x679C;&#x6CA1;&#x95EE;&#x9898;</p>
+<ul>
+<li><code>Trusted &amp; Isoform</code></li>
+</ul>
+<p>&#x662F;&#x6307;UniProt&#x5B58;&#x5728;Isoform,Mapping&#x7ED3;&#x679C;&#x6CA1;&#x95EE;&#x9898;</p>
+<h5 class="mume-header" id="%E5%85%B3%E4%BA%8E-mapping_status">&#x5173;&#x4E8E; <code>Mapping_status</code></h5>
+
+<ul>
+<li><code>Yes</code>: &#x53EF;&#x4FE1;&#x7684;&#x7ED3;&#x679C;&#xFF0C;&#x8FDB;&#x884C;&#x540E;&#x7EED;&#x7684;PDB Mapping; &#x901A;&#x8FC7;<code>constraint_dict</code>&#x7684;&#x9650;&#x5236;</li>
+<li><code>Error</code>: &#x4E00;&#x4E2A;id&#x5BF9;&#x5E94;&#x591A;&#x4E2A;UniProt; &#x901A;&#x8FC7;<code>constraint_dict</code>&#x7684;&#x9650;&#x5236;</li>
+<li><code>No</code>: &#x4E0D;&#x53EF;&#x4FE1;&#x7684;&#x7ED3;&#x679C;; &#x672A;&#x901A;&#x8FC7;<code>constraint_dict</code>&#x7684;&#x9650;&#x5236;</li>
+</ul>
+<h5 class="mume-header" id="%E5%85%B3%E4%BA%8E-gene_status">&#x5173;&#x4E8E; <code>GENE_status</code></h5>
+
+<ul>
+<li><code>False</code>: <code>Gene names</code>&#x7684;&#x7B2C;&#x4E00;&#x4E2A;&#x5143;&#x7D20; &#x4E0E; refSeq&#x7684; <code>GENE</code>&#x4E0D;&#x5339;&#x914D;</li>
+<li>&#x5176;&#x4ED6;&#x503C;&#x5373;&#x4E3A;&#x5BF9;&#x5E94; <code>GENE</code></li>
+</ul>
+<h5 class="mume-header" id="%E8%BE%93%E5%87%BA%E8%8C%83%E4%BE%8B">&#x8F93;&#x51FA;&#x8303;&#x4F8B;</h5>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Entry</th>
+<th style="text-align:center">Gene names</th>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Alternative products (isoforms)</th>
+<th style="text-align:center">Organism</th>
+<th style="text-align:center">Protein names</th>
+<th style="text-align:center">canonical_isoform</th>
+<th style="text-align:center">unp_map_tage</th>
+<th style="text-align:center">yourlist</th>
+<th style="text-align:center">UniProt</th>
+<th style="text-align:center">GENE</th>
+<th style="text-align:center">GENE_status</th>
+<th style="text-align:center">Mapping_status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Q4VBY6</td>
+<td style="text-align:center">CDC2L2</td>
+<td style="text-align:center">unreviewed</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">Homo sapiens (Human)</td>
+<td style="text-align:center">CDC2L2 protein (Fragment)</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">Trusted &amp; No Isoform</td>
+<td style="text-align:center">NP_076916</td>
+<td style="text-align:center">Q4VBY6</td>
+<td style="text-align:center">CDK11A</td>
+<td style="text-align:center">False</td>
+<td style="text-align:center">No</td>
+</tr>
+<tr>
+<td style="text-align:center">Q9C0B2</td>
+<td style="text-align:center">CFAP74 C1orf222 KIAA1751</td>
+<td style="text-align:center">reviewed</td>
+<td style="text-align:center">ALTERNATIVE PRODUCTS:  Event=Alternative splic...</td>
+<td style="text-align:center">Homo sapiens (Human)</td>
+<td style="text-align:center">Cilia- and flagella-associated protein 74</td>
+<td style="text-align:center">Q9C0B2-1</td>
+<td style="text-align:center">Untrusted &amp; No Isoform</td>
+<td style="text-align:center">NP_001291289</td>
+<td style="text-align:center">Q9C0B2</td>
+<td style="text-align:center">KIAA1751</td>
+<td style="text-align:center">False</td>
+<td style="text-align:center">No</td>
+</tr>
+<tr>
+<td style="text-align:center">Q96NU1</td>
+<td style="text-align:center">SAMD11</td>
+<td style="text-align:center">reviewed</td>
+<td style="text-align:center">ALTERNATIVE PRODUCTS:  Event=Alternative promo...</td>
+<td style="text-align:center">Homo sapiens (Human)</td>
+<td style="text-align:center">Sterile alpha motif domain-containing protein ...</td>
+<td style="text-align:center">Q96NU1-3</td>
+<td style="text-align:center">Untrusted &amp; No Isoform</td>
+<td style="text-align:center">NP_689699</td>
+<td style="text-align:center">Q96NU1</td>
+<td style="text-align:center">SAMD11</td>
+<td style="text-align:center">True</td>
+<td style="text-align:center">No</td>
+</tr>
+<tr>
+<td style="text-align:center">P43489</td>
+<td style="text-align:center">TNFRSF4 TXGP1L</td>
+<td style="text-align:center">reviewed</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">Homo sapiens (Human)</td>
+<td style="text-align:center">Tumor necrosis factor receptor superfamily mem...</td>
+<td style="text-align:center">NaN</td>
+<td style="text-align:center">Trusted &amp; No Isoform</td>
+<td style="text-align:center">NP_003318</td>
+<td style="text-align:center">P43489</td>
+<td style="text-align:center">TNFRSF4</td>
+<td style="text-align:center">True</td>
+<td style="text-align:center">Yes</td>
+</tr>
+</tbody>
+</table>
+<h5 class="mume-header" id="report-statistis">Report Statistis</h5>
+
+<p>&#x4E0B;&#x5217;&#x7EDF;&#x8BA1;&#x4FE1;&#x606F;&#x5C06;&#x8F93;&#x51FA;&#x81F3;&#x6837;&#x4F8B;&#x811A;&#x672C;&#x4E2D;&#x5B9A;&#x4E49;&#x7684; <code>reportPath</code> &#x5BF9;&#x5E94;&#x6587;&#x4EF6;&#x4E2D;</p>
+<ul>
+<li>all RefSeq Count: 8450</li>
+<li>Unmapped Results: 34</li>
+<li>Trusted Results: 8066
+<ul>
+<li><code>handled_df[handled_df[&apos;Mapping_status&apos;] == &apos;Yes&apos;]</code></li>
+</ul>
+</li>
+<li>Untrusted Resultes: 350
+<ul>
+<li>Error Results: 1 <code>{NP_002115: [P01911, Q29974]}, handled_df[handled_df[&apos;Mapping_status&apos;] == &apos;Error&apos;]</code></li>
+<li>Others: <code>handled_df[handled_df[&apos;Mapping_status&apos;] == &apos;No&apos;]</code></li>
+</ul>
+</li>
+</ul>
+<h3 class="mume-header" id="%E8%8E%B7%E5%8F%96%E6%95%B4%E5%90%88%E5%A5%BD%E7%9A%84%E7%AA%81%E5%8F%98%E4%BF%A1%E6%81%AF">&#x83B7;&#x53D6;&#x6574;&#x5408;&#x597D;&#x7684;&#x7A81;&#x53D8;&#x4FE1;&#x606F;</h3>
+
+<pre data-role="codeBlock" data-info="py" class="language-python"><span class="token keyword">print</span><span class="token punctuation">(</span>unp_demo<span class="token punctuation">.</span>muta_li<span class="token punctuation">)</span>
+</pre><pre data-role="codeBlock" data-info="txt" class="language-txt"><code>RefSeq_protein
+NP_000005                              [R1297C, V1000I, C972Y]
+NP_000006    [L24I, R64W, R64Q, I114T, D122N, L137F, Q145P,...
+NP_000007    [R31H, E43K, Q45R, Q49E, A52V, R53C, R53H, A56...
+NP_000008    [R46W, P55L, G90S, G92C, L93I, D94H, I105N, R1...
+NP_000009    [S72F, G76E, P89S, P91Q, P91L, S110Y, F113L, N...
+NP_000010    [I52T, Q73P, N93S, G100E, Q101K, N123K, K124E,...
+NP_000011    [K8T, K8N, V18M, P30S, V32G, C34Y, C36Y, S38I,...
+NP_000012    [Q15H, R35Q, N39Y, D40N, R42L, V63G, A79T, A79...
+NP_000013    [A329V, M310T, L304R, P297Q, S291L, R282Q, P27...
+NP_000014    [P30L, L31P, V32A, R34C, R34H, R34L, V37L, A53...
+NP_000015                           [R16G, Q27E, A119D, T164I]
+...
+</code></pre><h3 class="mume-header" id="sifts%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9A%84%E5%88%9B%E5%BB%BA">SIFTS&#x6570;&#x636E;&#x96C6;&#x7684;&#x521B;&#x5EFA;</h3>
+
+<p>&#x901A;&#x8FC7;SIFTS API &#x5EFA;&#x7ACB;UniProt&#x4E0E;PDB&#x6B8B;&#x57FA;&#x6C34;&#x5E73;&#x5BF9;&#x5E94;&#x5173;&#x7CFB;&#x7684;&#x539F;&#x59CB;&#x6570;&#x636E;&#x96C6;</p>
+<pre data-role="codeBlock" data-info="py" class="language-python"><span class="token keyword">from</span> SIFTS_unit <span class="token keyword">import</span> SIFTS_unit
+
+<span class="token comment"># SIFTS &#x539F;&#x59CB;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x8DEF;&#x5F84;</span>
+raw_sifts_file_path <span class="token operator">=</span> <span class="token string">&apos;pdb_uniprot_SIFTS_raw_demo.csv&apos;</span>
+<span class="token comment"># SIFTS &#x52A0;&#x4E0A;&#x7ECF;&#x8FC7;&#x6574;&#x5408;&#x7684;&#x8986;&#x76D6;&#x8303;&#x56F4;&#x533A;&#x95F4;&#x4FE1;&#x606F;&#x540E;&#x7684;&#x6587;&#x4EF6;&#x8DEF;&#x5F84;</span>
+add_rangeInfo_sifts_file_path <span class="token operator">=</span> <span class="token string">&apos;pdb_uniprot_SIFTS_addRangeInfo_demo.tsv&apos;</span>
+<span class="token comment"># SIFTS &#x5224;&#x65AD;PDB&#x94FE;&#x76F8;&#x5BF9;UniProt Isoform&#x7684;&#x5E8F;&#x5217;&#x662F;&#x5426;&#x6709;Intertion,Deletion,&#x5E76;&#x52A0;&#x4E0A;&#x6807;&#x7B7E;</span>
+add_InDe_sifts_file_path <span class="token operator">=</span> <span class="token string">&apos;pdb_uniprot_SIFTS_delwithInDe_demo.tsv&apos;</span>
+<span class="token comment"># &#x6587;&#x4EF6;&#x4FDD;&#x5B58;&#x6587;&#x4EF6;&#x5939;</span>
+SIFTS_unit<span class="token punctuation">.</span>CONFIG<span class="token punctuation">[</span><span class="token string">&apos;DOWNLOAD_FOLDER&apos;</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">&apos;/data/zzf/SIFTS_files/&apos;</span>
+<span class="token comment"># &#x521D;&#x59CB;&#x5316;</span>
+sifts_demo <span class="token operator">=</span> SIFTS_unit<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment"># &#x83B7;&#x53D6;SIFTS&#x5F53;&#x524D;&#x53EF;&#x63D0;&#x4F9B;UniProt-PDB&#x6620;&#x5C04;&#x4FE1;&#x606F;&#x7684;UniProt&#x4E0E;PDB ID</span>
+info_dict <span class="token operator">=</span> sifts_demo<span class="token punctuation">.</span>get_info_from_uniprot_pdb_file<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment"># &#x8BBE;&#x7F6E;&#x9884;&#x5907;&#x83B7;&#x53D6;&#x4FE1;&#x606F;&#x7684;PDB ID&#x96C6;</span>
+sifts_demo<span class="token punctuation">.</span>pdb_list <span class="token operator">=</span> <span class="token builtin">sorted</span><span class="token punctuation">(</span>info_dict<span class="token punctuation">[</span><span class="token string">&apos;pdb_set&apos;</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token comment"># &#x83B7;&#x53D6;SIFTS &#x539F;&#x59CB;&#x6570;&#x636E;</span>
+sifts_demo<span class="token punctuation">.</span>get_raw_SIFTS<span class="token punctuation">(</span>outputPath<span class="token operator">=</span><span class="token string">&apos;%s%s&apos;</span> <span class="token operator">%</span> <span class="token punctuation">(</span>SIFTS_unit<span class="token punctuation">.</span>CONFIG<span class="token punctuation">[</span><span class="token string">&apos;DOWNLOAD_FOLDER&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> raw_sifts_file_path<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment"># &#x5904;&#x7406;SIFTS&#x539F;&#x59CB;&#x6570;&#x636E;: &#x52A0;&#x4E0A;&#x7ECF;&#x8FC7;&#x6574;&#x5408;&#x7684;&#x8986;&#x76D6;&#x8303;&#x56F4;&#x533A;&#x95F4;&#x7B49;&#x4FE1;&#x606F;</span>
+handle_df <span class="token operator">=</span> sifts_demo<span class="token punctuation">.</span>handle_SIFTS<span class="token punctuation">(</span>outputPath<span class="token operator">=</span><span class="token string">&apos;%s%s&apos;</span> <span class="token operator">%</span> <span class="token punctuation">(</span>SIFTS_unit<span class="token punctuation">.</span>CONFIG<span class="token punctuation">[</span><span class="token string">&apos;DOWNLOAD_FOLDER&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> add_rangeInfo_sifts_file_path<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment"># &#x5904;&#x7406;SIFTS&#x539F;&#x59CB;&#x6570;&#x636E;: &#x5224;&#x65AD;PDB&#x94FE;&#x76F8;&#x5BF9;UniProt Isoform&#x7684;&#x5E8F;&#x5217;&#x662F;&#x5426;&#x6709;Intertion,Deletion,&#x5E76;&#x52A0;&#x4E0A;&#x6807;&#x7B7E;</span>
+sifts_demo<span class="token punctuation">.</span>deal_with_insertionDeletion_SIFTS<span class="token punctuation">(</span>sifts_df<span class="token operator">=</span>handle_df<span class="token punctuation">,</span> outputPath<span class="token operator">=</span><span class="token string">&apos;%s%s&apos;</span> <span class="token operator">%</span> <span class="token punctuation">(</span>SIFTS_unit<span class="token punctuation">.</span>CONFIG<span class="token punctuation">[</span><span class="token string">&apos;DOWNLOAD_FOLDER&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> add_InDe_sifts_file_path<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</pre><h3 class="mume-header" id="pdb%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%8B%E8%BD%BD">PDB&#x6587;&#x4EF6;&#x7684;&#x4E0B;&#x8F7D;</h3>
+
+<h3 class="mume-header" id="interactome3d-meta-data%E7%9A%84%E8%8E%B7%E5%8F%96">Interactome3D meta-data&#x7684;&#x83B7;&#x53D6;</h3>
+
+<h2 class="mume-header" id="%E5%AF%B9sifts%E6%95%B0%E6%8D%AE%E9%9B%86%E8%BF%9B%E8%A1%8C%E5%A4%84%E7%90%86">&#x5BF9;SIFTS&#x6570;&#x636E;&#x96C6;&#x8FDB;&#x884C;&#x5904;&#x7406;</h2>
+
+<h2 class="mume-header" id="%E6%95%B4%E5%90%88sifts%E6%95%B0%E6%8D%AE%E4%B8%8Epdb%E6%95%B0%E6%8D%AE">&#x6574;&#x5408;SIFTS&#x6570;&#x636E;&#x4E0E;PDB&#x6570;&#x636E;</h2>
+
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

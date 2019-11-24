@@ -52,13 +52,13 @@ sys.path.append('./')
 from SIFTS_unit import SIFTS_unit
 from UniProt_unit import UniProt_unit
 
-demo_pdb_list_path = '../../data/demo_pdb_list.tsv'
-raw_sifts_file_path = '../../data/pdb_uniprot_SIFTS_demo.csv'
-add_rangeInfo_sifts_file_path = '../../data/pdb_uniprot_SIFTS_NEW0815.tsv'
-add_InDe_sifts_file_path = '../../data/Mapping_Pipeline/sifts_files/pdb_uniprot_SIFTS_delwithInDe_0815.tsv'
-unp_len_file_path = '../../data/Mapping_Pipeline/unp_len_list_0817.tsv'
-new_seg_edited_file_path = '../../data/Mapping_Pipeline/sifts_files/uniprot_segments_observed_edited_new.tsv' # Has Not exit
-add_unpLen_segInfo_file_path = '../../data/Mapping_Pipeline/sifts_files/???'
+demo_pdb_list_path = '../../data/demo_files/pdb_list_demo.tsv'
+raw_sifts_file_path = '../../data/demo_files/pdb_uniprot_SIFTS_raw_demo.csv'
+add_rangeInfo_sifts_file_path = '../../data/demo_files/pdb_uniprot_SIFTS_addRangeInfo_demo.tsv'
+add_InDe_sifts_file_path = '../../data/demo_files/pdb_uniprot_SIFTS_delwithInDe_demo.tsv'
+unp_len_file_path = '../../data/demo_files/unp_len_list_demo.tsv'
+new_seg_edited_file_path = '../../data/demo_files/uniprot_segments_observed_edited_demo.tsv'
+add_unpLen_segInfo_file_path = '../../data/demo_files/pdb_uniprot_SIFTS_addunpLenSegInfo_demo.tsv'
 
 demo_pdb_list = pd.read_csv(demo_pdb_list_path, sep='\t', usecols=['pdb_id'])['pdb_id']
 old_pdb_list = pd.read_csv(add_InDe_sifts_file_path, sep='\t', usecols=['pdb_id'])['pdb_id']
@@ -202,41 +202,33 @@ return dfrm
 
 ---
 
-### self.add_mmcif_info_SIFTS()
+### self.score_SIFTS()
 
 #### Parameters
 
 ```py
-def :[...]
+def score_SIFTS(self, sifts_df=False, sifts_filePath=False, outputPath=False):[...]
 ```
 
 #### Usage
-Get
+Create columns that help examine the quality of pdb chain with corresponding uniprot and calculate the score.
+* Create New columns: ```['pdb_mapped_range', 'pdb_mappedRange_head', 'pdb_mappedRange_tail', 'mappedOut', 'delHT_MissingNum', 'pdb_mapped_range_len', 'if_1', 'if_2', 'BS','ne_resolution_score', 'pdb_useful_chain_num']```
+  * ```pdb_mapped_range```: interval-format data that represent the mapped range between a pdb chain sequence that have coordinates with its corresponding uniprot sequence
+  * ```pdb_mappedRange_head```: the index of the first mapped residue in ```pdb_mapped_range```
+  * ```pdb_mappedRange_tail```: the index of the last mapped residue in ```pdb_mapped_range```
+  * ```mappedOut```: the length of those unmapped pdb sequences in the head and tail of a pdb chain sequence. Counts the length when the length is > 5 either in head or tail.
+  * ```delHT_MissingNum```: the counts of missing residues in a pdb chain. Ignore those missing which locate in the head(<=5) and tail(<=5)
+  * ```pdb_mapped_range_len```: the length of ```pdb_mapped_range```
+  * ```if_1```: the sum of ```['pdb_GAP_list','unp_GAP_list','var_list']```, which represents the num of Insertion and Deletion related residues.
+  * ```if_2```: the sum of ```['Modification_num', 'mutation_num']```, which represents the num of Modification and Mutatuin related residues
+  * ```BS```: the basic score of a pdb chain, calculate by ```["coordinates_len", "mappedOut", "metal_ligand_num", "delHT_MissingNum", "if_2", "if_1", "UNP_len"]```
+  * ```ne_resolution_score```: negative resolution_score, for those pdb without resolution data, we set it with -1000
+  * ```pdb_useful_chain_num```: the num of protein chains that have coordinates_len more than 20.
 
 
-#### Return
+  #### Return
+  This function returns the new DataFrame.
 
-```py
-return
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```mermaid
-graph TB
-  Z_0("self.set_lists(pdb_list, [])")
-  A_0("get_info_from_uniprot_pdb_file()")
-  A_1("get_raw_SIFTS()")
-  C("")
-```
+  ```py
+  return sifts_dfrm
+  ```

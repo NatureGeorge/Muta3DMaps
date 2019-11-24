@@ -63,6 +63,7 @@ pdb_id	|	chain_id	|	UniProt	| identity |... |is_canonical | ... | sifts_pdb_rang
 3CMU	|A	|P0A7G6	|0.987	|...|True|...	|\[\[5, 309], \[325, 658], \[674, 1007], \[1023, 135...	|\[\[31, 335], \[2, 335], \[2, 335], \[2, 335], \[2, ...|True	|Insertion & Deletion
 5LOH	|A	|Q96GX5-2	|0.718 |...|False|...	|\[\[4, 197], \[202, 218], \[256, 341]]	|\[\[1, 194], \[739, 209], \[755, 840]]	|True |Insertion & Deletion
 5LOH	|A	|Q96GX5	|0.986	|...|True|...	|\[\[4, 197], \[202, 341]]	|\[\[1, 194], \[740, 879]]	|False|Insertion & Deletion
+
 发现上述特殊情况中的```Insertion```以及```Insertion & Deletion```时我们会进行pair-wise alignment(采用Biopyton模块的pairwise2)以确定具体的差异内容, 更正```sifts_pdb_range, sifts_unp_range```使得残基对应关系更为精确。
 
 ##### MMCIF
