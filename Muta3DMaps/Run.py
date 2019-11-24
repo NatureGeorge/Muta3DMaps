@@ -1,18 +1,18 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-25T00:52:36+08:00
+# @Last modified time: 2019-11-25T01:30:57+08:00
 import click
 import configparser
 import os
 import json
 from pandas import read_csv, merge, Series
 from numpy import nan
-from Muta3DMaps.Mods.ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
-from Muta3DMaps.Mods.ProcessMMCIF import MMCIF2Dfrm
-from Muta3DMaps.Mods.ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fasta
-from Muta3DMaps.Mods.ProcessI3D import RetrieveI3D
-from Muta3DMaps.Utils.Logger import RunningLogger
+from core.Mods.ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
+from core.Mods.ProcessMMCIF import MMCIF2Dfrm
+from core.Mods.ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fasta
+from core.Mods.ProcessI3D import RetrieveI3D
+from core.Utils.Logger import RunningLogger
 
 
 _FOLDER = ""

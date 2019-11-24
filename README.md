@@ -46,7 +46,7 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 ## Regarded as a Command Line Tool
 
 ```bash
-Usage: Run.py [OPTIONS] COMMAND [ARGS]...
+Usage: Muta3DMaps [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --folder PATH  The file folder of new files.

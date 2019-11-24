@@ -1,7 +1,7 @@
 # @Date:   2019-11-24T19:44:32+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: setup.py
-# @Last modified time: 2019-11-25T00:48:56+08:00
+# @Last modified time: 2019-11-25T01:32:39+08:00
 from setuptools import setup, find_packages
 
 
@@ -12,13 +12,14 @@ with open("README.md", "rt") as f:
 setup(name="Muta3DMaps",
       version="1.0",
 
-      packages=find_packages(),  # 'src'
+      packages=find_packages('Muta3DMaps'),  # 'src'
+      package_dir={'': 'Muta3DMaps'},
       package_data={
         '': ['*.ini'],
       },
       entry_points='''
         [console_scripts]
-        Muta3DMaps=src.Run:interface
+        Muta3DMaps=Muta3DMaps.Run:interface
       ''',
       install_requires=[
         'Click',
@@ -28,7 +29,7 @@ setup(name="Muta3DMaps",
         'wget',
         'retrying'
      ],
-      license="MIT License",
+      license="MIT",
       author_email="minghui.li@suda.edu.cn",
       maintainer="ZeFeng Zhu",
       maintainer_email="1730416009@stu.suda.edu.cn",
@@ -45,7 +46,6 @@ setup(name="Muta3DMaps",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    # package_dir={'': 'src'},
     # packages=find_namespace_packages(where='src'),
     # include_package_data=True,
     )
