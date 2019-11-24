@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T16:59:18+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessSIFTS.py
-# @Last modified time: 2019-11-23T20:28:31+08:00
+# @Last modified time: 2019-11-24T11:02:43+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -167,6 +167,7 @@ def handle_SIFTS(filePath, skiprows=0, outputPath=None):
     new_sifts_df['sifts_pdb_range'] = new_sifts_df.apply(lambda x: x['rangeInfo'].split('|')[0], axis=1)
     new_sifts_df['sifts_unp_range'] = new_sifts_df.apply(lambda x: x['rangeInfo'].split('|')[1], axis=1)
     new_sifts_df.drop(columns=['rangeInfo'], inplace=True)
+    new_sifts_df["Entry"] = new_sifts_df["UniProt"].apply(lambda x: x.split("-")[0])
 
     if outputPath is not None and os.path.exists(outputPath):
         header = False
