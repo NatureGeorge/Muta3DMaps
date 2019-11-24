@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-24T17:38:24+08:00
+# @Last modified time: 2019-11-24T18:06:14+08:00
 import click
 import configparser
 import os
@@ -205,7 +205,7 @@ def initUnpFASTA(fastafolder, unreviewed, isoform, split, mode, fastapath, refer
 @interface.command()
 @click.option("--fastaFolder", default="./", help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
 @click.option("--siteInfoFile", default="", help="The file that comtains site info.", type=click.Path())
-def unp2PDB(fastafolder, siteInfoFile):
+def unp2PDB(fastafolder, siteinfofile):
     click.echo(colorClick("Mapping"))
     logger = RunningLogger("mappingFromUnpToPDB", _LOGGER_PATH).logger
     sifts_df = read_csv(_SIFTS_MODIFIED_PATH, sep="\t", converters=_CONVERTER).drop_duplicates(subset=['UniProt', 'pdb_id', 'chain_id'], keep='last')
@@ -215,15 +215,13 @@ def unp2PDB(fastafolder, siteInfoFile):
 
     if os.path.exists(_UniProt_ID_Mapping_MODIFIED_PATH):  # Procced
         id_map_df = read_csv(_UniProt_ID_Mapping_MODIFIED_PATH, sep="\t")
-    sifts_mmcif_df = merge(sifts_mmcif_df, id_map_df[['UniProt', 'yourlist']].drop_duplicates())
+    sifts_mmcif_df = merge(sifts_mmcif_df, id_map_df[['UniProt', 'yourlist']].drop_duplicates(), how="left")
 
-    logger.warning("\n%s\n" % sifts_mmcif_df.isnull().sum())
+    if siteinfofile == "":
+        siteinfofile = _SITE_INFO_PATH
 
-    if siteInfoFile == "":
-        siteInfoFile = _SITE_INFO_PATH
-
-    if os.path.exists(siteInfoFile):
-        siteSe = read_csv(siteInfoFile, sep="\t", index_col=0)['site']
+    if os.path.exists(siteinfofile):
+        siteSe = read_csv(siteinfofile, sep="\t", index_col=0)['site']
         siteSe = siteSe.apply(json.loads)
         sifts_mmcif_df['mutation_unp'] = sifts_mmcif_df.apply(lambda x: siteSe[x['yourlist']], axis=1)
         muta_info_li = []
@@ -234,11 +232,13 @@ def unp2PDB(fastafolder, siteInfoFile):
 
         sifts_mmcif_df['muta_map_info'] = Series(muta_info_li, index=sifts_mmcif_df.dropna(subset=['mutation_unp']).index)
 
+    logger.warning("\n%s\n" % sifts_mmcif_df.isnull().sum())
     sifts_mmcif_df.to_csv(_INTERGRATE_PATH, sep="\t", index=False)
+    logger.info("Safe File: %s" % _INTERGRATE_PATH)
 
 
 @interface.command()
-@click.option("--i3dPath", default=None, help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
+@click.option("--i3dPath", default=None, help="The downloaded file path of Interactome3D Meta file.", type=click.Path())
 def i3dMap(i3dpath):
     click.echo(colorClick("Constraint Mapping with Interactome3D"))
     logger = RunningLogger("constraintMapping", _LOGGER_PATH).logger
@@ -267,7 +267,7 @@ def i3dMap(i3dpath):
     ho_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"] == "ho"])
     he_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"] == "he"])
     discard_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"].isnull()])
-    logger.info("\nThere are %s rows related to mo, \n%s rows related to ho, \n%s rows related to he and %s rows to discard." % (mo_len, ho_len, he_len, discard_len))
+    logger.info("\nThere are %s rows related to mo, \n%s rows related to ho, \n%s rows related to he and\n %s rows to discard." % (mo_len, ho_len, he_len, discard_len))
 
 
 interface.add_command(initUniProt)

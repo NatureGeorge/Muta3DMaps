@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessI3D.py
-# @Last modified time: 2019-11-24T15:06:15+08:00
+# @Last modified time: 2019-11-24T18:11:16+08:00
 import pandas as pd
 import wget, time, os
 from urllib import request
@@ -36,6 +36,7 @@ class RetrieveI3D:
             filePath = os.path.join(self.downloadFolder, 'I3D_META_interactions_%s_%s.dat' % (species, time.strftime("%Y_%m_%d", time.localtime())))
             self.Logger.logger.info("Downloading File: %s" % filePath)
             wget.download(url, out=filePath)
+            self.Logger.logger.info("\n")
 
         dfrm = pd.read_csv(filePath, sep='\t', na_values=["-"])
         if struct_type:

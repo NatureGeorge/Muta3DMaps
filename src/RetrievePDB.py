@@ -1,7 +1,7 @@
 # @Date:   2019-10-24T23:35:42+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: RetrievePDB.py
-# @Last modified time: 2019-11-23T15:01:47+08:00
+# @Last modified time: 2019-11-24T18:13:07+08:00
 import wget
 import urllib
 import ftplib
@@ -257,6 +257,7 @@ class RetrievePDB:
         self.Logger.logger.info("Downloading File: %s" % path)
         try:
             wget.download(site, out=path)
+            self.Logger.logger.info("\n")
         except urllib.error.URLError:
             self.Logger.logger.warning("Download failed")
             self.fail.append(pdb)
@@ -297,6 +298,7 @@ class RetrievePDB:
             # Select module method: wget
             else:
                 wget.download(url, out=path)
+                self.Logger.logger.info("\n")
         except urllib.error.URLError:
             self.Logger.logger.warning("Download failed")
             self.fail.append(pdb)
@@ -314,6 +316,7 @@ class RetrievePDB:
         self.Logger.logger.info("Downloading File: %s" % path)
         try:
             wget.download(url, out=path)
+            self.Logger.logger.info("\n")
         except urllib.error.URLError:
             self.Logger.logger.warning("Download failed")
             self.fail.append(pdb)

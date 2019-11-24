@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T16:59:18+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessSIFTS.py
-# @Last modified time: 2019-11-24T11:02:43+08:00
+# @Last modified time: 2019-11-24T18:11:46+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -130,6 +130,7 @@ class RetrieveSIFTS:
 
             try:
                 wget.download(url, out=filePath)
+                self.Logger.logger.info("\n")
                 decompression(filePath, remove=True, logger=self.Logger.logger)
             except Exception as e:
                 self.Logger.logger.error("Download failed: %s; Exception: %s" % (filePath, e))

@@ -1,7 +1,7 @@
 # @Date:   2019-11-22T15:19:51+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessUniProt.py
-# @Last modified time: 2019-11-24T17:37:47+08:00
+# @Last modified time: 2019-11-24T18:12:23+08:00
 import urllib.parse
 import urllib.request
 import ftplib
@@ -487,6 +487,7 @@ def retrieveUniProtSeq(downloadFolder, logger, unreviewed=True, isoform=True, sp
                 logger.info("Downloading File: %s" % path)
                 try:
                     wget.download(url, out=path)
+                    logger.info("\n")
                 except Exception:
                     logger.warning("Download failed")
             outputPath = decompression(path, logger=logger)
