@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-24T17:00:37+08:00
+# @Last modified time: 2019-11-24T17:38:24+08:00
 import click
 import configparser
 import os
@@ -62,7 +62,7 @@ def interface(folder):
 @click.option("--unpFile", default="", help="The file that comtains Target UniProt IDs.", type=click.Path())
 @click.option("--unpCol", default="UniProt", help="The column of UniProt IDs in unpFile.", type=str)
 @click.option("--sep", default="\t", help="The seperator of unpFile.", type=str)
-@click.option("--filtering", default=["", ""], help="[filterColumn filterValue]: The filter of unpFile. Keep the rows that have equal value in filter column.", type=(str, str))
+@click.option("--filtering", default=("", ""), help="[filterColumn filterValue]: The filter of unpFile. Keep the rows that have equal value in filter column.", type=(str, str))
 @click.option("--useInitizedUnp", default=False, help="Whether to set the initialized result as the unpFile.", type=bool)
 def initSIFTS(test, unpfile, unpcol, sep, filtering, useinitizedunp):
     click.echo(colorClick("SIFTS"))
@@ -76,7 +76,7 @@ def initSIFTS(test, unpfile, unpcol, sep, filtering, useinitizedunp):
         filtering = ("Mapping_status", "Yes")
 
     if unpfile != "":
-        if filtering != ["", ""]:
+        if filtering != ("", ""):
             filtercol, filtervalue = filtering
             filterDfrm = read_csv(unpfile, usecols=[unpcol, filtercol], sep=sep)
             related_unp = filterDfrm[filterDfrm[filtercol] == filtervalue][unpcol].drop_duplicates()
@@ -190,13 +190,14 @@ def initUnpFASTA(fastafolder, unreviewed, isoform, split, mode, fastapath, refer
             isoform=isoform,
             split=split,
             mode=mode,
-            refer=refer
+            refer=refer,
+            progressbar=click.progressbar
         )
 
     elif split:
         click.echo("Spliting FASTA Files.")
         with open(fastapath, "rt") as fileHandle:
-            split_fasta(fileHandle, fastafolder, refer)
+            split_fasta(fileHandle, fastafolder, refer, click.progressbar)
     else:
         click.echo("Done Nothing.")
 
