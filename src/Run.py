@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-24T12:47:50+08:00
+# @Last modified time: 2019-11-24T15:20:05+08:00
 import click
 import configparser
 import os
@@ -29,7 +29,7 @@ _UniProt_ID_Mapping_MODIFIED_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_M
 _UniProt_DEFAULT_COL = _config.get("DEFAULT", "UniProt_DEFAULT_COL").split(",")
 _SITE_INFO_PATH = _config.get("DEFAULT", "SITE_INFO_PATH")
 _INTERGRATE_PATH = _config.get("DEFAULT", "INTERGRATE_PATH")
-_I3D_MEAT_INT_PATH = _config.get("DEFAULT", "I3D_MEAT_INT_PATH")
+_I3D_META_INI_PATH = _config.get("DEFAULT", "I3D_META_INI_PATH")
 _COMPO_PATH = _config.get("DEFAULT", "COMPO_PATH")
 _CONVERTER = {"chain_id": str, "struct_asym_id": str, "entity_id": int, "asym_id": str}
 
@@ -41,7 +41,7 @@ def colorClick(a, b="Initializing %s DataSet", fg="green"):
 @click.group()
 @click.option("--folder", default="", help="The file folder of new files.", type=click.Path())
 def interface(folder):
-    global _FOLDER, _LOGGER_PATH, _SIFTS_RAW_PATH, _SIFTS_MODIFIED_PATH, _SIFTS_PDB, _MMCIF_RAW_PATH, _MMCIF_MODIFIED_PATH, _UniProt_ID_Mapping_RAW_PATH, _UniProt_ID_Mapping_MODIFIED_PATH, _SITE_INFO_PATH, _INTERGRATE_PATH, _I3D_MEAT_INT_PATH,_COMPO_PATH
+    global _FOLDER, _LOGGER_PATH, _SIFTS_RAW_PATH, _SIFTS_MODIFIED_PATH, _SIFTS_PDB, _MMCIF_RAW_PATH, _MMCIF_MODIFIED_PATH, _UniProt_ID_Mapping_RAW_PATH, _UniProt_ID_Mapping_MODIFIED_PATH, _SITE_INFO_PATH, _INTERGRATE_PATH, _I3D_META_INI_PATH, _COMPO_PATH
     _FOLDER = folder
     _LOGGER_PATH = os.path.join(_FOLDER, _LOGGER_PATH)
     _SIFTS_RAW_PATH = os.path.join(_FOLDER, _SIFTS_RAW_PATH)
@@ -53,7 +53,7 @@ def interface(folder):
     _UniProt_ID_Mapping_MODIFIED_PATH = os.path.join(_FOLDER, _UniProt_ID_Mapping_MODIFIED_PATH)
     _SITE_INFO_PATH = os.path.join(_FOLDER, _SITE_INFO_PATH)
     _INTERGRATE_PATH = os.path.join(_FOLDER, _INTERGRATE_PATH)
-    _I3D_MEAT_INT_PATH = os.path.join(_FOLDER, _I3D_MEAT_INT_PATH)
+    _I3D_META_INI_PATH = os.path.join(_FOLDER, _I3D_META_INI_PATH)
     _COMPO_PATH = os.path.join(_FOLDER, _COMPO_PATH)
 
 
@@ -218,7 +218,9 @@ def unp2PDB(fastafolder, siteInfoFile):
 
 
 @interface.command()
-def constraintMapping():
+@click.option("--i3dPath", default=None, help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
+def i3dMap(i3dpath):
+    click.echo(colorClick("Constraint Mapping with Interactome3D"))
     logger = RunningLogger("constraintMapping", _LOGGER_PATH).logger
     intergrate_df = read_csv(_INTERGRATE_PATH, sep="\t", converters=_CONVERTER)
     filter_df = intergrate_df[
@@ -231,15 +233,21 @@ def constraintMapping():
         & (intergrate_df['pdb_contain_chain_type'].isin(["protein", "DNA,protein", "protein,DNA", "RNA,protein", "protein,RNA"]))
     ].reset_index(drop=True)
 
-    sort_li = ["TYPE", "PDB_ID", "CHAIN_COMPO", "CHAIN", "BIO_UNIT", "MODEL", "group_compo", "PROT"]
-    redundant_li = ["TYPE", "PDB_ID", "CHAIN_COMPO", "CHAIN", "group_compo", "PROT"]
+    sort_li = ["i3d_TYPE", "pdb_id", "i3d_CHAIN_COMPO", "chain_id", "i3d_BIO_UNIT", "i3d_MODEL", "i3d_INTERACT_COMPO", "Entry"]
+    redundant_li = ["i3d_TYPE", "pdb_id", "i3d_CHAIN_COMPO", "chain_id", "i3d_INTERACT_COMPO", "Entry"]
 
     interactDemo = RetrieveI3D(downloadFolder=_FOLDER, loggingPath=_LOGGER_PATH)
-    interact_df = interactDemo.get_interactions_meta(outputPath=_I3D_MEAT_INT_PATH, struct_type="Structure")
-    interact_df = interact_df[interact_df["SAME_MODEL"] == True].sort_values(sort_li).drop_duplicates(subset=redundant_li, keep="first").reset_index(drop=True)
-    interact_filter_df = merge(filter_df, interact_df.rename(columns={"PDB_ID": "pdb_id", "CHAIN": "chain_id", "PROT": "Entry"}))
+    interact_df = interactDemo.get_interactions_meta(outputPath=_I3D_META_INI_PATH, struct_type="Structure", filePath=i3dpath)
+    interact_df = interact_df[interact_df["i3d_SAME_MODEL"] == True].sort_values(sort_li).drop_duplicates(subset=redundant_li, keep="first").reset_index(drop=True)
+    interact_filter_df = merge(filter_df, interact_df, how="left")
     interact_filter_df.to_csv(_COMPO_PATH, sep="\t", index=False)
     logger.info("Safe File: %s" % _COMPO_PATH)
+    # Statistics
+    mo_len = len(interact_filter_df[interact_filter_df["pdb_type_filtered"] == "mo"])
+    ho_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"] == "ho"])
+    he_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"] == "he"])
+    discard_len = len(interact_filter_df[interact_filter_df["i3d_pdb_type"].isnull()])
+    logger.info("\nThere are %s rows related to mo, \n%s rows related to ho, \n%s rows related to he and %s rows to discard." % (mo_len, ho_len, he_len, discard_len))
 
 
 interface.add_command(initUniProt)
@@ -247,7 +255,7 @@ interface.add_command(initUnpFASTA)
 interface.add_command(initSIFTS)
 interface.add_command(initMMCIF)
 interface.add_command(unp2PDB)
-interface.add_command(constraintMapping)
+interface.add_command(i3dMap)
 
 
 if __name__ == '__main__':
