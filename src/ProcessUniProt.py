@@ -1,7 +1,7 @@
 # @Date:   2019-11-22T15:19:51+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessUniProt.py
-# @Last modified time: 2019-11-23T16:19:33+08:00
+# @Last modified time: 2019-11-24T16:59:54+08:00
 import urllib.parse
 import urllib.request
 import ftplib
@@ -412,23 +412,53 @@ class MapUniProtID:
         self.Logger.logger.warning("\n%s\n" % str(dfrm.loc[err_index]))
 
 
-def split_fasta(fileHandle, outputPath):
+def split_fasta(fileHandle, outputPath, refer=None):
+
+    def output_unit(tage, seq):
+        with open(os.path.join(outputPath, "%s.fasta" % tage), 'w+') as outputFile:
+            outputFile.write(seq)
+
+    def withoutRefer(tage, seq):
+        # without refer
+        output_unit(tage, seq)
+        return True
+
+    def withRefer(tage, seq):
+        # with refer
+        if tage not in refer:
+            pass
+        else:
+            refer.remove(tage)
+            output_unit(tage, seq)
+
+        if refer:
+            return True
+        else:
+            return False
+
+    assert isinstance(refer, list) or refer is None, "refer should be a list or NoneType"
+
     tage = False
     seq = ''
+
+    if refer is None:
+        func = withoutRefer
+    else:
+        func = withRefer
+
     for line in fileHandle:
-        if line[0] == '>':
+        if line.startswith(">"):
             if tage:
-                with open(os.path.join(outputPath, "%s.fasta" % tage), 'w+') as outputFile:
-                    outputFile.write(seq)
+                if not fun(tage, seq):
+                    return
                 seq = ''
             tage = line.split('|')[1]
         seq += line
     # The last one
-    with open(os.path.join(outputPath, "%s.fasta" % tage), 'w+') as outputFile:
-        outputFile.write(seq)
+    output_unit(tage, seq)
 
 
-def retrieveUniProtSeq(downloadFolder, logger, unreviewed=True, isoform=True, split=True, mode="wget"):
+def retrieveUniProtSeq(downloadFolder, logger, unreviewed=True, isoform=True, split=True, mode="wget", refer=None):
     unpFASTA = UNIPROT_FASTA_FILE[:1]
     if unreviewed:
         unpFASTA.append(UNIPROT_FASTA_FILE[1])
@@ -447,8 +477,11 @@ def retrieveUniProtSeq(downloadFolder, logger, unreviewed=True, isoform=True, sp
                     logger.warning("Download failed")
             outputPath = decompression(path, logger=logger)
             if split:
+                logger.info("Spliting FASTA Files.")
                 with open(outputPath, "rt") as fileHandle:
-                    split_fasta(fileHandle, downloadFolder)
+                    split_fasta(fileHandle, downloadFolder, refer)
+            else:
+                logger.info("Did Not Split FASTA Files.")
 
     elif mode == "ftplib":
         with ftplib.FTP(UNIPROT_FASTA_SITE) as ftp:
@@ -469,8 +502,11 @@ def retrieveUniProtSeq(downloadFolder, logger, unreviewed=True, isoform=True, sp
                         continue
                     outputPath = decompression(path, logger=logger)
                     if split:
+                        logger.info("Spliting FASTA Files.")
                         with open(outputPath, "rt") as fileHandle:
-                            split_fasta(fileHandle, downloadFolder)
+                            split_fasta(fileHandle, downloadFolder, refer)
+                    else:
+                        logger.info("Did Not Split FASTA Files.")
                 except ftplib.error_perm as e:
                     logger.warning('FTP error:', e)
                     continue

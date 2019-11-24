@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-24T15:20:05+08:00
+# @Last modified time: 2019-11-24T17:00:37+08:00
 import click
 import configparser
 import os
@@ -10,7 +10,7 @@ from pandas import read_csv, merge, Series
 from numpy import nan
 from ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
 from ProcessMMCIF import MMCIF2Dfrm
-from ProcessUniProt import MapUniProtID, retrieveUniProtSeq
+from ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fasta
 from ProcessI3D import RetrieveI3D
 from Utils.Logger import RunningLogger
 
@@ -62,21 +62,21 @@ def interface(folder):
 @click.option("--unpFile", default="", help="The file that comtains Target UniProt IDs.", type=click.Path())
 @click.option("--unpCol", default="UniProt", help="The column of UniProt IDs in unpFile.", type=str)
 @click.option("--sep", default="\t", help="The seperator of unpFile.", type=str)
-@click.option("--filtering", default=None, help="[filterColumn filterValue]: The filter of unpFile. Keep the rows that have equal value in filter column.", type=(str, str))
+@click.option("--filtering", default=["", ""], help="[filterColumn filterValue]: The filter of unpFile. Keep the rows that have equal value in filter column.", type=(str, str))
 @click.option("--useInitizedUnp", default=False, help="Whether to set the initialized result as the unpFile.", type=bool)
-def initSIFTS(test, unpfile, unpcol, sep, filtering, useInitizedUnp):
+def initSIFTS(test, unpfile, unpcol, sep, filtering, useinitizedunp):
     click.echo(colorClick("SIFTS"))
     retrieveOb = RetrieveSIFTS(
         loggingPath=_LOGGER_PATH,
         rawSIFTSpath=_SIFTS_RAW_PATH,
         downloadFolder=_FOLDER)
 
-    if useInitizedUnp:
+    if useinitizedunp:
         unpfile = _UniProt_ID_Mapping_MODIFIED_PATH
         filtering = ("Mapping_status", "Yes")
 
     if unpfile != "":
-        if filtering is not None:
+        if filtering != ["", ""]:
             filtercol, filtervalue = filtering
             filterDfrm = read_csv(unpfile, usecols=[unpcol, filtercol], sep=sep)
             related_unp = filterDfrm[filterDfrm[filtercol] == filtervalue][unpcol].drop_duplicates()
@@ -165,21 +165,40 @@ def initUniProt(referencefile, sep, idcol, idtype, addusecols, sitecol, genecol,
 
 
 @interface.command()
-@click.option("--fastaFolder", default="./", help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
+@click.option("--fastaFolder", default=None, help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
 @click.option("--unreviewed", default=True, help="Whethter to include FASTA Seq of unreviewed UniProt Entry.", type=bool)
 @click.option("--isoform", default=True, help="Whethter to include isoform Seq.", type=bool)
 @click.option("--split", default=True, help="Whethter to split FASTA files.", type=bool)
 @click.option("--mode", default="wget", help="Retrieve mode.", type=click.Choice(['wget', 'ftplib'], case_sensitive=False))
-def initUnpFASTA(fastafolder, unreviewed, isoform, split, mode):
+@click.option("--fastaPath", default=None, help="The file path of downloaded fasta file.", type=click.Path())
+@click.option("--referenceFile", default=None, help="The file path of reference file that contains target UniProt ID.", type=click.Path())
+@click.option("--sep", default="\t", help="The seperator of referenceFile.", type=str)
+@click.option("--colName", default="UniProt", help="The column name of UniProt IDs in referenceFile.", type=str)
+def initUnpFASTA(fastafolder, unreviewed, isoform, split, mode, fastapath, referencefile, sep, colname):
     click.echo(colorClick("UniProt FASTA Seq"))
-    retrieveUniProtSeq(
-        fastafolder,
-        logger=RunningLogger("retrieveUniProtSeq", _LOGGER_PATH).logger,
-        unreviewed=unreviewed,
-        isoform=isoform,
-        split=split,
-        mode=mode
-    )
+
+    if referencefile is not None:
+        refer = read_csv(referencefile, sep=sep, usecols=[colname])[colname].drop_duplicates().to_list()
+    else:
+        refer = None
+
+    if fastapath is None:
+        retrieveUniProtSeq(
+            fastafolder,
+            logger=RunningLogger("retrieveUniProtSeq", _LOGGER_PATH).logger,
+            unreviewed=unreviewed,
+            isoform=isoform,
+            split=split,
+            mode=mode,
+            refer=refer
+        )
+
+    elif split:
+        click.echo("Spliting FASTA Files.")
+        with open(fastapath, "rt") as fileHandle:
+            split_fasta(fileHandle, fastafolder, refer)
+    else:
+        click.echo("Done Nothing.")
 
 
 @interface.command()
