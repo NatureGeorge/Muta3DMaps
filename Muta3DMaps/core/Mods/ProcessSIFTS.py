@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T16:59:18+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessSIFTS.py
-# @Last modified time: 2019-11-24T22:58:14+08:00
+# @Last modified time: 2019-11-25T19:44:14+08:00
 import pandas as pd
 import numpy as np
 import json
@@ -262,6 +262,7 @@ class PdSeqAlign:
 
 
 def update_range_SIFTS(unp_fasta_files_path, new_range_cols=('new_sifts_unp_range', 'new_sifts_pdb_range'), sifts_df=False, sifts_filePath=False, outputPath=False):
+    unp_fasta_files_path = os.path.join(unp_fasta_files_path, "%s.fasta")
     sifts_dfrm = file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
     focus = ['Deletion', 'Insertion & Deletion']
     focus_index = sifts_dfrm[sifts_dfrm['sifts_range_tage'].isin(focus)].index
@@ -270,11 +271,16 @@ def update_range_SIFTS(unp_fasta_files_path, new_range_cols=('new_sifts_unp_rang
     da2 = []
     pdSeqAligner = PdSeqAlign()
     for index in focus_index:
-        pdbSeq = sifts_dfrm.loc[index, '_pdbx_poly_seq_scheme.mon_id']
-        unpSeqOb = SeqIO.read(unp_fasta_files_path % sifts_dfrm.loc[index, 'UniProt'], "fasta")
-        da = pdSeqAligner.makeAlignment_align(unpSeqOb.seq, pdbSeq)
-        da1.append(da[0])
-        da2.append(da[1])
+        try:
+            pdbSeq = sifts_dfrm.loc[index, '_pdbx_poly_seq_scheme.mon_id']
+            unpSeqOb = SeqIO.read(unp_fasta_files_path % sifts_dfrm.loc[index, 'UniProt'], "fasta")
+            da = pdSeqAligner.makeAlignment_align(unpSeqOb.seq, pdbSeq)
+            da1.append(da[0])
+            da2.append(da[1])
+        except FileNotFoundError:
+            da1.append(np.nan)
+            da2.append(np.nan)
+
 
     df = pd.DataFrame({new_range_cols[0]: da1, new_range_cols[1]: da2}, index=focus_index)
     new_sifts_df = pd.merge(sifts_dfrm, df, left_index=True, right_index=True, how='left')

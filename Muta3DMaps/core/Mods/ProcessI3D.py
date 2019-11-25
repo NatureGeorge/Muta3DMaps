@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessI3D.py
-# @Last modified time: 2019-11-24T22:48:27+08:00
+# @Last modified time: 2019-11-25T20:23:06+08:00
 import pandas as pd
 import wget, time, os
 from urllib import request
@@ -16,13 +16,13 @@ class RetrieveI3D:
     # Reference: https://interactome3d.irbbarcelona.org/help.php#restful
     CONFIG = {
         'INTERACTION_SIFTS_COL': ['i3d_TYPE', 'pdb_id', 'i3d_BIO_UNIT',
-                                  'i3d_FILENAME', 'i3d_INTERACT_COMPO',
-                                  'Entry', 'chain_id', 'i3d_MODEL',
+                                  'i3d_FILENAME', 'i3d_SAME_MODEL',
+                                  'i3d_CHAIN_COMPO', 'i3d_pdb_type',
+                                  'i3d_INTERACT_COMPO', 'Entry',
+                                  'chain_id', 'i3d_MODEL',
                                   'i3d_SEQ_IDENT', 'i3d_COVERAGE',
-                                  'i3d_DOMAIN',
-                                  'i3d_SAME_MODEL', 'i3d_CHAIN_COMPO',
-                                  'i3d_pdb_type', 'i3d_INTERACT_COMPO'
-                                  'i3d_model_len', 'i3d_model_range'],
+                                  'i3d_DOMAIN', 'i3d_model_len', 'i3d_model_range'
+                                  ],
         'DOWNLOAD_URL': 'https://interactome3d.irbbarcelona.org/api/%s?',  # %s=%s&%s=%s
     }
 
@@ -68,6 +68,7 @@ class RetrieveI3D:
             df12 = df12[df12['PDB_ID'].isin(related_pdb)]
 
         df12.drop(columns=['SEQ_BEGIN', 'SEQ_END'], inplace=True)
+        self.Logger.logger.warning("Raw Order of I3D Column Names: " + str(df12.columns))
         df12.columns = self.CONFIG['INTERACTION_SIFTS_COL']
 
         file_o(outputPath, df12)

@@ -1,7 +1,7 @@
 # @Date:   2019-11-20T23:30:02+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: Run.py
-# @Last modified time: 2019-11-25T02:01:36+08:00
+# @Last modified time: 2019-11-25T18:13:27+08:00
 import click
 import configparser
 import os
@@ -14,24 +14,34 @@ from .core.Mods.ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fa
 from .core.Mods.ProcessI3D import RetrieveI3D
 from .core.Utils.Logger import RunningLogger
 
+if "\\" in __file__:
+    # Windows
+    sep = "\\"
+else:
+    # Linux
+    sep = "/"
 
-_FOLDER = ""
-_config = configparser.RawConfigParser()
-_config.read('\\'.join(__file__.split("\\")[:-1] + ['settings.ini']), encoding='utf8')
-_LOGGER_PATH = _config.get("DEFAULT", "LOGGER_PATH")
-_SIFTS_RAW_PATH = _config.get("DEFAULT", "SIFTS_RAW_PATH")
-_SIFTS_MODIFIED_PATH = _config.get("DEFAULT", "SIFTS_MODIFIED_PATH")
-_SIFTS_PDB = _config.get("DEFAULT", "SIFTS_PDB")
-_MMCIF_RAW_PATH = _config.get("DEFAULT", "MMCIF_RAW_PATH")
-_MMCIF_MODIFIED_PATH = _config.get("DEFAULT", "MMCIF_MODIFIED_PATH")
-_UniProt_ID_Mapping_RAW_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_RAW_PATH")
-_UniProt_ID_Mapping_MODIFIED_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_MODIFIED_PATH")
-_UniProt_DEFAULT_COL = _config.get("DEFAULT", "UniProt_DEFAULT_COL").split(",")
-_SITE_INFO_PATH = _config.get("DEFAULT", "SITE_INFO_PATH")
-_INTERGRATE_PATH = _config.get("DEFAULT", "INTERGRATE_PATH")
-_I3D_META_INI_PATH = _config.get("DEFAULT", "I3D_META_INI_PATH")
-_COMPO_PATH = _config.get("DEFAULT", "COMPO_PATH")
-_CONVERTER = {"chain_id": str, "struct_asym_id": str, "entity_id": int, "asym_id": str}
+try:
+    _FOLDER = ""
+    _config = configparser.RawConfigParser()
+    _configPath = sep.join(__file__.split(sep)[:-1] + ['settings.ini'])
+    _config.read(_configPath, encoding='utf8')
+    _LOGGER_PATH = _config.get("DEFAULT", "LOGGER_PATH")
+    _SIFTS_RAW_PATH = _config.get("DEFAULT", "SIFTS_RAW_PATH")
+    _SIFTS_MODIFIED_PATH = _config.get("DEFAULT", "SIFTS_MODIFIED_PATH")
+    _SIFTS_PDB = _config.get("DEFAULT", "SIFTS_PDB")
+    _MMCIF_RAW_PATH = _config.get("DEFAULT", "MMCIF_RAW_PATH")
+    _MMCIF_MODIFIED_PATH = _config.get("DEFAULT", "MMCIF_MODIFIED_PATH")
+    _UniProt_ID_Mapping_RAW_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_RAW_PATH")
+    _UniProt_ID_Mapping_MODIFIED_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_MODIFIED_PATH")
+    _UniProt_DEFAULT_COL = _config.get("DEFAULT", "UniProt_DEFAULT_COL").split(",")
+    _SITE_INFO_PATH = _config.get("DEFAULT", "SITE_INFO_PATH")
+    _INTERGRATE_PATH = _config.get("DEFAULT", "INTERGRATE_PATH")
+    _I3D_META_INI_PATH = _config.get("DEFAULT", "I3D_META_INI_PATH")
+    _COMPO_PATH = _config.get("DEFAULT", "COMPO_PATH")
+    _CONVERTER = {"chain_id": str, "struct_asym_id": str, "entity_id": int, "asym_id": str}
+except configparser.NoOptionError:
+    raise ValueError("File Path of config file: %s; Exists: %s; Code Path: %s" % (_configPath, os.path.exists(_configPath), __file__))
 
 
 def colorClick(a, b="Initializing %s DataSet", fg="green"):
