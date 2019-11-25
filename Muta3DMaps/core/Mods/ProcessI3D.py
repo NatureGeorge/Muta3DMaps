@@ -1,7 +1,7 @@
 # @Date:   2019-08-16T23:34:20+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: ProcessI3D.py
-# @Last modified time: 2019-11-25T20:23:06+08:00
+# @Last modified time: 2019-11-25T21:23:31+08:00
 import pandas as pd
 import wget, time, os
 from urllib import request
@@ -30,8 +30,8 @@ class RetrieveI3D:
         self.downloadFolder = kwargs["downloadFolder"]
         self.Logger = RunningLogger("RetrieveI3D", kwargs["loggingPath"])
 
-    def get_interactions_meta(self, species='human', struct_type=False, filePath=False, related_unp=False, related_pdb=False, outputPath=False):
-        if not filePath:
+    def get_interactions_meta(self, species='human', struct_type=None, filePath=None, related_unp=None, related_pdb=None, outputPath=None):
+        if filePath is None:
             url = "https://interactome3d.irbbarcelona.org/user_data/%s/download/complete/interactions.dat" % species
             filePath = os.path.join(self.downloadFolder, 'I3D_META_interactions_%s_%s.dat' % (species, time.strftime("%Y_%m_%d", time.localtime())))
             self.Logger.logger.info("Downloading File: %s" % filePath)
@@ -39,7 +39,7 @@ class RetrieveI3D:
             self.Logger.logger.info("\n")
 
         dfrm = pd.read_csv(filePath, sep='\t', na_values=["-"])
-        if struct_type:
+        if struct_type is not None:
             dfrm = dfrm[dfrm['TYPE'] == struct_type].reset_index(drop=True)
 
         dfrm["i3d_SAME_MODEL"] = dfrm.apply(lambda x: x["MODEL1"] == x["MODEL2"], axis=1)
@@ -61,10 +61,10 @@ class RetrieveI3D:
         df12['i3d_model_len'] = df12.apply(lambda x: x['SEQ_END'] - x['SEQ_BEGIN'] + 1, axis=1)
         df12['i3d_model_range'] = df12.apply(lambda x: '[[%d, %d]]' % (x['SEQ_BEGIN'], x['SEQ_END']), axis=1)
 
-        if related_unp:
+        if related_unp is not None:
             df12 = df12[df12['PROT'].isin(related_unp)]
 
-        if not isinstance(related_pdb, bool):
+        if related_pdb is not None:
             df12 = df12[df12['PDB_ID'].isin(related_pdb)]
 
         df12.drop(columns=['SEQ_BEGIN', 'SEQ_END'], inplace=True)

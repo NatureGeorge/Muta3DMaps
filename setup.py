@@ -1,7 +1,7 @@
 # @Date:   2019-11-24T19:44:32+08:00
 # @Email:  1730416009@stu.suda.edu.cn
 # @Filename: setup.py
-# @Last modified time: 2019-11-25T17:47:16+08:00
+# @Last modified time: 2019-11-25T21:07:59+08:00
 from setuptools import setup, find_packages, find_namespace_packages
 import Muta3DMaps
 
@@ -22,12 +22,12 @@ setup(name="Muta3DMaps",
         Muta3DMaps=Muta3DMaps.Run:interface
       ''',
       install_requires=[
-        # 'click>=7.0',
+        'Click',
         'pandas>=0.25.0',
         'numpy>=1.16.0',
         'biopython>=1.73',
-        # 'wget>=3.2',
-        # 'retrying>=1.3.0'
+        'wget>=3.2',
+        'retrying>=1.3.0'
      ],
       license="MIT",
       author_email="minghui.li@suda.edu.cn",

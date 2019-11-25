@@ -61,9 +61,109 @@ Commands:
   unp2pdb
 ```
 
+### `inituniprot`
+
+```bash
+>Muta3DMaps --folder ./ inituniprot --help
+Usage: Muta3DMaps inituniprot [OPTIONS]
+
+Options:
+  --referenceFile PATH      The reference file of IDs(with mutation Site) that
+                            need to map via UniProt RESTful API.
+  --sep TEXT                The seperator of referenceFile.
+  --idCol TEXT              The column name of IDs in referenceFile.
+  --idType TEXT             ID Abbreviation that stands for the type of ID.
+  --addUseCols TEXT         Comma-separated list of the column names for
+                            programmatic access to the UniProtKB search
+                            results.
+  --siteCol TEXT            The column name of aa site in referenceFile.
+  --geneCol TEXT            The column name of gene info in referenceFile.
+  --procced / --no-procced  Whether to procced after saving the site info.
+  --help                    Show this message and exit.
+```
+
+### `initunpfasta`
+
+```bash
+>Muta3DMaps --folder ./ initunpfasta --help
+Usage: Muta3DMaps initunpfasta [OPTIONS]
+
+Options:
+  --fastaFolder PATH    The file folder of UniProt FASTA Seq repository.
+  --unreviewed BOOLEAN  Whethter to include FASTA Seq of unreviewed UniProt
+                        Entry.
+  --isoform BOOLEAN     Whethter to include isoform Seq.
+  --split BOOLEAN       Whethter to split FASTA files.
+  --mode [wget|ftplib]  Retrieve mode.
+  --fastaPath PATH      The file path of downloaded fasta file.
+  --referenceFile PATH  The file path of reference file that contains target
+                        UniProt ID.
+  --sep TEXT            The seperator of referenceFile.
+  --colName TEXT        The column name of UniProt IDs in referenceFile.
+  --help                Show this message and exit.
+```
+
+### initsifts
+
+```bash
+>Muta3DMaps --folder ./ initsifts --help
+Usage: Muta3DMaps initsifts [OPTIONS]
+
+Options:
+  --test INTEGER              Num of PDB IDs to test the program. Only for
+                              test.
+  --unpFile PATH              The file that comtains Target UniProt IDs.
+  --unpCol TEXT               The column of UniProt IDs in unpFile.
+  --sep TEXT                  The seperator of unpFile.
+  --filtering <TEXT TEXT>...  [filterColumn filterValue]: The filter of
+                              unpFile. Keep the rows that have equal value in
+                              filter column.
+  --useInitizedUnp BOOLEAN    Whether to set the initialized result as the
+                              unpFile.
+  --help                      Show this message and exit.
+```
+
+### initmmcif
+
+```bash
+>Muta3DMaps --folder ./ initmmcif --help
+Usage: Muta3DMaps initmmcif [OPTIONS]
+
+Options:
+  --pdbFolder PATH  The file folder of PDB repository.
+  --pdbsFile PATH   The file that comtains PDB IDs.
+  --pdbCol TEXT     The column of PDB IDs in pdbsFile.
+  --sep TEXT        The seperator of pdbsFile.
+  --help            Show this message and exit.
+```
+
+### unp2pdb
+
+```bash
+>Muta3DMaps --folder ./ unp2pdb --help
+Usage: Muta3DMaps unp2pdb [OPTIONS]
+
+Options:
+  --fastaFolder PATH   The file folder of UniProt FASTA Seq repository.
+  --siteInfoFile PATH  The file that comtains site info.
+  --help               Show this message and exit.
+```
+
+### i3dmap
+
+```bash
+>Muta3DMaps --folder ./ i3dmap --help
+Usage: Muta3DMaps i3dmap [OPTIONS]
+
+Options:
+  --i3dPath PATH  The downloaded file path of Interactome3D Meta file.
+  --help          Show this message and exit.
+```
+
 ## Install with `setuptools`
 
 ```bash
+git clone https://github.com/NatureGeorge/Muta3DMaps
 python setup.py install --record record.txt
 ```
 
@@ -71,4 +171,10 @@ python setup.py install --record record.txt
 
 ```bash
 FOR /F "delims=" %f in (record.txt) DO del "%f"
+```
+
+## Install with `pip`
+
+```bash
+pip install -i https://test.pypi.org/simple/ Muta3DMaps
 ```
