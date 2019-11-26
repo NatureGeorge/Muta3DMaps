@@ -6,6 +6,8 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 
 `Muta3DMaps` is Python Package that retrieves, filtering and organizes data from various databases or tools via API to process the residue-level mapping between protein sequences and protein 3D structures.
 
+[toc]
+
 ## Dependent Tool & DB
 * SIFTS
 * UniProt
@@ -13,9 +15,6 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 * Interactome3D
 * SWISS-MODEL Repository 🔨
 * ModBase 🔨
-
-
-
 
 ## Function
 * Collect data from SIFTS, UniProt, wwPDB(MMCIF), Interactome3D, SMR, ModBase
@@ -42,6 +41,37 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
   * Retrieve and modify SWISS-MODEL Repository Info
 * ```ProcessModB.py``` 🔨
   * Retrieve and modify ModBase Info
+
+```py
+# Example
+>> from Muta3DMaps.core.Mods import ProcessUniProt, RetrievePDB
+>> help(RetrievePDB)
+```
+
+```txt
+Help on module Muta3DMaps.core.Mods.RetrievePDB in Muta3DMaps.core.Mods:
+
+NAME
+    Muta3DMaps.core.Mods.RetrievePDB
+
+DESCRIPTION
+    …
+
+CLASSES
+    builtins.object
+        MPWrapper
+        RetrievePDB
+
+    class MPWrapper(builtins.object)
+     |  MPWrapper(downloadPath, loggingPath, processes=3, maxSleep=3, ftpSite='RCSB', format='mmCIF')
+     |
+     |  Multiprocessing wrapper for ``RetrievePDB``
+     |
+     |  When there is a large number of PDB files to download, this class is helpful.
+     |  But Need to be careful with the numbers of processes and the time of sleep.
+…
+```
+
 
 ## Regarded as a Command Line Tool
 
@@ -103,7 +133,7 @@ Options:
   --help                Show this message and exit.
 ```
 
-### initsifts
+### `initsifts`
 
 ```bash
 >Muta3DMaps --folder ./ initsifts --help
@@ -123,7 +153,7 @@ Options:
   --help                      Show this message and exit.
 ```
 
-### initmmcif
+### `initmmcif`
 
 ```bash
 >Muta3DMaps --folder ./ initmmcif --help
@@ -137,7 +167,7 @@ Options:
   --help            Show this message and exit.
 ```
 
-### unp2pdb
+### `unp2pdb`
 
 ```bash
 >Muta3DMaps --folder ./ unp2pdb --help
@@ -149,7 +179,7 @@ Options:
   --help               Show this message and exit.
 ```
 
-### i3dmap
+### `i3dmap`
 
 ```bash
 >Muta3DMaps --folder ./ i3dmap --help
@@ -173,7 +203,7 @@ python setup.py install --record record.txt
 FOR /F "delims=" %f in (record.txt) DO del "%f"
 ```
 
-## Install with `pip`
+## Install with `pip` (Need to be fixed)
 
 ```bash
 pip install -i https://test.pypi.org/simple/ Muta3DMaps
