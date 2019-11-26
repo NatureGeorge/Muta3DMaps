@@ -1,4 +1,5 @@
 # Muta3DMaps
+
 > Date: 2019-08-16T23:07:24+08:00
 A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 
@@ -9,6 +10,7 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 [toc]
 
 ## Dependent Tool & DB
+
 * SIFTS
 * UniProt
 * wwPDB
@@ -17,11 +19,13 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 * ModBase 🔨
 
 ## Function
+
 * Collect data from SIFTS, UniProt, wwPDB(MMCIF), Interactome3D, SMR, ModBase
 * Define representative structures(PDB or Model) of a uniprot(Canonical) with a score-based approach 🔨
 * Map mutation from (transcript/UniProt) isoform to (Canonical UniProt/PDB/Model) or from PDB  to UniProt Isoform.
 
 ## Regarded as Modules
+
 > Correspondence Between Core Functions and ```PYTHON``` Files
 
 * ```ProcessUniProt.py```
@@ -71,7 +75,6 @@ CLASSES
      |  But Need to be careful with the numbers of processes and the time of sleep.
 …
 ```
-
 
 ## Regarded as a Command Line Tool
 
@@ -196,6 +199,22 @@ Options:
 git clone https://github.com/NatureGeorge/Muta3DMaps
 python setup.py install --record record.txt
 ```
+
+### Some bugs about Python 3.7
+
+if you encounter this:
+
+```bash
+AttributeError: type object 'Callable' has no attribute '_abc_registry'
+```
+
+when you use `Muta3DMaps`, you can either downgrad your Python to 3.6 or `pip uninstall typing`
+
+> See [here](https://stackoverflow.com/questions/55833509/attributeerror-type-object-callable-has-no-attribute-abc-registry "link") for more information.
+
+### Something wrong about `biopython 1.75`
+
+For the reason that `biopython 1.75` has changed the way to set sub-matrix in `Bio.Align` and makes it becomes an unstable module to align sequences, `1.73, 1.74` versions are recommended.
 
 ### Uninstall
 

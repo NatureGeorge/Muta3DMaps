@@ -12,7 +12,7 @@ from urllib import request
 from random import uniform
 from multiprocessing.dummy import Pool
 from Bio import Align, SeqIO
-from Bio.SubsMat import MatrixInfo as matlist
+from Bio.SubsMat import MatrixInfo as matlist  # Only suitable for biopython < 1.75
 import functools
 from ..Utils.Logger import RunningLogger
 from ..Utils.FileIO import decompression, file_i, file_o
@@ -228,6 +228,8 @@ def deal_with_insertionDeletion_SIFTS(sifts_df=None, sifts_filePath=None, output
 
 
 class PdSeqAlign:
+    
+    @staticmethod()
     def getAlignmentSegment(alignment):
         segments1 = []
         segments2 = []

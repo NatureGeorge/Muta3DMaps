@@ -10,7 +10,8 @@ with open("README.md", "rt") as f:
     readme = f.read()
 
 
-setup(name="Muta3DMaps",
+setup(
+      name="Muta3DMaps",
       version=Muta3DMaps.__version__,
 
       packages=find_packages(),
@@ -25,7 +26,7 @@ setup(name="Muta3DMaps",
         'Click',
         'pandas>=0.25.0',
         'numpy>=1.16.0',
-        'biopython>=1.73',
+        'biopython==1.73',
         'wget>=3.2',
         'retrying>=1.3.0'
      ],
