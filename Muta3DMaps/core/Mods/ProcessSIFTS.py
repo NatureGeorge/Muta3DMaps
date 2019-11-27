@@ -228,21 +228,6 @@ def deal_with_insertionDeletion_SIFTS(sifts_df=None, sifts_filePath=None, output
 
 
 class PdSeqAlign:
-    
-    @staticmethod()
-    def getAlignmentSegment(alignment):
-        segments1 = []
-        segments2 = []
-        i1, i2 = alignment.path[0]
-        for node in alignment.path[1:]:
-            j1, j2 = node
-            if j1 > i1 and j2 > i2:
-                segment1 = [i1 + 1, j1]
-                segment2 = [i2 + 1, j2]
-                segments1.append(segment1)
-                segments2.append(segment2)
-            i1, i2 = j1, j2
-        return segments1, segments2
 
     def __init__(self):
         self.seqa = ''
@@ -261,6 +246,21 @@ class PdSeqAlign:
         self.alignment_count += 1
         # print("MAKE ALIGNMENT: %s" % self.alignment_count)
         return json.dumps(result[0]), json.dumps(result[1])
+
+    @staticmethod()
+    def getAlignmentSegment(alignment):
+        segments1 = []
+        segments2 = []
+        i1, i2 = alignment.path[0]
+        for node in alignment.path[1:]:
+            j1, j2 = node
+            if j1 > i1 and j2 > i2:
+                segment1 = [i1 + 1, j1]
+                segment2 = [i2 + 1, j2]
+                segments1.append(segment1)
+                segments2.append(segment2)
+            i1, i2 = j1, j2
+        return segments1, segments2
 
 
 def update_range_SIFTS(unp_fasta_files_path, new_range_cols=('new_sifts_unp_range', 'new_sifts_pdb_range'), sifts_df=False, sifts_filePath=False, outputPath=False):

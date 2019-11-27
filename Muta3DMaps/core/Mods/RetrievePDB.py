@@ -6,7 +6,7 @@ import wget
 import urllib
 import ftplib
 import os
-from collections import Iterable, Iterator
+from collections.abc import Iterable, Iterator
 from multiprocessing.dummy import Pool
 from time import sleep
 from random import uniform
@@ -225,14 +225,14 @@ class RetrievePDB:
                     data.close()
                     # Check Data Completeness
                     if not res.startswith(_COMPLETE_TAGE):
-                        self.Logger.logger.warning('Download failed', res)
+                        self.Logger.logger.warning('Download failed: %s' % res)
                         if os.path.isfile(filename):
                             os.remove(filename)
                         self.fail.append(pdb)
                         continue
                     decompression(filename, remove=remove, logger=self.Logger.logger)
                 except ftplib.error_perm as e:
-                    self.Logger.logger.warning('FTP error:', e)
+                    self.Logger.logger.warning('FTP error: %s' % e)
                     if 'filename' in locals().keys():
                         data.close()
                         os.remove(filename)
@@ -452,38 +452,16 @@ class MPWrapper:
         return self.retrievePDB.getFail()
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # ftpPDB = RetrievePDB("C:/Users/Nature/Downloads/PDBE/", ftpSite="PDBE", format="pdb")
     # ftpPDB.ftp_retrieve(pdbs=['10z1', '10z2', '10z3'], remove=True)
     # ftpPDB.quick_ftp_retrieve('5js8', remove=False)
     # ftpPDB.quick_http_retrieve('5js1', module="urllib", view=False, bioAssembly=1, remove=True)
     # print(ftpPDB)
     # printList(ftpPDB.getFail())
-    pdbs = ['1A02',
-            '3KBZ',
-            '3KC0',
-            '3KC1',
-            '3KMU',
-            '3KMW',
-            '3KYC',
-            '3KYD',
-            '3L3C',
-            '3L5P',
-            '3L5R',
-            '3L5S',
-            '3L5T',
-            '3L5U',
-            '3L5V',
-            '3L7U',
-            '3LHR',
-            '3M0D',
-            '3M1D',
-            '3MK4',
-            '3MUD',
-            '3MUP',
-            '3NR2']
-    mpw = MPWrapper("C:/Users/Nature/Downloads/")  # 1.1: 79s 1.2: 90s 2: 114s 3:154s
-    mpw.http_retrieve_report(pdbs[:10])  # 79s
+    # pdbs = ['1A02', ...]
+    # mpw = MPWrapper("C:/Users/Nature/Downloads/")  # 1.1: 79s 1.2: 90s 2: 114s 3:154s
+    # mpw.http_retrieve_report(pdbs[:10])  # 79s
     # mpw.http_retrieve(pdbs, module="urllib")  # 90s
     # mpw.ftp_retrieve_wget(pdbs)  # 114s
     # mpw.ftp_retrieve_batch(pdbs)  # 154s

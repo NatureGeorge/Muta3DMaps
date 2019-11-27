@@ -84,6 +84,7 @@ class MapUniProtID:
         'format': 'tab',
     }
 
+    @staticmethod
     def go_to_uniprot(url, params, code='utf-8'):
         sleep(uniform(0.99, 5))
         data = urllib.parse.urlencode(params)
@@ -181,6 +182,7 @@ class MapUniProtID:
             self.site_li = dfrm.groupby(by=[id_col]).apply(lambda x: [i for i in x[site_col]])
         self.Logger = RunningLogger("MapUniProtID", loggingPath)
 
+    @staticmethod
     def split_df(dfrm, colName, sep):
         """Split DataFrame"""
         df = dfrm.copy()

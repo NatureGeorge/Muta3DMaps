@@ -109,6 +109,7 @@ class Gadget:
         def items(self):
             return self.xitems
 
+        @staticmethod
         def addConstraintToDf(df, constraint_dict):
             for i, j in constraint_dict.items():
                 j1, j2 = j
@@ -133,6 +134,7 @@ class Gadget:
         def multi_letter_convert_to_one_letter(self, a):
             return self.aa_map.get(a, 'X')
 
+    @staticmethod
     def handleResolution(resolution):
         def float_fun(x): return float(x) if x not in '?.' else 1000
         if pd.isna(resolution):
@@ -148,6 +150,7 @@ class Gadget:
         else:
             return resolution
 
+    @staticmethod
     def selectChain(grouped_df, df, rank_list, rankName, rankFormat, rangeName, selectName, r1_cutoff, r2_cutoff):
         def getRange(li):
             rangeSet = set()
@@ -195,6 +198,7 @@ class Gadget:
         else:
             df.loc[grouped_df.index, selectName] = True
 
+    @staticmethod
     def getInterval(rangeSet):
         if rangeSet == '' or rangeSet == set() or rangeSet == [] or isinstance(rangeSet, float):
             return np.nan
