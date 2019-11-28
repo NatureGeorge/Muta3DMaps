@@ -151,21 +151,24 @@ class Gadget:
             return resolution
 
     @staticmethod
-    def selectChain(grouped_df, df, rank_list, rankName, rankFormat, rangeName, selectName, r1_cutoff, r2_cutoff):
+    def selectChain(grouped_df, df, rank_list, rankName, rankFormat, rangeName, selectName, r1_cutoff=0.3, r2_cutoff=0.2):
+        '''
+        # About params
+
+        * rankName: rank
+        * rankFormat: %d-%d-%d-%d (e.g)
+        * rangeName: new_sifts_unp_range
+        * selectName: pdb_chain_select
+        * r1_cutoff: 0.3
+        * r2_cutoff: 0.2
+        '''
+        
         def getRange(li):
             rangeSet = set()
             for ran in li:
                 rangeSet = rangeSet | set(range(ran[0], ran[1] + 1))
             return rangeSet
-        '''
-        rankName: 'rank'
-        rankFormat: '%d-%d-%d-%d'
-        rangeName: seg_unp_range
-        selectName: pdb_chain_select
-        r1_cutoff: 0.3
-        r2_cutoff: 0.2
-        # overlap_type: ['shorter']
-        '''
+        
         # overlap_list = []
         if len(grouped_df) > 1:
             rank_df = pd.DataFrame([grouped_df[ele].rank(ascending=0, method='dense')

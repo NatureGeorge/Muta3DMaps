@@ -47,11 +47,22 @@ DEFAULT_COLS = {
                    '_pdbx_struct_assembly_gen.oper_expression',
                    '_pdbx_struct_assembly_gen.asym_id_list',
                    '_pdbx_struct_assembly.oligomeric_count'],
-    'NON_POLY_COL': ['_pdbx_entity_nonpoly.entity_id', '_pdbx_entity_nonpoly.name', '_pdbx_entity_nonpoly.comp_id'],
+    'NON_POLY_COL': ['_pdbx_entity_nonpoly.entity_id', '_pdbx_entity_nonpoly.name', '_pdbx_entity_nonpoly.comp_id',
+                     '_pdbx_nonpoly_scheme.asym_id',
+                     '_pdbx_nonpoly_scheme.entity_id',
+                     '_pdbx_nonpoly_scheme.mon_id',
+                     '_pdbx_nonpoly_scheme.ndb_seq_num',
+                     '_pdbx_nonpoly_scheme.pdb_seq_num',
+                     '_pdbx_nonpoly_scheme.auth_seq_num',
+                     '_pdbx_nonpoly_scheme.pdb_mon_id',
+                     '_pdbx_nonpoly_scheme.auth_mon_id',
+                     '_pdbx_nonpoly_scheme.pdb_strand_id',
+                     '_pdbx_nonpoly_scheme.pdb_ins_code'],
     'COORDINATE_MODEL_COL': ['_pdbx_coordinate_model.asym_id', '_pdbx_coordinate_model.type'],
     'METAL_LIGAND_COL': ['metal_ligand_chain_id', 'metal_ligand_content'],
 }
 
+# _pdbx_struct_mod_residue.id !!
 
 class MMCIF2DictPlus(MMCIF2Dict):
     """# Parse a MMCIF file and return a dictionary"""

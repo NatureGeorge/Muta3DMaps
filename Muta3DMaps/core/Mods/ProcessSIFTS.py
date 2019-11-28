@@ -247,7 +247,7 @@ class PdSeqAlign:
         # print("MAKE ALIGNMENT: %s" % self.alignment_count)
         return json.dumps(result[0]), json.dumps(result[1])
 
-    @staticmethod()
+    @staticmethod
     def getAlignmentSegment(alignment):
         segments1 = []
         segments2 = []
@@ -374,3 +374,15 @@ def map_muta_from_unp_to_pdb(x, muta_col, unp_range_col, pdb_range_col, error_li
 
     error_li.append(sub_error_li)
     return new_muta_site
+
+
+def select_PDB_SIFTS(groupby_list, select_col, rank_col, rank_list, rank_format, range_name, sifts_df=None, sifts_filePath=None, outputPath=None, r1_cutoff=0.3, r2_cutoff=0.2):
+    sifts_dfrm = file_i(sifts_filePath, sifts_df, ('sifts_filePath', 'sifts_df'))
+    sifts_dfrm[select_col] = False
+    sifts_dfrm[rank_col] = np.nan
+
+    for _, j in sifts_dfrm.groupby(groupby_list):
+        Gadget.selectChain(j, sifts_dfrm, rank_list, rank_col, rank_format, range_name, select_col, r1_cutoff, r2_cutoff)
+
+    file_o(outputPath, sifts_dfrm)
+    return sifts_dfrm
