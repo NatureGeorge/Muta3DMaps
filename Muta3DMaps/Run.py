@@ -253,6 +253,7 @@ def i3dMap(i3dpath):
     click.echo(colorClick("Constraint Mapping with Interactome3D"))
     logger = RunningLogger("constraintMapping", _LOGGER_PATH).logger
     intergrate_df = read_csv(_INTERGRATE_PATH, sep="\t", converters=_CONVERTER)
+    # Maybe the filtering process should be a mutable function
     filter_df = intergrate_df[
         (intergrate_df['_pdbx_coordinate_model.type'].isnull())
         & (intergrate_df['contains_unk_in_chain_pdb'] == False)

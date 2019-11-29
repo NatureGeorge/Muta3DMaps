@@ -7,8 +7,6 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 
 `Muta3DMaps` is Python Package that retrieves, filtering and organizes data from various databases or tools via API to process the residue-level mapping between protein sequences and protein 3D structures.
 
-[toc]
-
 ## Dependent Tool & DB
 
 * SIFTS
@@ -23,6 +21,22 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 * Collect data from SIFTS, UniProt, wwPDB(MMCIF), Interactome3D, SMR, ModBase
 * Define representative structures(PDB or Model) of a uniprot(Canonical) with a score-based approach 🔨
 * Map mutation from (transcript/UniProt) isoform to (Canonical UniProt/PDB/Model) or from PDB  to UniProt Isoform.
+
+## Features
+
+* Integrate multi-source data
+
+* Based on the flexible call to various open APIs without relying on the establishment of a personal database
+
+* A transparent data handling process
+
+* Good Data Accessibility and allow batch retrieve
+
+* A bidirectional mapping
+
+* Feedback on unmapped and untrusted results
+
+* Add tags that help filtering results
 
 ## Regarded as Modules
 

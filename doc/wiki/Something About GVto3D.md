@@ -46,6 +46,8 @@ In the context of what I concentrate on:
 
 > The Tools Registry contains a searchable description and metadata for tools, resources, and reference data sets for __third-party variant effect prediction and annotation services__. Standardized application programming interfaces (APIs) provide interoperability for data input and output of these third-party tools. Custom adapters can provide limited interoperability for tools that cannot adopt the API. __A mapping service provides bidirectional mappings from reference genome coordinates to UniProt protein positions and to Protein Data Bank (PDB) residue positions.__ The tools can use the mapping service to accept variant positions in any of the three coordinate systems. A beacon system enables queries about variant positions where three-dimensional (3D) structural information and annotation are available
 
+![fig](https://media.springernature.com/full/springer-static/image/art%3A10.1186%2Fs13073-017-0509-y/MediaObjects/13073_2017_509_Fig1_HTML.gif?as=webp "Link")
+
 #### What I Focus on
 
 > __A mapping service provides bidirectional mappings from reference genome coordinates to UniProt protein positions and to Protein Data Bank (PDB) residue positions.__
@@ -88,7 +90,7 @@ Note: ***Very similar to my work.***
     * For some transcripts that mapped to UniProt Isoforms, related Crystal Structures will be lost 
     * Furthermore, without sequence identity info (Between PDB Chain and UniProt Canonical/Isoform Sequence)
 
-2. Not an bidirectional mapping between PDB residues and UniProt seq-site
+2. Not a bidirectional mapping between PDB residues and UniProt seq-site
 
 3. Some parts of it are based on some databases, need to keep updating (`UniProt` e.g)
 
@@ -128,10 +130,22 @@ Note/Personal Conclusion: __Surpassed__ by `SIFTS(2019)` + `UniProt ID Mapping`
 
 ## Some noteworthy things
 
-> http://www.rcsb.org/pdb/chromosome.do (Since 2016)
+> <http://www.rcsb.org/pdb/chromosome.do> (Since 2016)
 
 > __Integrating genomic information with protein sequence and 3D atomic level structure at the RCSB protein data bank.__
 Prlic A1, Kalro T1, Bhattacharya R2, Christie C1, Burley SK1,3, Rose PW1.
 > _Bioinformatics. 2016 Dec 15;32(24):3833-3835. doi: 10.1093/bioinformatics/btw547. Epub 2016 Aug 22._
 
 Note: My work has a strong similarity with the job that RCSB has done, however, their approach doesn't provide the users with enough accessibilities to raw data. For instance, the users can not upload a muta-site of UniProt Sequence and then retrieve all possible results via API
+
+### Data Provided By RCSB
+
+> <http://www.rcsb.org/pdb/browse/homo_sapiens.do>
+
+#### Limitation
+
+1. Only RefSeq, Ensembl Gene with Canonical UniProt
+2. Not a bidirectional tool
+3. Can not batch retrieve?
+4. Isoform mutations are mapped to Canoncial mutations
+5. No sequence identity info
