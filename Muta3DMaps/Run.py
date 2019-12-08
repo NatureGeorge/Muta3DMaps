@@ -73,7 +73,7 @@ def interface(folder):
 @click.option("--unpCol", default="UniProt", help="The column of UniProt IDs in unpFile.", type=str)
 @click.option("--sep", default="\t", help="The seperator of unpFile.", type=str)
 @click.option("--filtering", default=("", ""), help="[filterColumn filterValue]: The filter of unpFile. Keep the rows that have equal value in filter column.", type=(str, str))
-@click.option("--useInitizedUnp", default=False, help="Whether to set the initialized result as the unpFile.", type=bool)
+@click.option("--useInitizedUnp", default=True, help="Whether to set the initialized result as the unpFile.", type=bool)
 def initSIFTS(test, unpfile, unpcol, sep, filtering, useinitizedunp):
     click.echo(colorClick("SIFTS"))
     retrieveOb = RetrieveSIFTS(

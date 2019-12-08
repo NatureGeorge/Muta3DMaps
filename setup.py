@@ -24,6 +24,7 @@ setup(
       ''',
       install_requires=[
         'Click',
+        'aiohttp>=3.6.2',
         'pandas>=0.25.0',
         'numpy>=1.16.0',
         'biopython==1.73',
