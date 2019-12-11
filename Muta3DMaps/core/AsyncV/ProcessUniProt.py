@@ -306,6 +306,7 @@ class MapUniProtID:
             df_wi_ne_warn = df_wi_ne_warn[~df_wi_ne_warn['checkinglist'].isin(
                 df_wi_ne_split['yourlist'])].rename(columns={'checkinglist': 'yourlist'})
             df_wi_ne_warn['UniProt'] = df_wi_ne_warn['Entry']
+            # sequence conflict
             df_wi_ne_warn['unp_map_tage'] = 'Untrusted & No Isoform'
 
             # Update UniProt
@@ -337,18 +338,20 @@ class MapUniProtID:
         * others(corresponding GENE)
 
         """
-        if self.gene_col is None:
-            handled_df['GENE_status'] = np.nan
-            return None
-        if self.id_col != self.gene_col:
+        if self.id_col != 'GENENAME':
+            
+            if self.gene_col is None:
+                handled_df['GENE_status'] = True
+                return None
+
             gene_map = self.dfrm[[self.id_col,
                                   self.gene_col]].drop_duplicates()
-            gene_map.index = gene_map[self.id_col]
-            gene_map.drop(columns=[self.id_col], inplace=True)
-            handled_df['GENE'] = handled_df.apply(
-                lambda z: gene_map[self.gene_col][z['yourlist']], axis=1)
+            gene_map = gene_map.groupby(self.id_col)[self.gene_col].apply(
+                lambda x: np.array(x) if len(x) > 1 else list(x)[0])
+            handled_df['GENE'] = handled_df.apply(lambda z: gene_map[z['yourlist']], axis=1)
             handled_df['GENE_status'] = handled_df.apply(lambda x: x['GENE'] == x['Gene names'].split(
                 ' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
+            handled_df['GENE'] = handled_df['GENE'].apply(lambda x: ','.join(x) if isinstance(x, Iterable) else x)
         else:
             handled_df['GENE_status'] = handled_df.apply(lambda x: x['yourlist'] == x['Gene names'].split(
                 ' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
@@ -357,10 +360,16 @@ class MapUniProtID:
         dfrm['Mapping_status'] = 'No'        
         dfrm['GENE_status'] = dfrm['GENE_status'].apply(
             lambda x: x.any() if isinstance(x, Iterable) else x)
-        pass_df = dfrm[
-            (dfrm['GENE_status'] == True) &
-            (dfrm['Status'] == 'reviewed') &
-            (dfrm['unp_map_tage'] != 'Untrusted & No Isoform')]
+        
+        if self.id_col == 'GENENAME':
+            pass_df = dfrm[
+                (dfrm['GENE_status'] == True) &
+                (dfrm['Status'] == 'reviewed') &
+                (dfrm['unp_map_tage'] != 'Untrusted & No Isoform')]
+        else:
+            pass_df = dfrm[
+                (dfrm['Status'] == 'reviewed') &
+                (dfrm['unp_map_tage'] != 'Untrusted & No Isoform')]
         pass_index = pass_df.index
         dfrm.loc[pass_index, 'Mapping_status'] = 'Yes'
 
@@ -405,6 +414,8 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--procceed', type=bool, default=True)
     parser.add_argument('-n', '--nrows', type=int, default=None)
     parser.add_argument('-f', '--finishedRaw', type=str, default='')
+    parser.add_argument('-l', '--siteCol', type=str, default='mutation_unp')
+    parser.add_argument('-g', '--geneCol', type=str, default='GENE')
     args = parser.parse_args()
 
     rawPath = os.path.join(args.outputFolder, UniProt_ID_Mapping_RAW_PATH)
@@ -417,8 +428,8 @@ if __name__ == '__main__':
         id_type=args.idType,
         usecols='default',
         loggingPath=logPath,
-        site_col='mutation_unp',
-        gene_col='GENE'
+        site_col=args.siteCol,  # 'aachange' 'mutation_unp',
+        gene_col=args.geneCol  # 'gene, GENE'
     )
 
     if args.finishedRaw:
