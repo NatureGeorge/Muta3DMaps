@@ -225,6 +225,7 @@ def unp2PDB(fastafolder, siteinfofile):
 
     if os.path.exists(_UniProt_ID_Mapping_MODIFIED_PATH):  # Procced
         id_map_df = read_csv(_UniProt_ID_Mapping_MODIFIED_PATH, sep="\t")
+        id_map_df = id_map_df[id_map_df['Mapping_status'] == 'Yes']
     sifts_mmcif_df = merge(sifts_mmcif_df, id_map_df[['UniProt', 'yourlist']].drop_duplicates(), how="left")
 
     if siteinfofile == "":

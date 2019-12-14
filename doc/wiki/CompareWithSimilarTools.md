@@ -22,6 +22,17 @@ Prlic A1, Kalro T1, Bhattacharya R2, Christie C1, Burley SK1,3, Rose PW1.
 5. Can not batch retrieve
 6. No sequence identity info
 
+### Question
+
+1. whether mapping mutations of isoform `UniProt` to canonical sequence is trusted?
+ * detect those mutations located in the missing/intertion/deletion/varience sites and do some statistic
+
+2. how to get chromosome position so that I can make comparison between it and my tool
+
+3. ...
+
+
+
 ## GS2 (2018 June)
 
 ![fig](https://g2s.genomenexus.org/images/workflow.png)

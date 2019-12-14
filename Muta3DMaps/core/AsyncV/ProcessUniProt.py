@@ -81,10 +81,14 @@ class MapUniProtID:
         self.site_col = site_col
         self.usecols = usecols
         self.gene_col = gene_col
-        if site_col is not None:
-            self.site_li = dfrm.groupby(by=[id_col]).apply(
-                lambda x: [i for i in x[site_col]])
         self.Logger = RunningLogger("MapUniProtID", loggingPath)
+
+    @property
+    def site_li(self):
+        if self.site_col is not None:
+            return dfrm.groupby(by=[self.id_col]).apply(lambda x: [i for i in x[self.site_col]])
+        else:
+            return None
 
     @staticmethod
     def createLystStr(lyst, chunksize=100):
@@ -111,10 +115,10 @@ class MapUniProtID:
 
     async def download_one_chunk(self, session, chunkLystStr, path, semaphore, index):
         async with semaphore:
-            status = index % 2
+            status = index % 5
             if status:
                 # sec = uniform(5, 10)
-                sec = (index/2)**1.2
+                sec = (index/5)**1.2
                 self.Logger.logger.info("Start to sleep {:.2f}s".format(sec))
                 await asyncio.sleep(sec)
             
@@ -351,7 +355,7 @@ class MapUniProtID:
             handled_df['GENE'] = handled_df.apply(lambda z: gene_map[z['yourlist']], axis=1)
             handled_df['GENE_status'] = handled_df.apply(lambda x: x['GENE'] == x['Gene names'].split(
                 ' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
-            handled_df['GENE'] = handled_df['GENE'].apply(lambda x: ','.join(x) if isinstance(x, Iterable) else x)
+            handled_df['GENE'] = handled_df['GENE'].apply(lambda x: ','.join(x) if not isinstance(x, str) else x)
         else:
             handled_df['GENE_status'] = handled_df.apply(lambda x: x['yourlist'] == x['Gene names'].split(
                 ' ')[0] if not isinstance(x['Gene names'], float) else False, axis=1)
@@ -422,8 +426,13 @@ if __name__ == '__main__':
     modPath = os.path.join(args.outputFolder, UniProt_ID_Mapping_MODIFIED_PATH)
     logPath = os.path.join(args.outputFolder, LOGGER_PATH)
 
+    if args.geneCol is None:
+        usecols = [args.idCol, args.siteCol]
+    else:
+        usecols = [args.idCol, args.siteCol, args.geneCol]
+    
     demo = MapUniProtID(
-        dfrm=pd.read_csv(args.referenceFile, sep=args.sep, nrows=args.nrows),
+        dfrm=pd.read_csv(args.referenceFile, sep=args.sep, nrows=args.nrows, usecols=usecols),
         id_col=args.idCol,
         id_type=args.idType,
         usecols='default',
