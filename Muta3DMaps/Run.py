@@ -1,7 +1,9 @@
-# @Date:   2019-11-20T23:30:02+08:00
-# @Email:  1730416009@stu.suda.edu.cn
+# @Created Date: 2019-11-24 11:03:59 pm
 # @Filename: Run.py
-# @Last modified time: 2019-11-25T18:13:27+08:00
+# @Email:  1730416009@stu.suda.edu.cn
+# @Author: ZeFeng Zhu
+# @Last Modified: 2019-12-23 04:21:04 pm
+# @Copyright (c) 2019 MinghuiGroup, Soochow University
 import click
 import configparser
 import os
@@ -10,7 +12,8 @@ from pandas import read_csv, merge, Series
 from numpy import nan
 from .core.Mods.ProcessSIFTS import RetrieveSIFTS, handle_SIFTS, deal_with_insertionDeletion_SIFTS, update_range_SIFTS, map_muta_from_unp_to_pdb
 from .core.Mods.ProcessMMCIF import MMCIF2Dfrm
-from .core.Mods.ProcessUniProt import MapUniProtID, retrieveUniProtSeq, split_fasta
+from .core.Mods.ProcessUniProt import retrieveUniProtSeq, split_fasta
+from .core.AsyncV.ProcessUniProt import MapUniProtID
 from .core.Mods.ProcessI3D import RetrieveI3D
 from .core.Utils.Logger import RunningLogger
 
@@ -34,7 +37,7 @@ try:
     _MMCIF_MODIFIED_PATH = _config.get("DEFAULT", "MMCIF_MODIFIED_PATH")
     _UniProt_ID_Mapping_RAW_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_RAW_PATH")
     _UniProt_ID_Mapping_MODIFIED_PATH = _config.get("DEFAULT", "UniProt_ID_Mapping_MODIFIED_PATH")
-    _UniProt_DEFAULT_COL = _config.get("DEFAULT", "UniProt_DEFAULT_COL").split(",")
+    _UniProt_DEFAULT_COL = _config.get("DEFAULT", "UniProt_DEFAULT_COL")  # .split(",")
     _SITE_INFO_PATH = _config.get("DEFAULT", "SITE_INFO_PATH")
     _INTERGRATE_PATH = _config.get("DEFAULT", "INTERGRATE_PATH")
     _I3D_META_INI_PATH = _config.get("DEFAULT", "I3D_META_INI_PATH")
@@ -132,46 +135,23 @@ def initMMCIF(pdbfolder, pdbsfile, pdbcol, sep):
 @click.option("--sep", default="\t", help="The seperator of referenceFile.", type=str)
 @click.option("--idCol", default="RefSeq_protein", help="The column name of IDs in referenceFile.", type=str)
 @click.option("--idType", default="P_REFSEQ_AC", help="ID Abbreviation that stands for the type of ID.", type=str)
-@click.option("--addUseCols", default="", help="Comma-separated list of the column names for programmatic access to the UniProtKB search results.", type=str)
+@click.option("--usecols", default=_UniProt_DEFAULT_COL, help="Comma-separated list of the column names for programmatic access to the UniProtKB search results.", type=str)
 @click.option("--siteCol", default="mutation_unp", help="The column name of aa site in referenceFile.", type=str)
 @click.option("--geneCol", default="GENE", help="The column name of gene info in referenceFile.", type=str)
-@click.option("--procced/--no-procced", default=True, help="Whether to procced after saving the site info.", is_flag=True)
-def initUniProt(referencefile, sep, idcol, idtype, addusecols, sitecol, genecol, procced):
+@click.option('--chunksize', type=int, default=100)
+@click.option('--concurReq', type=int, default=20)
+@click.option('--nrows', type=int, default=None)
+@click.option('--finishedRaw', type=str, default='')
+@click.option("--proceed/--no-proceed", default=True, help="Whether to proceed after saving the site info.", is_flag=True)
+def initUniProt(referencefile, sep, idcol, idtype, usecols, sitecol, genecol, chunksize, concurReq, nrows, finishedRaw, proceed):
     click.echo(colorClick("UniProt"))
-    if addusecols != "":
-        usecols = _UniProt_DEFAULT_COL + addusecols
-    else:
-        usecols = _UniProt_DEFAULT_COL
-    # Initializing
-    unp_demo = MapUniProtID(
-        dfrm=read_csv(referencefile, sep=sep),
-        id_col=idcol,
-        id_type=idtype,
-        usecols=usecols,
-        loggingPath=_LOGGER_PATH,
-        site_col=sitecol,
-        gene_col=genecol
-    )
-
-    # Get Site Info
-    if sitecol is not None:
-        unp_demo.site_li.apply(json.dumps).to_csv(_SITE_INFO_PATH, sep="\t", header=["site"])
-        click.echo("Site Info has been safed in %s: \n%s\n..." % (_SITE_INFO_PATH, str(unp_demo.site_li[:5])))
-
-    if not procced:
-        return
-    # Return True if get RAW Result Successfully
-    if unp_demo.get_raw_ID_Mapping(_UniProt_ID_Mapping_RAW_PATH):
-        # Deal with different situations
-        handled_ID_Mapping = unp_demo.handle_ID_Mapping()
-        # Add Gene Status
-        unp_demo.getGeneStatus(handled_ID_Mapping)
-        # Label Mapping Status
-        unp_demo.label_mapping_status(handled_ID_Mapping)
-        # Output the final result
-        handled_ID_Mapping.to_csv(_UniProt_ID_Mapping_MODIFIED_PATH, sep='\t', index=False)
-    else:
-        click.echo("There is something wrong.")
+    MapUniProtID.main(finishedRaw=finishedRaw, outputFolder=_FOLDER,
+                      referenceFile=referencefile, sep=sep,
+                      nrows=nrows, id_col=idcol,
+                      id_type=idtype, usecols=usecols.split(","),
+                      site_col=sitecol, gene_col=genecol,
+                      procceed=proceed, chunksize=chunksize,
+                      concurReq=concurReq)
 
 
 @interface.command()
@@ -223,7 +203,7 @@ def unp2PDB(fastafolder, siteinfofile):
     sifts_mmcif_df = merge(sifts_df, mmcif_df)
     sifts_mmcif_df = update_range_SIFTS(fastafolder, sifts_df=sifts_mmcif_df)
 
-    if os.path.exists(_UniProt_ID_Mapping_MODIFIED_PATH):  # Procced
+    if os.path.exists(_UniProt_ID_Mapping_MODIFIED_PATH):  # proceed
         id_map_df = read_csv(_UniProt_ID_Mapping_MODIFIED_PATH, sep="\t")
         id_map_df = id_map_df[id_map_df['Mapping_status'] == 'Yes']
     sifts_mmcif_df = merge(sifts_mmcif_df, id_map_df[['UniProt', 'yourlist']].drop_duplicates(), how="left")

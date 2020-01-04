@@ -38,6 +38,13 @@ A tool developed by Minghui Li Group and maintained by ZeFeng Zhu.
 
 * Add tags that help filtering results
 
+## Expected Features
+
+```py
+>> Muta3DMaps("ENST00000541639", "S151C")
+>> (("Q9BY66-3", "S151C"), ("2YQE", "A", 80, "S153C"))
+```
+
 ## Regarded as Modules
 
 > Correspondence Between Core Functions and ```PYTHON``` Files

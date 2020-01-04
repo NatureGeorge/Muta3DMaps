@@ -1,7 +1,9 @@
-# @Date:   2019-11-22T15:19:51+08:00
-# @Email:  1730416009@stu.suda.edu.cn
+# @Created Date: 2019-12-08 06:46:49 pm
 # @Filename: ProcessUniProt.py
-# @Last modified time: 2019-12-08T18:47:01+08:00
+# @Email:  1730416009@stu.suda.edu.cn
+# @Author: ZeFeng Zhu
+# @Last Modified: 2019-12-22 04:37:24 pm
+# @Copyright (c) 2019 MinghuiGroup, Soochow University
 import os
 import time
 import sys
@@ -16,6 +18,7 @@ from collections import Counter
 from collections.abc import Iterable, Iterator
 import re
 from Logger import RunningLogger
+import json
 
 
 COLUMNS = [
@@ -41,12 +44,12 @@ PARAMS = {
 LOGGER_PATH = 'AsyncProcessUnp.log'
 UniProt_ID_Mapping_RAW_PATH = 'UniProt_ID_Mapping_raw.tsv'
 UniProt_ID_Mapping_MODIFIED_PATH = 'UniProt_ID_Mapping_modified.tsv'
-
+SITE_INFO_PATH = "Site_info.tsv"
 
 class ExtractIsoAlt:
     # pattern_all = re.compile(r"([A-z0-9]+):VAR_SEQ\s([0-9\s]+)\s([A-z\s\->]+)\s\(in\s([^\)]+)\)[^=]+FTId=([A-z0-9_,\s]+)")
     pattern_sep = re.compile(r"([A-z0-9]+):VAR_SEQ\s([0-9\.]+);\s+")
-    pattern_iso_Value = re.compile(r'/[^=]+="([^;]+)"')
+    pattern_iso_Value = re.compile(r'/([^=]+)="([^;]+)"')
     pattern_inIso = re.compile(r"([A-z\s\->]+)\s\(in\s([^\)]+)\)")
     pattern_iso_keyValue = re.compile(r"([^=]+)=([^;]+);\s+")
     pattern_inDe = re.compile(r"([A-z]+)\s->\s([A-z]+)")
@@ -84,6 +87,14 @@ class ExtractIsoAlt:
         altSeq_li = []
         for content in self.dfrm["Alternative sequence"].dropna():
             result = self.pattern_sep.split(content)
+            for i in range(1, len(result)-1, 3):
+                altSeq_li.append(
+                    result[i+2] + '; /Entry="%s"; /AltRange="%s"; ' % tuple(result[i:i+2]))
+        
+        altSeq_df = pd.DataFrame(dict(i.groups() for i in self.pattern_iso_Value.finditer(content)) for content in altSeq_li)
+        altSeq_df.rename(columns={"id": "AltID"}, inplace=True)
+        altSeq_df["AltInfo"], altSeq_df["AltIso"] = altSeq_df["note"].apply(lambda x: self.pattern_inIso.search(x).groups()).str
+        '''
             for i in range(0, len(result)-1, 3):
                 temp = result[1:][i:i+3]
                 cur = temp.pop(2)
@@ -97,14 +108,12 @@ class ExtractIsoAlt:
                     altSeq_li.append(temp)
                 else:
                     raise Exception(content)
-        
+     
         altSeq_df = pd.DataFrame(
             altSeq_li, columns=["Entry", "AltRange", "AltNote", "AltID", "AltInfo", "AltIso"])
-
+        '''
         altSeq_df["AltRange"] = altSeq_df["AltRange"].apply(
             lambda x: [int(i) for i in x.split("..")])
-        
-        # print(altSeq_df)
 
         altSeq_df["AltLen"] = altSeq_df.apply(lambda x: [len(i) for i in self.pattern_inDe.search(
             x["AltInfo"]).groups()] if x["AltInfo"] != "Missing" else len(range(*x["AltRange"]))+1, axis=1)
@@ -258,7 +267,9 @@ class MapUniProtID:
     @property
     def site_li(self):
         if self.site_col is not None:
-            return self.dfrm.groupby(by=[self.id_col]).apply(lambda x: [i for i in x[self.site_col]])
+            # return self.dfrm.groupby(by=[self.id_col]).apply(lambda x: [i for i in x[self.site_col]])
+            for name, group in self.dfrm.groupby(by=[self.id_col]):
+                yield name, [i for i in group[self.site_col]]
         else:
             return None
 
@@ -577,9 +588,9 @@ class MapUniProtID:
         rawPath = os.path.join(outFolder, UniProt_ID_Mapping_RAW_PATH)
         modPath = os.path.join(outFolder, UniProt_ID_Mapping_MODIFIED_PATH)
         logPath = os.path.join(outFolder, LOGGER_PATH)
-        id_col = kwargs["id_col"]
-        site_col = kwargs["site_col"]
-        gene_col = kwargs["gene_col"]
+        id_col = kwargs.get("id_col", "id")
+        site_col = kwargs.get("site_col", "site")
+        gene_col = kwargs.get("gene_col", "gene")
 
         usecols = [col for col in [id_col, site_col, gene_col] if col is not None]
         
@@ -590,7 +601,8 @@ class MapUniProtID:
                 id_type=kwargs["id_type"],
                 loggingPath=logPath,
                 site_col=site_col,
-                gene_col=gene_col
+                gene_col=gene_col,
+                usecols=kwargs.get("usecols", None),
             )
         elif mode == "fromIter":
             kwargs["loggingPath"] = logPath
@@ -604,17 +616,31 @@ class MapUniProtID:
             demo.raw_id_mapping = dfrm
             status = True
         else:
+            chunksize = kwargs.get("chunksize", 100)
+            concurReq = kwargs.get("concurReq", 20)
+            # I am not sure whether this step should exist?
             for index in range(2):
                 status = demo.get_raw_ID_Mapping(
-                    rawPath, kwargs["chunksize"], kwargs["concurReq"])
+                    rawPath, chunksize, concurReq)
                 if not index:
                     demo.Logger.logger.info(
                         "Will restart to fix unmapped id mapping result after 8 seconds...")
                     time.sleep(8)
                 else:
                     demo.Logger.logger.info("Finish raw id mapping")
+            # [Can be done parallelly]
+            if site_col is not None:
+                siteInfoPath = os.path.join(outFolder, SITE_INFO_PATH)
+                with open(siteInfoPath, "w+") as siteOutput:
+                    siteOutput.write("id\tsite\n")
+                    formatStr = "%s\t%s\n"
+                    for name, lyst in demo.site_li:
+                        siteOutput.write(formatStr % (name, json.dumps(lyst)))
+                demo.Logger.logger.info(
+                    "Site Info has been safed in %s" % siteInfoPath)
+
         
-        # Extract Alt Seq/Pro Info
+        # Extract Alt Seq/Pro Info [Can be done parallelly]
         ExtractIsoAlt.main(path=rawPath, outFolder=outFolder)
 
         if status and kwargs.get("procceed", True):
@@ -633,17 +659,11 @@ class MapUniProtID:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Commandline mode for ProcessUniProt')
-    parser.add_argument('-r', '--referenceFile', type=str,
-                        help='The reference file of IDs(with mutation Site) that need to map via UniProt RESTful API')
-    parser.add_argument('-s', '--sep', type=str,
-                        default='\t',
-                        help='The seperator of referenceFile')
-    parser.add_argument('-i', '--idCol', type=str, default='RefSeq_protein',
-                        help='The column name of IDs in referenceFile.')
-    parser.add_argument('-t', '--idType', type=str, default='P_REFSEQ_AC',
-                        help='ID Abbreviation that stands for the type of ID.')
-    parser.add_argument('-o', '--outputFolder', type=str,
-                        help='Output file path.')
+    parser.add_argument('-r', '--referenceFile', type=str, help='The reference file of IDs(with mutation Site) that need to map via UniProt RESTful API')
+    parser.add_argument('-s', '--sep', type=str, default='\t', help='The seperator of referenceFile')
+    parser.add_argument('-i', '--idCol', type=str, default='RefSeq_protein', help='The column name of IDs in referenceFile.')
+    parser.add_argument('-t', '--idType', type=str, default='P_REFSEQ_AC', help='ID Abbreviation that stands for the type of ID.')
+    parser.add_argument('-o', '--outputFolder', type=str, help='Output file path.')
     parser.add_argument('-c', '--chunksize', type=int, default=100)
     parser.add_argument('-u', '--concurReq', type=int, default=20)
     parser.add_argument('-p', '--procceed', type=bool, default=True)
@@ -660,3 +680,12 @@ if __name__ == '__main__':
                       id_type=args.idType, site_col=args.siteCol,
                       gene_col=args.geneCol, procceed=args.procceed,
                       chunksize=args.chunksize, concurReq=args.concurReq)
+    '''
+    MapUniProtID.main(
+        mode="fromIter", 
+        outputFolder="C:\\OmicData\\LiGroupWork\\compareTool\\1222\\fromIter",
+        ids=["NP_689699", "NP_689699", "NP_940978"],
+        genes=["SAMD11", "SAMD11", "AGRN"], 
+        sites=["K45E", "P293A", "G76S"], 
+        id_type="P_REFSEQ_AC")
+    '''

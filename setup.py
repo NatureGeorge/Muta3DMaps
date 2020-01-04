@@ -1,7 +1,9 @@
-# @Date:   2019-11-24T19:44:32+08:00
-# @Email:  1730416009@stu.suda.edu.cn
+# @Created Date: 2019-11-24 09:07:03 pm
 # @Filename: setup.py
-# @Last modified time: 2019-11-25T21:07:59+08:00
+# @Email:  1730416009@stu.suda.edu.cn
+# @Author: ZeFeng Zhu
+# @Last Modified: 2019-12-23 04:27:14 pm
+# @Copyright (c) 2019 MinghuiGroup, Soochow University
 from setuptools import setup, find_packages, find_namespace_packages
 import Muta3DMaps
 
@@ -39,12 +41,11 @@ setup(
       long_description=readme,
       long_description_content_type="text/markdown",
       url="https://github.com/NatureGeorge/Muta3DMaps",
-      python_requires="!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+      python_requires=">=3.5.*",
       classifiers=[
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",

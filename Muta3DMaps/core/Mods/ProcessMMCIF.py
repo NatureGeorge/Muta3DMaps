@@ -241,7 +241,7 @@ class MMCIF2Dfrm:
             use_keys.extend(DEFAULT_COLS[col])
         return use_keys
 
-    @staticmethod
+    # @staticmethod
     def checkEntityType(sli, cli):
         if isinstance(sli, str):
             sli = json.loads(sli.replace('\'', '"'))
@@ -308,7 +308,7 @@ class MMCIF2Dfrm:
             data = mmcif_dict.get(key, np.nan)
             info_dict[key].append(data)
 
-    @staticmethod
+    # @staticmethod
     def dispatch_on_set(keys, func_li):
         """# Decorator to add new dispatch functions."""
         def register(func):
@@ -316,7 +316,7 @@ class MMCIF2Dfrm:
             return func
         return register
 
-    @staticmethod
+    # @staticmethod
     def handle_mmcif_data(query, data, fun_li):
         use = False
         for func, keySet in fun_li:
@@ -325,10 +325,10 @@ class MMCIF2Dfrm:
                 use = True
         return use
 
-    @staticmethod
+    # @staticmethod
     def get_index(x, y, z): return y[x[z]:x[z + 1]] if len(x) != 1 and z + 1 < len(x) else y[x[z]:]
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(DEFAULT_COLS['SEQRES_COL'], func_li=FUNC_LI_DI)
     def handle_seqres_di(info_dict):
         # Deal with SEQRES_COL
@@ -369,7 +369,7 @@ class MMCIF2Dfrm:
                     new_comodel_li.append(ele)
             info_dict[coordinates_model_key][i] = new_comodel_li
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(DEFAULT_COLS['LIGAND_COL'], func_li=FUNC_LI_DI)
     def handle_ligand_di(info_dict):
         ligand_col_list = DEFAULT_COLS['LIGAND_COL']
@@ -431,7 +431,7 @@ class MMCIF2Dfrm:
                 [MMCIF2Dfrm.get_index(strand_id_index, [ele[1:] for ele in new_metal_ligand_info], j) for j in range(len(strand_id_index))]
             )
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(DEFAULT_COLS['COMMON_COL'], func_li=FUNC_LI_DF)
     def handle_common_df(df):
         # Deal with the date of structure
@@ -443,14 +443,14 @@ class MMCIF2Dfrm:
         df['resolution'] = df.apply(lambda x: x[DEFAULT_COLS['COMMON_COL'][4]], axis=1)
         df['resolution'] = df.apply(lambda x: x[DEFAULT_COLS['COMMON_COL'][3]] if isinstance(x['resolution'], float) else x['resolution'], axis=1)
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(DEFAULT_COLS['ENTITY_COL'], func_li=FUNC_LI_DF)
     def handle_entity_df(df):
         # Deal with the mutations
         def muta_count(x): return x.count(',') + 1 if x != '?' else 0
         df['mutation_num'] = df.apply(lambda x: [muta_count(i) for i in x['_entity.pdbx_mutation']], axis=1)
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(DEFAULT_COLS['TYPE_COL'], func_li=FUNC_LI_DF)
     def handle_type_df(df):
         # Deal with chain type
@@ -462,7 +462,7 @@ class MMCIF2Dfrm:
         df['pdb_type_MMCIF'] = df.apply(lambda x: MMCIF2Dfrm.checkEntityType(
             x['_entity_poly.type'], x['_entity_poly.pdbx_strand_id']), axis=1)
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(['_pdbx_poly_seq_scheme.mon_id', '_entity_poly.type'], func_li=FUNC_LI_DF)
     def handle_unk_df(df):
         # Deal with UNK_ALL in chain
@@ -474,7 +474,7 @@ class MMCIF2Dfrm:
         df['contains_unk_in_chain_pdb'] = df.apply(
             lambda x: len(set(x['UNK_ALL_IN_CHAIN'])) == 2, axis=1)
 
-    @staticmethod
+    # @staticmethod
     @dispatch_on_set(DEFAULT_COLS['BIOASS_COL']+['_pdbx_poly_seq_scheme.asym_id'], func_li=FUNC_LI_DF)
     def handle_bioas_df(df):
         '''
