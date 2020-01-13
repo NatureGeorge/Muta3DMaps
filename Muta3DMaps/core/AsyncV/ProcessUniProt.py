@@ -17,8 +17,12 @@ from random import uniform
 from collections import Counter
 from collections.abc import Iterable, Iterator
 import re
-from Logger import RunningLogger
 import json
+
+try:
+    from .Logger import RunningLogger
+except Exception:
+    from Logger import RunningLogger
 
 
 COLUMNS = [

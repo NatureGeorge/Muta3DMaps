@@ -139,7 +139,7 @@ def initMMCIF(pdbfolder, pdbsfile, pdbcol, sep):
 @click.option("--siteCol", default="mutation_unp", help="The column name of aa site in referenceFile.", type=str)
 @click.option("--geneCol", default="GENE", help="The column name of gene info in referenceFile.", type=str)
 @click.option('--chunksize', type=int, default=100)
-@click.option('--concurReq', type=int, default=20)
+@click.option('--concurReq', type=int, default=100)
 @click.option('--nrows', type=int, default=None)
 @click.option('--finishedRaw', type=str, default='')
 @click.option("--proceed/--no-proceed", default=True, help="Whether to proceed after saving the site info.", is_flag=True)
