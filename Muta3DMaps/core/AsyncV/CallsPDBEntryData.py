@@ -103,7 +103,6 @@ class PathNode(object):
             yield cur
         
 
-
 class RetrieveEntryData(object):
     '''
     Retrieve PDB entry data
@@ -176,8 +175,194 @@ class RetrieveEntryData(object):
             '\n{} entries downloaded in {:.2f}s'.format(count, elapsed))
 
 
+class PDBeJsonDecoder(object):
+    @staticmethod
+    def yieldJsonDataFromFiles(files):
+        for file in files:
+            yield json.load(open(file, 'rt'))
+
+    @classmethod
+    def pdb_Root(cls, files, fileType):
+        '''
+        def wrapper(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                data[pdb][0]['pdb_id'] = pdb
+                yield pdb, data
+        '''
+
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                dfrm = pd.DataFrame(data[pdb])
+                dfrm['pdb_id'] = pdb
+                yield dfrm
+        
+        if not set(fileType) <= {"status", "summary", "modified_AA_or_NA",
+                                 "cofactor", "molecules", "ligand_monomers", 
+                                 "experiment", "electron_density_statistics", 
+                                 "related_experiment_data", "drugbank"}:
+            return None
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        # dfrm = pd.DataFrame(data[key][0] for key, data in wrapper(jsonDataGenerator))
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+    @classmethod
+    def pdb_polymerCoverage(cls, files):
+        # if not set(fileType) <= {"polymer_coverage", "observed_residues_ratio"}:
+        # return None
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                molecules = data[pdb]['molecules']
+                for entity in molecules:
+                    dfrm = pd.DataFrame(entity['chains'])
+                    dfrm['entity_id'] = entity['entity_id']
+                    dfrm['pdb_id'] = pdb
+                    yield dfrm
+        
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+    
+    @classmethod
+    def pdb_observedResiduesRatio(cls, files):
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                for entity_id, entity in data[pdb].items():
+                    dfrm = pd.DataFrame(entity)
+                    dfrm['entity_id'] = entity_id
+                    dfrm['pdb_id'] = pdb
+                    yield dfrm
+        
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+    @classmethod
+    def pdb_mutatedAAorNA(cls, files):
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                for entity in data[pdb]:
+                    dfrm = pd.DataFrame(entity)
+                    dfrm['pdb_id'] = pdb
+                    dfrm['mutation_from'], dfrm['mutation_to'], dfrm['mutation_type'] = dfrm['mutation_details'].apply(lambda info: (info['from'], info['to'], info['type'])).str
+                    yield dfrm
+        
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+    @classmethod
+    def pdb_residueListing(cls, files):
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                molecules = data[pdb]['molecules']
+                for entity in molecules:
+                    chains = entity['chains']
+                    for chain in chains:
+                        dfrm = pd.DataFrame(chain['residues'])
+                        dfrm['pdb_id'] = pdb
+                        dfrm['entity_id'] = entity['entity_id']
+                        dfrm['struct_asym_id'] = chain['struct_asym_id']
+                        dfrm['chain_id'] = chain['chain_id']
+                        yield dfrm
+
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+    '''
+    @staticmethod
+    def splitDictInDfrm(dfrm, dictColName):
+        newColumns = dfr
+        dfrm[] = dfrm[dictColName].apply(lambda x: tuple(x.values())
+    '''
+
+    @classmethod
+    def pdb_secondaryStructure(cls, files):
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                molecules = data[pdb]['molecules']
+                for entity in molecules:
+                    chains = entity['chains']
+                    for chain in chains:
+                        secondary_structure = chain['secondary_structure']
+                        for name, fragment in secondary_structure.items():
+                            dfrm = pd.DataFrame(fragment)
+                            dfrm['pdb_id'] = pdb
+                            dfrm['entity_id'] = entity['entity_id']
+                            dfrm['struct_asym_id'] = chain['struct_asym_id']
+                            dfrm['chain_id'] = chain['chain_id']
+                            dfrm['secondary_structure'] = name
+                            yield dfrm
+
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+    
+    @classmethod
+    def pdb_bindingSites(cls, files):
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                sites = data[pdb]
+                for site in sites:
+                    site_dfrm = pd.DataFrame(site['site_residues'])
+                    site_dfrm['residues_type'] = 'site_residues'
+                    ligand_dfrm = pd.DataFrame(site['ligand_residues'])
+                    ligand_dfrm['residues_type'] = 'ligand_residues'
+                    dfrm = pd.concat([site_dfrm, ligand_dfrm], ignore_index=True, sort=False)
+                    dfrm['pdb_id'] = pdb
+                    dfrm['site_id'] = site['site_id']
+                    dfrm['evidence_code'] = site['evidence_code']
+                    dfrm['details'] = site['details']
+                    yield dfrm
+
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+    @classmethod
+    def pdb_assembly(cls, files):
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                for biounit in data[pdb]:
+                    dfrm = pd.DataFrame(biounit['entities'])
+                    dfrm['pdb_id'] = pdb
+                    dfrm['polymeric_count'] = biounit['polymeric_count']
+                    dfrm['assembly_composition'] = biounit['assembly_composition']
+                    dfrm['molecular_weight'] = biounit['molecular_weight']
+                    dfrm['details'] = biounit['details']
+                    dfrm['assembly_id'] = biounit['assembly_id']
+                    yield dfrm
+
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+    @classmethod
+    def pdb_files(cls, files):
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        def yieldDfrm(jsonDataGenerator):
+            for data in jsonDataGenerator:
+                pdb = next(iter(data))
+                info = data[pdb]
+                for key in info:
+                    for innerKey in info[key]:
+                        record = info[key][innerKey]
+                        if record:
+                            dfrm = pd.DataFrame(record)
+                            dfrm['innerKey'] = innerKey
+                            dfrm['key'] = key
+                            yield dfrm
+                        else:
+                            continue
+        
+        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
+        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
+
+
 if __name__ == "__main__":
-    demo = RetrieveEntryData(pdbs='4ddg', # ["1a01", "5dfz", "2hev", "2hey", "5hkr"]
+    demo = RetrieveEntryData(pdbs=["5o8b"],  # ["1a01", "5dfz", "2hev", "2hey", "5hkr", "4ddg", "4v5j", "3g96", "5hht"]
                              loggingPath="C:/OmicData/LiGroupWork/PDBeAPI/log.log",
                              workdir="C:/OmicData/LiGroupWork/PDBeAPI/test/",
                              overviewFileName="PDB_Entry_File_overview.tsv")
