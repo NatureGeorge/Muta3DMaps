@@ -18,9 +18,6 @@ import aiohttp
 from aiohttp import web
 import pandas as pd
 import numpy as np
-from collections import Counter
-from collections.abc import Iterable, Iterator
-import re
 import json
 import time
 import os
@@ -67,7 +64,7 @@ API_LYST = sorted(["summary", "molecules", "experiment", "ligand_monomers",
 
 FUNCS = []
 
-def getFiles(workdir, suffix):
+def getFiles(workdir: str, suffix: str):
     for file in os.listdir(workdir):
         if suffix in file:
             yield os.path.join(workdir, file)
@@ -217,8 +214,9 @@ class PDBeJsonDecoder(object):
 
     @classmethod
     @dispatch_on_set({"status", "summary", "modified_AA_or_NA",
-                      "cofactor", "molecules", "ligand_monomers",
-                      "experiment", "electron_density_statistics",
+                      "mutated_AA_or_NA", "cofactor", "molecules", 
+                      "ligand_monomers", "experiment", 
+                      "electron_density_statistics",
                       "related_experiment_data", "drugbank"})
     def pdb_Root(cls, files):
         def yieldDfrm(jsonDataGenerator):
@@ -231,6 +229,7 @@ class PDBeJsonDecoder(object):
         jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
         return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
 
+    # TODO: integrate 'residue_listing' and 'secondary_structure'
     @classmethod
     @dispatch_on_set({'polymer_coverage'})
     def pdb_polymerCoverage(cls, files):
@@ -263,26 +262,10 @@ class PDBeJsonDecoder(object):
         return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
 
     @classmethod
-    @dispatch_on_set({'mutated_AA_or_NA'})
-    def pdb_mutatedAAorNA(cls, files):
-        def yieldDfrm(jsonDataGenerator):
-            for data in jsonDataGenerator:
-                for pdb in data:
-                    dfrm = pd.DataFrame(data[pdb])
-                    dfrm['pdb_id'] = pdb
-                    dfrm['mutation_from'], dfrm['mutation_to'], dfrm['mutation_type'] = dfrm['mutation_details'].apply(
-                        lambda info: (info['from'], info['to'], info['type'])).str
-                    yield dfrm
-
-        jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
-        return pd.concat((df for df in yieldDfrm(jsonDataGenerator)), ignore_index=True, sort=False)
-
-    @classmethod
     @dispatch_on_set({'residue_listing'})
     def pdb_residueListing(cls, files):
         def yieldDfrm(jsonDataGenerator):
             for data in jsonDataGenerator:
-                # pdb = next(iter(data))
                 for pdb in data:
                     molecules = data[pdb]['molecules']
                     for entity in molecules:
@@ -303,7 +286,6 @@ class PDBeJsonDecoder(object):
     def pdb_secondaryStructure(cls, files):
         def yieldDfrm(jsonDataGenerator):
             for data in jsonDataGenerator:
-                # pdb = next(iter(data))
                 for pdb in data:
                     molecules = data[pdb]['molecules']
                     for entity in molecules:
@@ -357,11 +339,6 @@ class PDBeJsonDecoder(object):
                             cur = biounit[key]
                             if not isinstance(cur, list):
                                 dfrm[key] = biounit[key]
-                        # dfrm['polymeric_count'] = biounit['polymeric_count']
-                        # dfrm['assembly_composition'] = biounit['assembly_composition']
-                        # dfrm['molecular_weight'] = biounit['molecular_weight']
-                        # dfrm['details'] = biounit['details']
-                        # dfrm['assembly_id'] = biounit['assembly_id']
                         yield dfrm
 
         jsonDataGenerator = cls.yieldJsonDataFromFiles(files)
@@ -372,7 +349,6 @@ class PDBeJsonDecoder(object):
     def pdb_files(cls, files):
         def yieldDfrm(jsonDataGenerator):
             for data in jsonDataGenerator:
-                # pdb = next(iter(data))
                 for pdb in data:
                     for key in data[pdb]:
                         for innerKey in data[pdb][key]:
@@ -391,11 +367,11 @@ class PDBeJsonDecoder(object):
 
 
 if __name__ == "__main__":
-    demo = RetrieveEntryData(pdbs=["1a01", "5dfz", "2hev", "2hey", "5hkr", "4ddg", "4v5j", "3g96", "5hht", "5o8b"],
+    demo = RetrieveEntryData(pdbs=["4w9p", "1fm9"], # ["1a01", "5dfz", "2hev", "2hey", "5hkr", "4ddg", "4v5j", "3g96", "5hht", "5o8b"],
                              loggingPath="C:/OmicData/LiGroupWork/PDBeAPI/log.log",
-                             workdir="C:/OmicData/LiGroupWork/PDBeAPI/0115/",
+                             workdir="C:/OmicData/LiGroupWork/PDBeAPI/0117/",
                              overviewFileName="PDB_Entry_File_overview.tsv")
-    # demo.main(5)
+    demo.main(5)
     t0 = time.perf_counter()
     demo.toFrameAll()
     elapsed = time.perf_counter() - t0

@@ -137,21 +137,21 @@ def initMMCIF(pdbfolder, pdbsfile, pdbcol, sep):
 @click.option("--idType", default="P_REFSEQ_AC", help="ID Abbreviation that stands for the type of ID.", type=str)
 @click.option("--usecols", default=_UniProt_DEFAULT_COL, help="Comma-separated list of the column names for programmatic access to the UniProtKB search results.", type=str)
 @click.option("--siteCol", default="mutation_unp", help="The column name of aa site in referenceFile.", type=str)
-@click.option("--geneCol", default="GENE", help="The column name of gene info in referenceFile.", type=str)
+@click.option("--geneCol", default=None, help="The column name of gene info in referenceFile.", type=str)
 @click.option('--chunksize', type=int, default=100)
 @click.option('--concurReq', type=int, default=100)
 @click.option('--nrows', type=int, default=None)
 @click.option('--finishedRaw', type=str, default='')
 @click.option("--proceed/--no-proceed", default=True, help="Whether to proceed after saving the site info.", is_flag=True)
-def initUniProt(referencefile, sep, idcol, idtype, usecols, sitecol, genecol, chunksize, concurReq, nrows, finishedRaw, proceed):
+def initUniProt(referencefile, sep, idcol, idtype, usecols, sitecol, genecol, chunksize, concurreq, nrows, finishedraw, proceed):
     click.echo(colorClick("UniProt"))
-    MapUniProtID.main(finishedRaw=finishedRaw, outputFolder=_FOLDER,
+    MapUniProtID.main(finishedRaw=finishedraw, outputFolder=_FOLDER,
                       referenceFile=referencefile, sep=sep,
                       nrows=nrows, id_col=idcol,
                       id_type=idtype, usecols=usecols.split(","),
                       site_col=sitecol, gene_col=genecol,
-                      procceed=proceed, chunksize=chunksize,
-                      concurReq=concurReq)
+                      proceed=proceed, chunksize=chunksize,
+                      concurReq=concurreq)
 
 
 @interface.command()
@@ -196,6 +196,12 @@ def initUnpFASTA(fastafolder, unreviewed, isoform, split, mode, fastapath, refer
 @click.option("--fastaFolder", default="./", help="The file folder of UniProt FASTA Seq repository.", type=click.Path())
 @click.option("--siteInfoFile", default="", help="The file that comtains site info.", type=click.Path())
 def unp2PDB(fastafolder, siteinfofile):
+    def getItem(data, key, default=nan):
+        try:
+            return data[key]
+        except KeyError:
+            return default
+
     click.echo(colorClick("Mapping"))
     logger = RunningLogger("mappingFromUnpToPDB", _LOGGER_PATH).logger
     sifts_df = read_csv(_SIFTS_MODIFIED_PATH, sep="\t", converters=_CONVERTER).drop_duplicates(subset=['UniProt', 'pdb_id', 'chain_id'], keep='last')
@@ -206,7 +212,9 @@ def unp2PDB(fastafolder, siteinfofile):
     if os.path.exists(_UniProt_ID_Mapping_MODIFIED_PATH):  # proceed
         id_map_df = read_csv(_UniProt_ID_Mapping_MODIFIED_PATH, sep="\t")
         id_map_df = id_map_df[id_map_df['Mapping_status'] == 'Yes']
-    sifts_mmcif_df = merge(sifts_mmcif_df, id_map_df[['UniProt', 'yourlist']].drop_duplicates(), how="left")
+        sifts_mmcif_df = merge(sifts_mmcif_df, id_map_df[['UniProt', 'yourlist']].drop_duplicates(), how="left")
+    else:
+        sifts_mmcif_df['yourlist'] = sifts_mmcif_df['UniProt']
 
     if siteinfofile == "":
         siteinfofile = _SITE_INFO_PATH
@@ -214,7 +222,8 @@ def unp2PDB(fastafolder, siteinfofile):
     if os.path.exists(siteinfofile):
         siteSe = read_csv(siteinfofile, sep="\t", index_col=0)['site']
         siteSe = siteSe.apply(json.loads)
-        sifts_mmcif_df['mutation_unp'] = sifts_mmcif_df.apply(lambda x: siteSe[x['yourlist']] if not isinstance(x['yourlist'], float) else nan, axis=1)
+        sifts_mmcif_df['mutation_unp'] = sifts_mmcif_df.apply(
+            lambda x: getItem(siteSe, x['yourlist']) if not isinstance(x['yourlist'], float) else nan, axis=1)
         muta_info_li = []
 
         sifts_mmcif_df['mutation_pdb'] = sifts_mmcif_df.apply(lambda x: map_muta_from_unp_to_pdb(

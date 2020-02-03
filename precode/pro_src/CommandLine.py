@@ -35,7 +35,9 @@ def cli():
 
 
 @cli.command()
-def initdb():
+@click.option("--proceed/--no-proceed", default=True, help="Whether to proceed after saving the site info.", is_flag=True)
+def initdb(proceed):
+    click.echo("proceed:%s" % proceed)
     click.echo('Initialized the database')
 
 

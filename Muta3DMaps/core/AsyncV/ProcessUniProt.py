@@ -612,42 +612,39 @@ class MapUniProtID:
             kwargs["loggingPath"] = logPath
             demo = cls.fromIter(**kwargs)
         
-        if finishedRaw:
-            new_colNames = [COLUMN_DICT.get(i, i)
-                            for i in COLUMNS] + ['yourlist', 'isomap']
-            dfrm = pd.read_csv(finishedRaw, sep='\t',
-                            names=new_colNames, skiprows=1, header=None)
-            demo.raw_id_mapping = dfrm
-            status = True
-        else:
-            chunksize = kwargs.get("chunksize", 100)
-            concurReq = kwargs.get("concurReq", 20)
-            # I am not sure whether this step should exist?
-            for index in range(2):
-                status = demo.get_raw_ID_Mapping(
-                    rawPath, chunksize, concurReq)
-                if not index:
-                    demo.Logger.logger.info(
-                        "Will restart to fix unmapped id mapping result after 8 seconds...")
-                    time.sleep(8)
-                else:
-                    demo.Logger.logger.info("Finish raw id mapping")
-            # [Can be done parallelly]
-            if site_col is not None:
-                siteInfoPath = os.path.join(outFolder, SITE_INFO_PATH)
-                with open(siteInfoPath, "w+") as siteOutput:
-                    siteOutput.write("id\tsite\n")
-                    formatStr = "%s\t%s\n"
-                    for name, lyst in demo.site_li:
-                        siteOutput.write(formatStr % (name, json.dumps(lyst)))
-                demo.Logger.logger.info(
-                    "Site Info has been safed in %s" % siteInfoPath)
+        if site_col is not None:
+            siteInfoPath = os.path.join(outFolder, SITE_INFO_PATH)
+            with open(siteInfoPath, "w+") as siteOutput:
+                siteOutput.write("id\tsite\n")
+                formatStr = "%s\t%s\n"
+                for name, lyst in demo.site_li:
+                    siteOutput.write(formatStr % (name, json.dumps(lyst)))
+            demo.Logger.logger.info(
+                "Site Info has been safed in %s" % siteInfoPath)
 
-        
-        # Extract Alt Seq/Pro Info [Can be done parallelly]
-        ExtractIsoAlt.main(path=rawPath, outFolder=outFolder)
+        if kwargs.get("proceed", True):
+            if finishedRaw:
+                new_colNames = [COLUMN_DICT.get(i, i)
+                                for i in COLUMNS] + ['yourlist', 'isomap']
+                dfrm = pd.read_csv(finishedRaw, sep='\t',
+                                names=new_colNames, skiprows=1, header=None)
+                demo.raw_id_mapping = dfrm
+                # status = True
+            else:
+                chunksize = kwargs.get("chunksize", 100)
+                concurReq = kwargs.get("concurReq", 20)
+                # I am not sure whether this step should exist?
+                for index in range(2):
+                    demo.get_raw_ID_Mapping(rawPath, chunksize, concurReq)
+                    if not index:
+                        demo.Logger.logger.info(
+                            "Will restart to fix unmapped id mapping result after 8 seconds...")
+                        time.sleep(8)
+                    else:
+                        demo.Logger.logger.info("Finish raw id mapping")
 
-        if status and kwargs.get("procceed", True):
+            # Extract Alt Seq/Pro Info [Can be done parallelly]
+            ExtractIsoAlt.main(path=rawPath, outFolder=outFolder)
             # Deal with different situations
             handled_ID_Mapping = demo.handle_ID_Mapping(outFolder)
             # Add Gene Status
@@ -657,7 +654,7 @@ class MapUniProtID:
             # Output the final result
             handled_ID_Mapping.to_csv(modPath, sep='\t', index=False)
         else:
-            demo.Logger.logger.error("There is something wrong.")
+            demo.Logger.logger.warning("Did not proceed")
         
 
 
