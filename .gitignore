@@ -1,0 +1,6 @@
+build/
+.vscode/
+.vsconfig
+Muta3DMaps.egg-info/
+Muta3DMaps-1.0-py3.7.egg
+*.pyc

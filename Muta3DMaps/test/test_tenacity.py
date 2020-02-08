@@ -16,7 +16,7 @@ def MyException(info: str):
 
 class Test_UnsyncFetch(object):
 
-    name = 'Test_UnsyncFetch'
+    name = 'Test_tenacity_UnsyncFetch'
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     streamHandler = logging.StreamHandler()

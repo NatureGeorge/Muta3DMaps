@@ -1,0 +1,32 @@
+2020-02-08 21:23:52,779 Test_tenacity_UnsyncFetch INFO Logging file has been created in ./data/Test_tenacity_UnsyncFetch.log
+2020-02-08 21:23:52,787 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01
+2020-02-08 21:23:52,788 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn
+2020-02-08 21:23:52,788 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu
+2020-02-08 21:23:52,788 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev
+2020-02-08 21:23:52,790 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96
+2020-02-08 21:23:55,436 Test_tenacity_UnsyncFetch WARNING Finished call to '__main__.Test_UnsyncFetch.download_file' after 2.657(s), this was the 1st time calling it.
+2020-02-08 21:23:55,590 Test_tenacity_UnsyncFetch DEBUG Start to save file: ./data/1a01_molecules.json
+2020-02-08 21:23:55,590 Test_tenacity_UnsyncFetch DEBUG Start to save file: ./data/1miu_molecules.json
+2020-02-08 21:23:55,591 Test_tenacity_UnsyncFetch DEBUG Start to save file: ./data/2hev_molecules.json
+2020-02-08 21:23:55,628 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn
+2020-02-08 21:23:55,628 Test_tenacity_UnsyncFetch WARNING 404 for: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96
+2020-02-08 21:23:55,629 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01
+2020-02-08 21:23:57,591 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/2xyn
+2020-02-08 21:23:57,591 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1miu
+2020-02-08 21:23:57,591 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/2hev
+2020-02-08 21:23:58,254 Test_tenacity_UnsyncFetch WARNING Finished call to '__main__.Test_UnsyncFetch.download_file' after 5.469(s), this was the 2nd time calling it.
+2020-02-08 21:23:58,526 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn
+2020-02-08 21:23:58,713 Test_tenacity_UnsyncFetch DEBUG Start to save file: ./data/1a01_residue_listing.json
+2020-02-08 21:24:00,538 Test_tenacity_UnsyncFetch WARNING Finished call to '__main__.Test_UnsyncFetch.download_file' after 2.937(s), this was the 1st time calling it.
+2020-02-08 21:24:00,691 Test_tenacity_UnsyncFetch DEBUG Start to save file: ./data/2hev_residue_listing.json
+2020-02-08 21:24:00,691 Test_tenacity_UnsyncFetch DEBUG Start to save file: ./data/1miu_residue_listing.json
+2020-02-08 21:24:00,691 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/3g96
+2020-02-08 21:24:01,147 Test_tenacity_UnsyncFetch WARNING Finished call to '__main__.Test_UnsyncFetch.download_file' after 8.360(s), this was the 3rd time calling it.
+2020-02-08 21:24:01,149 Test_tenacity_UnsyncFetch ERROR Retry failed for: https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn
+2020-02-08 21:24:01,401 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/2xyn
+2020-02-08 21:24:03,825 Test_tenacity_UnsyncFetch WARNING 404 for: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/3g96
+2020-02-08 21:24:04,318 Test_tenacity_UnsyncFetch WARNING Finished call to '__main__.Test_UnsyncFetch.download_file' after 6.719(s), this was the 2nd time calling it.
+2020-02-08 21:24:06,176 Test_tenacity_UnsyncFetch DEBUG Start to get file: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/2xyn
+2020-02-08 21:24:09,105 Test_tenacity_UnsyncFetch WARNING Finished call to '__main__.Test_UnsyncFetch.download_file' after 11.500(s), this was the 3rd time calling it.
+2020-02-08 21:24:09,106 Test_tenacity_UnsyncFetch ERROR Retry failed for: https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/2xyn
+2020-02-08 21:24:09,109 Test_tenacity_UnsyncFetch INFO downloaded in 16.3291197s

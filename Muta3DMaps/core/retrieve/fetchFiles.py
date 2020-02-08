@@ -73,6 +73,13 @@ class UnsyncFetch(object):
     @classmethod
     @unsync
     async def multi_tasks(cls, workdir: str, tasks, concur_req: int = 4, rate: float = 1.5):
+        '''
+        Template for multiTasking
+
+        TODO
+            1. asyncio.Semaphore
+            2. unit func
+        '''
         semaphore = asyncio.Semaphore(concur_req)
         # await asyncio.gather(*[cls.fetch_file(semaphore, url, os.path.join(workdir, path), rate) for url, path in tasks])
         tasks = [cls.fetch_file(semaphore, url, os.path.join(workdir, path), rate) for url, path in tasks]
