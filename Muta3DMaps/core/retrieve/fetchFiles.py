@@ -36,10 +36,17 @@ class UnsyncFetch(object):
 
     @classmethod
     @retry(wait=wait_random_exponential(multiplier=1, max=15), stop=stop_after_attempt(3), after=after_log(logger, logging.WARNING))
-    async def download_file(cls, url: str):
+    async def download_file(cls, url: str, post_data=Union[str, None]):
         cls.logger.debug(f"Start to get file: {url}")
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
+            if post_data is None:
+                async_func = session.get
+                kwargs = {'url': url}
+            else:
+                async_func = session.post
+                kwargs = {'url': url, 'data': post_data}
+
+            async with async_func(**kwargs) as resp:
                 if resp.status == 200:
                     return await resp.read()
                 elif resp.status == 404:
@@ -57,10 +64,10 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def fetch_file(cls, semaphore: asyncio.Semaphore, url: str, path: str, rate: float):
+    async def fetch_file(cls, semaphore: asyncio.Semaphore, url: str, post_data: Union[str, None], path: str, rate: float):
         async with semaphore:
             try:
-                data = await cls.download_file(url)
+                data = await cls.download_file(url, post_data)
                 if data is not None:
                     await cls.save_file(path, data)
                     await asyncio.sleep(rate)
@@ -72,7 +79,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def multi_tasks(cls, workdir: str, tasks, concur_req: int = 4, rate: float = 1.5):
+    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5):
         '''
         Template for multiTasking
 
@@ -81,16 +88,18 @@ class UnsyncFetch(object):
             2. unit func
         '''
         semaphore = asyncio.Semaphore(concur_req)
-        # await asyncio.gather(*[cls.fetch_file(semaphore, url, os.path.join(workdir, path), rate) for url, path in tasks])
-        tasks = [cls.fetch_file(semaphore, url, os.path.join(workdir, path), rate) for url, path in tasks]
+        # await asyncio.gather(*[cls.fetch_file(semaphore, url, post_data, os.path.join(workdir, path), rate) for url, post_data, path in tasks])
+        tasks = [cls.fetch_file(semaphore, url, post_data, os.path.join(workdir, path), rate) for url, post_data, path in tasks]
         return [await fob for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks))]
 
     @classmethod
-    def main(cls, workdir: str, data: Union[Iterable, Iterator], logName='UnsyncFetch'):
+    def main(cls, workdir: str, data: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5, logName: str = 'UnsyncFetch'):
         cls.set_logging_fileHandler(os.path.join(workdir, f'{logName}.log'))
         t0 = perf_counter()
-        res = cls.multi_tasks(workdir, data, 5).result()
+        res = cls.multi_tasks(workdir, data, concur_req, rate).result()
         elapsed = perf_counter() - t0
         cls.logger.info(f'downloaded in {elapsed}s')
         return res
 
+    # TODO: collect the data immediately as the file has been saved
+    # TODO: collect the data immediately as the target files in a group has all been saved
