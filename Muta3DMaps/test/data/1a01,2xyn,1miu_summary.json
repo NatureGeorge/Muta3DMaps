@@ -1,0 +1,163 @@
+{
+    "1miu": [
+        {
+            "related_structures": [],
+            "experimental_method": [
+                "X-ray diffraction"
+            ],
+            "assemblies": [
+                {
+                    "preferred": true,
+                    "form": "hetero",
+                    "name": "dimer",
+                    "assembly_id": "1"
+                },
+                {
+                    "preferred": false,
+                    "form": "hetero",
+                    "name": "octamer",
+                    "assembly_id": "2"
+                }
+            ],
+            "title": "Structure of a BRCA2-DSS1 complex",
+            "release_date": "20020925",
+            "split_entry": [],
+            "experimental_method_class": [
+                "x-ray"
+            ],
+            "revision_date": "20110713",
+            "entry_authors": [
+                "Yang, H.",
+                "Jeffrey, P.D.",
+                "Miller, J.",
+                "Kinnucan, E.",
+                "Sun, Y.",
+                "Thoma, N.H.",
+                "Zheng, N.",
+                "Chen, P.L.",
+                "Lee, W.H.",
+                "Pavletich, N.P."
+            ],
+            "deposition_site": "RCSB",
+            "number_of_entities": {
+                "water": 0,
+                "polypeptide": 2,
+                "other": 0,
+                "dna": 0,
+                "ligand": 1,
+                "dna/rna": 0,
+                "rna": 0,
+                "sugar": 0
+            },
+            "deposition_date": "20020823",
+            "processing_site": "RCSB"
+        }
+    ],
+    "2xyn": [
+        {
+            "related_structures": [],
+            "experimental_method": [
+                "X-ray diffraction"
+            ],
+            "assemblies": [
+                {
+                    "preferred": true,
+                    "form": "homo",
+                    "name": "monomer",
+                    "assembly_id": "1"
+                },
+                {
+                    "preferred": false,
+                    "form": "homo",
+                    "name": "monomer",
+                    "assembly_id": "2"
+                },
+                {
+                    "preferred": false,
+                    "form": "homo",
+                    "name": "monomer",
+                    "assembly_id": "3"
+                }
+            ],
+            "title": "HUMAN ABL2 IN COMPLEX WITH AURORA KINASE INHIBITOR VX-680",
+            "release_date": "20101201",
+            "split_entry": [],
+            "experimental_method_class": [
+                "x-ray"
+            ],
+            "revision_date": "20190403",
+            "entry_authors": [
+                "Salah, E.",
+                "Ugochukwu, E.",
+                "Elkins, J.M.",
+                "Barr, A.J.",
+                "Shrestha, B.",
+                "Savitsky, P.",
+                "Mahajan, P.",
+                "Muniz, J.R.C.",
+                "Yue, W.W.",
+                "Chaikuad, A.",
+                "von Delft, F.",
+                "Bountra, C.",
+                "Arrowsmith, C.H.",
+                "Weigelt, J.",
+                "Edwards, A.",
+                "Knapp, S.",
+                "Structural Genomics Consortium (SGC)"
+            ],
+            "deposition_site": "PDBE",
+            "number_of_entities": {
+                "water": 1,
+                "polypeptide": 1,
+                "other": 0,
+                "dna": 0,
+                "ligand": 3,
+                "dna/rna": 0,
+                "rna": 0,
+                "sugar": 0
+            },
+            "deposition_date": "20101118",
+            "processing_site": "PDBE"
+        }
+    ],
+    "1a01": [
+        {
+            "related_structures": [],
+            "experimental_method": [
+                "X-ray diffraction"
+            ],
+            "assemblies": [
+                {
+                    "preferred": true,
+                    "form": "hetero",
+                    "name": "tetramer",
+                    "assembly_id": "1"
+                }
+            ],
+            "title": "HEMOGLOBIN (VAL BETA1 MET, TRP BETA37 ALA) MUTANT",
+            "release_date": "19980318",
+            "split_entry": [],
+            "experimental_method_class": [
+                "x-ray"
+            ],
+            "revision_date": "20110713",
+            "entry_authors": [
+                "Kavanaugh, J.S.",
+                "Arnone, A."
+            ],
+            "deposition_site": null,
+            "number_of_entities": {
+                "water": 1,
+                "polypeptide": 2,
+                "other": 0,
+                "dna": 0,
+                "ligand": 1,
+                "dna/rna": 0,
+                "rna": 0,
+                "sugar": 0
+            },
+            "deposition_date": "19971208",
+            "processing_site": "BNL"
+        }
+    ]
+}

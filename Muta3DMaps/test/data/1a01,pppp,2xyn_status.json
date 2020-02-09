@@ -1,0 +1,28 @@
+{
+    "2xyn": [
+        {
+            "title": "HUMAN ABL2 IN COMPLEX WITH AURORA KINASE INHIBITOR VX-680",
+            "status_code": "REL",
+            "since": "20101201",
+            "experimental_method_class": "x-ray",
+            "entry_authors": "Salah, E., Ugochukwu, E., Elkins, J.M., Barr, A.J., Shrestha, B., Savitsky, P., Mahajan, P., Muniz, J.R.C., Yue, W.W., Chaikuad, A., von Delft, F., Bountra, C., Arrowsmith, C.H., Weigelt, J., Edwards, A., Knapp, S., Structural Genomics Consortium (SGC)",
+            "obsoletes": [
+                "3nsv"
+            ],
+            "superceded_by": [],
+            "experimental_method": "X-RAY DIFFRACTION"
+        }
+    ],
+    "1a01": [
+        {
+            "title": "HEMOGLOBIN (VAL BETA1 MET, TRP BETA37 ALA) MUTANT",
+            "status_code": "REL",
+            "since": "19980318",
+            "experimental_method_class": "x-ray",
+            "entry_authors": "Kavanaugh, J.S., Arnone, A.",
+            "obsoletes": [],
+            "superceded_by": [],
+            "experimental_method": "X-RAY DIFFRACTION"
+        }
+    ]
+}

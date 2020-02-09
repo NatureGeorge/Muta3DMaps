@@ -1,0 +1,145 @@
+{
+    "3g96": [
+        {
+            "related_structures": [],
+            "experimental_method": [
+                "X-ray diffraction"
+            ],
+            "assemblies": [
+                {
+                    "preferred": false,
+                    "form": "hetero",
+                    "name": "trimer",
+                    "assembly_id": "1"
+                },
+                {
+                    "preferred": true,
+                    "form": "hetero",
+                    "name": "trimer",
+                    "assembly_id": "2"
+                },
+                {
+                    "preferred": false,
+                    "form": "hetero",
+                    "name": "trimer",
+                    "assembly_id": "3"
+                },
+                {
+                    "preferred": false,
+                    "form": "hetero",
+                    "name": "trimer",
+                    "assembly_id": "4"
+                }
+            ],
+            "title": "Crystal structure of the Bacillus anthracis glmS ribozyme bound to MaN6P",
+            "release_date": "20091103",
+            "split_entry": [],
+            "experimental_method_class": [
+                "x-ray"
+            ],
+            "revision_date": "20180411",
+            "entry_authors": [
+                "Strobel, S.A.",
+                "Cochrane, J.C.",
+                "Lipchock, S.V.",
+                "Smith, K.D."
+            ],
+            "deposition_site": "RCSB",
+            "number_of_entities": {
+                "water": 1,
+                "polypeptide": 1,
+                "other": 0,
+                "dna": 0,
+                "ligand": 2,
+                "dna/rna": 0,
+                "rna": 2,
+                "sugar": 0
+            },
+            "deposition_date": "20090212",
+            "processing_site": "RCSB"
+        }
+    ],
+    "6lu7": [
+        {
+            "related_structures": [],
+            "experimental_method": [
+                "X-ray diffraction"
+            ],
+            "assemblies": [
+                {
+                    "preferred": true,
+                    "form": "hetero",
+                    "name": "tetramer",
+                    "assembly_id": "1"
+                }
+            ],
+            "title": "The crytal structure of 2019-nCoV main protease in complex with an inhibitor N3",
+            "release_date": "20200205",
+            "split_entry": [],
+            "experimental_method_class": [
+                "x-ray"
+            ],
+            "revision_date": "20200205",
+            "entry_authors": [
+                "Liu, X.",
+                "Zhang, B.",
+                "Jin, Z.",
+                "Yang, H.",
+                "Rao, Z."
+            ],
+            "deposition_site": "PDBJ",
+            "number_of_entities": {
+                "water": 1,
+                "polypeptide": 2,
+                "other": 0,
+                "dna": 0,
+                "ligand": 0,
+                "dna/rna": 0,
+                "rna": 0,
+                "sugar": 0
+            },
+            "deposition_date": "20200126",
+            "processing_site": "PDBJ"
+        }
+    ],
+    "2hev": [
+        {
+            "related_structures": [],
+            "experimental_method": [
+                "X-ray diffraction"
+            ],
+            "assemblies": [
+                {
+                    "preferred": true,
+                    "form": "hetero",
+                    "name": "hexamer",
+                    "assembly_id": "1"
+                }
+            ],
+            "title": "Crystal structure of the complex between OX40L and OX40",
+            "release_date": "20060829",
+            "split_entry": [],
+            "experimental_method_class": [
+                "x-ray"
+            ],
+            "revision_date": "20110713",
+            "entry_authors": [
+                "Hymowitz, S.G.",
+                "Compaan, D.M."
+            ],
+            "deposition_site": "RCSB",
+            "number_of_entities": {
+                "water": 1,
+                "polypeptide": 2,
+                "other": 0,
+                "dna": 0,
+                "ligand": 1,
+                "dna/rna": 0,
+                "rna": 0,
+                "sugar": 0
+            },
+            "deposition_date": "20060622",
+            "processing_site": "RCSB"
+        }
+    ]
+}
