@@ -30,17 +30,17 @@ class UnsyncFetch(object):
     
     Reference (following packages provide me with a lot of insights and inspiration)
 
-        aiohttp
+        `aiohttp`
 
         * https://github.com/aio-libs/aiohttp
         * https://docs.aiohttp.org/en/stable/client_quickstart.html
         * https://docs.aiohttp.org/en/stable/streams.html
 
-        unsync
+        `unsync`
 
         * https://github.com/alex-sherman/unsync
 
-        tenacity
+        `tenacity`
 
         * https://github.com/jd/tenacity
         * https://tenacity.readthedocs.io/en/latest/
@@ -110,7 +110,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5) -> List[Optional[str]]:
+    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5):
         '''
         Template for multiTasking
 
@@ -119,9 +119,15 @@ class UnsyncFetch(object):
             2. unit func
         '''
         semaphore = asyncio.Semaphore(concur_req)
-        # await asyncio.gather(*[cls.fetch_file(semaphore, method, info, os.path.join(workdir, path), rate) for method, info, path in tasks])
         tasks = [cls.fetch_file(semaphore, method, info, os.path.join(workdir, path), rate) for method, info, path in tasks]
-        return [await fob for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks))]
+        # await asyncio.gather(*tasks)
+        # return [await fob for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks))]
+        result = []
+        for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks)):
+            res = await fob
+            # TODO: do something, may implement `Unfuture.then`
+            result.append(res)
+        return result
 
     @classmethod
     def main(cls, workdir: str, data: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5, logName: str = 'UnsyncFetch'):

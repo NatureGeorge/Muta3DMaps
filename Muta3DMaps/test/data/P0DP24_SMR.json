@@ -1,0 +1,950 @@
+{
+  "query": {
+    "ac": "P0DP24", 
+    "provider": [
+      "swissmodel"
+    ]
+  }, 
+  "result": {
+    "md5": "ebd0aa0bc77b635530a6938487b7099b", 
+    "sequence": "MADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTAK", 
+    "sequence_length": 149, 
+    "structures": [
+      {
+        "chains": {
+          "A": [
+            {
+              "smtl": {
+                "aligned_sequence": "ADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTA", 
+                "from": 2, 
+                "to": 148
+              }, 
+              "uniprot": {
+                "aligned_sequence": "ADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTA", 
+                "from": 2, 
+                "to": 148
+              }
+            }
+          ]
+        }, 
+        "coordinate_id": "5e414af08fd6f94a991eb17e", 
+        "coordinates": "https://swissmodel.expasy.org/repository/uniprot/P0DP24.pdb?range=2-148&template=3sjq.1.A&provider=swissmodel", 
+        "coverage": 0.9865771812080537, 
+        "crc64": "6B4BC3FCDE10727B", 
+        "from": 2, 
+        "gmqe": 0.7901715087, 
+        "identity": 100.0, 
+        "md5": "ebd0aa0bc77b635530a6938487b7099b", 
+        "oligo-state": "monomer", 
+        "provider": "SWISSMODEL", 
+        "qmean": 2.3797981194, 
+        "qmean_norm": 0.8994279911, 
+        "similarity": 0.602240622, 
+        "template": "3sjq.1.A", 
+        "to": 148
+      }, 
+      {
+        "chains": {
+          "A": [
+            {
+              "smtl": {
+                "aligned_sequence": "LPDQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGDGTIDFPEFLTMMARKGSYRDTEEEIREAFGVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMT", 
+                "from": 300, 
+                "to": 446
+              }, 
+              "uniprot": {
+                "aligned_sequence": "MADQLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMT", 
+                "from": 1, 
+                "to": 147
+              }
+            }
+          ]
+        }, 
+        "coordinate_id": "5e414af08fd6f94a991eb176", 
+        "coordinates": "https://swissmodel.expasy.org/repository/uniprot/P0DP24.pdb?range=1-147&template=3wlc.1.A&provider=swissmodel", 
+        "coverage": 0.9865771812080537, 
+        "crc64": "6B4BC3FCDE10727B", 
+        "from": 1, 
+        "gmqe": 0.7777349946, 
+        "identity": 93.9597320557, 
+        "md5": "ebd0aa0bc77b635530a6938487b7099b", 
+        "oligo-state": "monomer", 
+        "provider": "SWISSMODEL", 
+        "qmean": 1.7325632833, 
+        "qmean_norm": 0.8672163064, 
+        "similarity": 0.5794218183, 
+        "template": "3wlc.1.A", 
+        "to": 147
+      }, 
+      {
+        "chains": {
+          "A": [
+            {
+              "smtl": {
+                "aligned_sequence": "ELTEEQIAEFKDAFVQFDKEGTGKIATRELGTLMRTLGQNPTEAELQDLIAEAENNNNGQLNFTEFCGIMAKQMRETDTEEEMREAFKIFDRDGDGFISPAELRFVMINLGEKVTDEEIDEMIREADFDGDGMINYEEFVWMISQK", 
+                "from": 3, 
+                "to": 148
+              }, 
+              "uniprot": {
+                "aligned_sequence": "QLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTAK", 
+                "from": 4, 
+                "to": 149
+              }
+            }
+          ]
+        }, 
+        "coordinate_id": "5e414af08fd6f94a991eb16e", 
+        "coordinates": "https://swissmodel.expasy.org/repository/uniprot/P0DP24.pdb?range=4-149&template=2lmv.1.A&provider=swissmodel", 
+        "coverage": 0.9798657718120806, 
+        "crc64": "6B4BC3FCDE10727B", 
+        "from": 4, 
+        "gmqe": 0.6905734237, 
+        "identity": 67.1232910156, 
+        "md5": "ebd0aa0bc77b635530a6938487b7099b", 
+        "oligo-state": "monomer", 
+        "provider": "SWISSMODEL", 
+        "qmean": 0.1059224213, 
+        "qmean_norm": 0.7866075002, 
+        "similarity": 0.5068518519, 
+        "template": "2lmv.1.A", 
+        "to": 149
+      }, 
+      {
+        "chains": {
+          "A": [
+            {
+              "smtl": {
+                "aligned_sequence": "ELTEEQIAEFKDAFVQFDKEGTGKIATRELGTLMRTLGQNPTEAELQDLIAEAENNNNGQLNFTEFCGIMAKQMRETDTEEEMREAFKIFDRDGDGFISPAELRFVMINLGEKVTDEEIDEMIREADFDGDGMINYEEFVWMISQK", 
+                "from": 3, 
+                "to": 148
+              }, 
+              "uniprot": {
+                "aligned_sequence": "QLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTAK", 
+                "from": 4, 
+                "to": 149
+              }
+            }
+          ]
+        }, 
+        "coordinate_id": "5e414af08fd6f94a991eb172", 
+        "coordinates": "https://swissmodel.expasy.org/repository/uniprot/P0DP24.pdb?range=4-149&template=2lmu.1.A&provider=swissmodel", 
+        "coverage": 0.9798657718120806, 
+        "crc64": "6B4BC3FCDE10727B", 
+        "from": 4, 
+        "gmqe": 0.6626485623, 
+        "identity": 67.1232910156, 
+        "md5": "ebd0aa0bc77b635530a6938487b7099b", 
+        "oligo-state": "monomer", 
+        "provider": "SWISSMODEL", 
+        "qmean": -0.518044841, 
+        "qmean_norm": 0.7556440327, 
+        "similarity": 0.5068518519, 
+        "template": "2lmu.1.A", 
+        "to": 149
+      }, 
+      {
+        "chains": {
+          "A": [
+            {
+              "smtl": {
+                "aligned_sequence": "ELTEEQIAEFKDAFVQFDKEGTGKIATRELGTLMRTLGQNPTEAELQDLIAEAENNNNGQLNFTEFCGIMAKQMRETDTEEEMREAFKIFDRDGDGFISPAELRFVMINLGEKVTDEEIDEMIREADFDGDGMINYEEFVWMISQK", 
+                "from": 3, 
+                "to": 148
+              }, 
+              "uniprot": {
+                "aligned_sequence": "QLTEEQIAEFKEAFSLFDKDGDGTITTKELGTVMRSLGQNPTEAELQDMINEVDADGNGTIDFPEFLTMMARKMKDTDSEEEIREAFRVFDKDGNGYISAAELRHVMTNLGEKLTDEEVDEMIREADIDGDGQVNYEEFVQMMTAK", 
+                "from": 4, 
+                "to": 149
+              }
+            }
+          ]
+        }, 
+        "coordinate_id": "5e414af08fd6f94a991eb17a", 
+        "coordinates": "https://swissmodel.expasy.org/repository/uniprot/P0DP24.pdb?range=4-149&template=2lmt.1.A&provider=swissmodel", 
+        "coverage": 0.9798657718120806, 
+        "crc64": "6B4BC3FCDE10727B", 
+        "from": 4, 
+        "gmqe": 0.6453956867, 
+        "identity": 67.1232910156, 
+        "md5": "ebd0aa0bc77b635530a6938487b7099b", 
+        "oligo-state": "monomer", 
+        "provider": "SWISSMODEL", 
+        "qmean": -1.9059154648, 
+        "qmean_norm": 0.6867729722, 
+        "similarity": 0.5068518519, 
+        "template": "2lmt.1.A", 
+        "to": 149
+      }
+    ], 
+    "uniprot_entries": [
+      {
+        "ac": "P0DP26", 
+        "id": "CALM1_MOUSE"
+      }, 
+      {
+        "ac": "P0DP33", 
+        "id": "CALM1_XENLA"
+      }, 
+      {
+        "ac": "P0DP29", 
+        "id": "CALM1_RAT"
+      }, 
+      {
+        "ac": "P0DP23", 
+        "id": "CALM1_HUMAN"
+      }, 
+      {
+        "ac": "P0DP27", 
+        "id": "CALM2_MOUSE"
+      }, 
+      {
+        "ac": "P0DP24", 
+        "id": "CALM2_HUMAN"
+      }, 
+      {
+        "ac": "P0DP30", 
+        "id": "CALM2_RAT"
+      }, 
+      {
+        "ac": "P0DP25", 
+        "id": "CALM3_HUMAN"
+      }, 
+      {
+        "ac": "P0DP28", 
+        "id": "CALM3_MOUSE"
+      }, 
+      {
+        "ac": "P0DP31", 
+        "id": "CALM3_RAT"
+      }, 
+      {
+        "ac": "P62144", 
+        "id": "CALM_ANAPL"
+      }, 
+      {
+        "ac": "P62157", 
+        "id": "CALM_BOVIN"
+      }, 
+      {
+        "ac": "P62149", 
+        "id": "CALM_CHICK"
+      }, 
+      {
+        "ac": "Q6IT78", 
+        "id": "CALM_CTEID"
+      }, 
+      {
+        "ac": "Q6PI52", 
+        "id": "CALM_DANRE"
+      }, 
+      {
+        "ac": "P62156", 
+        "id": "CALM_ONCSP"
+      }, 
+      {
+        "ac": "Q71UH6", 
+        "id": "CALM_PERFV"
+      }, 
+      {
+        "ac": "P62160", 
+        "id": "CALM_RABIT"
+      }, 
+      {
+        "ac": "Q5RAD2", 
+        "id": "CALM_PONAB"
+      }, 
+      {
+        "ac": "Q6YNX6", 
+        "id": "CALM_SHEEP"
+      }, 
+      {
+        "ac": "P62151", 
+        "id": "CALM_TETCF"
+      }, 
+      {
+        "ac": "P0DP34", 
+        "id": "CAM2A_XENLA"
+      }, 
+      {
+        "ac": "P0DP35", 
+        "id": "CAM2B_XENLA"
+      }, 
+      {
+        "ac": "B4DJ51", 
+        "id": "B4DJ51_HUMAN"
+      }, 
+      {
+        "ac": "A0A0P6CKK9", 
+        "id": "A0A0P6CKK9_9CRUS"
+      }, 
+      {
+        "ac": "A0A191UR52", 
+        "id": "A0A191UR52_NILLU"
+      }, 
+      {
+        "ac": "A0A452E734", 
+        "id": "A0A452E734_CAPHI"
+      }, 
+      {
+        "ac": "A0A2K6CSZ2", 
+        "id": "A0A2K6CSZ2_MACNE"
+      }, 
+      {
+        "ac": "A0A0D9S2A3", 
+        "id": "A0A0D9S2A3_CHLSB"
+      }, 
+      {
+        "ac": "A0A2K6PRI8", 
+        "id": "A0A2K6PRI8_RHIRO"
+      }, 
+      {
+        "ac": "A0A2Y9JIC9", 
+        "id": "A0A2Y9JIC9_ENHLU"
+      }, 
+      {
+        "ac": "A0A2U3V018", 
+        "id": "A0A2U3V018_TURTR"
+      }, 
+      {
+        "ac": "A0A4X1SGS5", 
+        "id": "A0A4X1SGS5_PIG"
+      }, 
+      {
+        "ac": "A0A2K5Y592", 
+        "id": "A0A2K5Y592_MANLE"
+      }, 
+      {
+        "ac": "A0A2K5M4B1", 
+        "id": "A0A2K5M4B1_CERAT"
+      }, 
+      {
+        "ac": "F2Z5G3", 
+        "id": "F2Z5G3_PIG"
+      }, 
+      {
+        "ac": "A0A3Q7XW08", 
+        "id": "A0A3Q7XW08_URSAR"
+      }, 
+      {
+        "ac": "A0A341AQZ7", 
+        "id": "A0A341AQZ7_NEOAA"
+      }, 
+      {
+        "ac": "M3WQA1", 
+        "id": "M3WQA1_FELCA"
+      }, 
+      {
+        "ac": "A0A2U3YN48", 
+        "id": "A0A2U3YN48_LEPWE"
+      }, 
+      {
+        "ac": "Q2PG17", 
+        "id": "Q2PG17_MACFA"
+      }, 
+      {
+        "ac": "A0A2U3VZL3", 
+        "id": "A0A2U3VZL3_ODORO"
+      }, 
+      {
+        "ac": "G1S5B4", 
+        "id": "G1S5B4_NOMLE"
+      }, 
+      {
+        "ac": "A0A2Y9G972", 
+        "id": "A0A2Y9G972_NEOSC"
+      }, 
+      {
+        "ac": "A0A2J8W574", 
+        "id": "A0A2J8W574_PONAB"
+      }, 
+      {
+        "ac": "F7CY56", 
+        "id": "F7CY56_MONDO"
+      }, 
+      {
+        "ac": "A0A2Y9ERJ4", 
+        "id": "A0A2Y9ERJ4_PHYMC"
+      }, 
+      {
+        "ac": "A0A2Y9D7Q9", 
+        "id": "A0A2Y9D7Q9_TRIMA"
+      }, 
+      {
+        "ac": "A0A4W2I5M5", 
+        "id": "A0A4W2I5M5_BOBOX"
+      }, 
+      {
+        "ac": "E2REK6", 
+        "id": "E2REK6_CANLF"
+      }, 
+      {
+        "ac": "H2QHV8", 
+        "id": "H2QHV8_PANTR"
+      }, 
+      {
+        "ac": "A0A096NG29", 
+        "id": "A0A096NG29_PAPAN"
+      }, 
+      {
+        "ac": "A0A2Y9NRL8", 
+        "id": "A0A2Y9NRL8_DELLE"
+      }, 
+      {
+        "ac": "F7EDG2", 
+        "id": "F7EDG2_MACMU"
+      }, 
+      {
+        "ac": "F6W3Y8", 
+        "id": "F6W3Y8_CALJA"
+      }, 
+      {
+        "ac": "A0A2K5D5T0", 
+        "id": "A0A2K5D5T0_AOTNA"
+      }, 
+      {
+        "ac": "A0A1U7TWK7", 
+        "id": "A0A1U7TWK7_TARSY"
+      }, 
+      {
+        "ac": "A0A4X2L990", 
+        "id": "A0A4X2L990_VOMUR"
+      }, 
+      {
+        "ac": "G3VAM8", 
+        "id": "G3VAM8_SARHA"
+      }, 
+      {
+        "ac": "A0A384ARW3", 
+        "id": "A0A384ARW3_BALAS"
+      }, 
+      {
+        "ac": "A0A485MBQ9", 
+        "id": "A0A485MBQ9_LYNPA"
+      }, 
+      {
+        "ac": "A0A2K6F6V2", 
+        "id": "A0A2K6F6V2_PROCO"
+      }, 
+      {
+        "ac": "G3S4H0", 
+        "id": "G3S4H0_GORGO"
+      }, 
+      {
+        "ac": "A0A2K6SFW5", 
+        "id": "A0A2K6SFW5_SAIBB"
+      }, 
+      {
+        "ac": "A0A340XH15", 
+        "id": "A0A340XH15_LIPVE"
+      }, 
+      {
+        "ac": "A0A2R9BIN3", 
+        "id": "A0A2R9BIN3_PANPA"
+      }, 
+      {
+        "ac": "A0A1S3WG64", 
+        "id": "A0A1S3WG64_ERIEU"
+      }, 
+      {
+        "ac": "A0A3Q7SAF1", 
+        "id": "A0A3Q7SAF1_VULVU"
+      }, 
+      {
+        "ac": "F7BJZ4", 
+        "id": "F7BJZ4_HORSE"
+      }, 
+      {
+        "ac": "H0WZA4", 
+        "id": "H0WZA4_OTOGA"
+      }, 
+      {
+        "ac": "A0A3Q7NV23", 
+        "id": "A0A3Q7NV23_CALUR"
+      }, 
+      {
+        "ac": "A0A384CQ65", 
+        "id": "A0A384CQ65_URSMA"
+      }, 
+      {
+        "ac": "A0A2K5RSN9", 
+        "id": "A0A2K5RSN9_CEBCA"
+      }, 
+      {
+        "ac": "A0A2K6L7N7", 
+        "id": "A0A2K6L7N7_RHIBE"
+      }, 
+      {
+        "ac": "A0A2K5IEA7", 
+        "id": "A0A2K5IEA7_COLAP"
+      }, 
+      {
+        "ac": "A0A4U1FTZ5", 
+        "id": "A0A4U1FTZ5_MONMO"
+      }, 
+      {
+        "ac": "A5A6L2", 
+        "id": "A5A6L2_PANTR"
+      }, 
+      {
+        "ac": "G7P1R7", 
+        "id": "G7P1R7_MACFA"
+      }, 
+      {
+        "ac": "G1Q740", 
+        "id": "G1Q740_MYOLU"
+      }, 
+      {
+        "ac": "A0A452RQG7", 
+        "id": "A0A452RQG7_URSAM"
+      }, 
+      {
+        "ac": "M3YKW2", 
+        "id": "M3YKW2_MUSPF"
+      }, 
+      {
+        "ac": "A0A5E4BDE4", 
+        "id": "A0A5E4BDE4_MARMO"
+      }, 
+      {
+        "ac": "B2ZPE9", 
+        "id": "B2ZPE9_CAVPO"
+      }, 
+      {
+        "ac": "A0A1S3F2T9", 
+        "id": "A0A1S3F2T9_DIPOR"
+      }, 
+      {
+        "ac": "I3NFJ8", 
+        "id": "I3NFJ8_ICTTR"
+      }, 
+      {
+        "ac": "E3VX40", 
+        "id": "E3VX40_HETGA"
+      }, 
+      {
+        "ac": "A0A061HUH1", 
+        "id": "A0A061HUH1_CRIGR"
+      }, 
+      {
+        "ac": "E3VX39", 
+        "id": "E3VX39_9HYST"
+      }, 
+      {
+        "ac": "A0A1U7QQW6", 
+        "id": "A0A1U7QQW6_MESAU"
+      }, 
+      {
+        "ac": "A0A250YA62", 
+        "id": "A0A250YA62_CASCN"
+      }, 
+      {
+        "ac": "A0A1A6HLJ1", 
+        "id": "A0A1A6HLJ1_NEOLE"
+      }, 
+      {
+        "ac": "A0A146N4N9", 
+        "id": "A0A146N4N9_FUNHE"
+      }, 
+      {
+        "ac": "A0A4W5QA72", 
+        "id": "A0A4W5QA72_9TELE"
+      }, 
+      {
+        "ac": "W5L960", 
+        "id": "W5L960_ASTMX"
+      }, 
+      {
+        "ac": "A0A1L8G5X8", 
+        "id": "A0A1L8G5X8_XENLA"
+      }, 
+      {
+        "ac": "A0A3B4WLB8", 
+        "id": "A0A3B4WLB8_SERLL"
+      }, 
+      {
+        "ac": "A0A3Q2XL56", 
+        "id": "A0A3Q2XL56_HIPCM"
+      }, 
+      {
+        "ac": "A0A4D9DYU1", 
+        "id": "A0A4D9DYU1_9SAUR"
+      }, 
+      {
+        "ac": "H3AD08", 
+        "id": "H3AD08_LATCH"
+      }, 
+      {
+        "ac": "A0A3P9CQ56", 
+        "id": "A0A3P9CQ56_9CICH"
+      }, 
+      {
+        "ac": "A0A3Q3LCL8", 
+        "id": "A0A3Q3LCL8_9TELE"
+      }, 
+      {
+        "ac": "A0A098M1E8", 
+        "id": "A0A098M1E8_9SAUR"
+      }, 
+      {
+        "ac": "A0A3S2NQM1", 
+        "id": "A0A3S2NQM1_ORYJA"
+      }, 
+      {
+        "ac": "A0A3P8Q4I2", 
+        "id": "A0A3P8Q4I2_ASTCA"
+      }, 
+      {
+        "ac": "I3KTV9", 
+        "id": "I3KTV9_ORENI"
+      }, 
+      {
+        "ac": "A0A3Q1AMI9", 
+        "id": "A0A3Q1AMI9_AMPOC"
+      }, 
+      {
+        "ac": "E3TEM4", 
+        "id": "E3TEM4_ICTPU"
+      }, 
+      {
+        "ac": "H3CQN4", 
+        "id": "H3CQN4_TETNG"
+      }, 
+      {
+        "ac": "H2S6Q5", 
+        "id": "H2S6Q5_TAKRU"
+      }, 
+      {
+        "ac": "C1BF07", 
+        "id": "C1BF07_ONCMY"
+      }, 
+      {
+        "ac": "A0A0B8RUY5", 
+        "id": "A0A0B8RUY5_BOIIR"
+      }, 
+      {
+        "ac": "M4A4G2", 
+        "id": "M4A4G2_XIPMA"
+      }, 
+      {
+        "ac": "A0A3Q3C1F7", 
+        "id": "A0A3Q3C1F7_HAPBU"
+      }, 
+      {
+        "ac": "A0A3P9QIB1", 
+        "id": "A0A3P9QIB1_POERE"
+      }, 
+      {
+        "ac": "A0A1D0A1I9", 
+        "id": "A0A1D0A1I9_THUOR"
+      }, 
+      {
+        "ac": "A0A452I781", 
+        "id": "A0A452I781_9SAUR"
+      }, 
+      {
+        "ac": "A0A0Q3ZXL6", 
+        "id": "A0A0Q3ZXL6_ALLMI"
+      }, 
+      {
+        "ac": "A0A3B4BN09", 
+        "id": "A0A3B4BN09_PYGNA"
+      }, 
+      {
+        "ac": "B5G1M2", 
+        "id": "B5G1M2_TAEGU"
+      }, 
+      {
+        "ac": "A0A1A7YEM6", 
+        "id": "A0A1A7YEM6_9TELE"
+      }, 
+      {
+        "ac": "E3TBQ9", 
+        "id": "E3TBQ9_ICTFU"
+      }, 
+      {
+        "ac": "A0A0E9WSY4", 
+        "id": "A0A0E9WSY4_ANGAN"
+      }, 
+      {
+        "ac": "Q6DN21", 
+        "id": "Q6DN21_CARAU"
+      }, 
+      {
+        "ac": "A0A0S7GNG3", 
+        "id": "A0A0S7GNG3_9TELE"
+      }, 
+      {
+        "ac": "A0A087XTZ7", 
+        "id": "A0A087XTZ7_POEFO"
+      }, 
+      {
+        "ac": "T1DNN1", 
+        "id": "T1DNN1_CROHD"
+      }, 
+      {
+        "ac": "C3KHP2", 
+        "id": "C3KHP2_ANOFI"
+      }, 
+      {
+        "ac": "A0A1A8KMX3", 
+        "id": "A0A1A8KMX3_NOTKU"
+      }, 
+      {
+        "ac": "A0A3B4YXF3", 
+        "id": "A0A3B4YXF3_9TELE"
+      }, 
+      {
+        "ac": "A0A218UNS9", 
+        "id": "A0A218UNS9_9PASE"
+      }, 
+      {
+        "ac": "A0A1A8LPN2", 
+        "id": "A0A1A8LPN2_9TELE"
+      }, 
+      {
+        "ac": "A0A3P8RS58", 
+        "id": "A0A3P8RS58_AMPPE"
+      }, 
+      {
+        "ac": "A0A1A8NRH1", 
+        "id": "A0A1A8NRH1_9TELE"
+      }, 
+      {
+        "ac": "A0A3Q1IAP3", 
+        "id": "A0A3Q1IAP3_ANATE"
+      }, 
+      {
+        "ac": "G1KCV2", 
+        "id": "G1KCV2_ANOCA"
+      }, 
+      {
+        "ac": "J3RYM0", 
+        "id": "J3RYM0_CROAD"
+      }, 
+      {
+        "ac": "C1BXR9", 
+        "id": "C1BXR9_ESOLU"
+      }, 
+      {
+        "ac": "A0A3Q3KBY3", 
+        "id": "A0A3Q3KBY3_MONAL"
+      }, 
+      {
+        "ac": "A0A1A8AKT8", 
+        "id": "A0A1A8AKT8_NOTFU"
+      }, 
+      {
+        "ac": "A0A3B3UYQ7", 
+        "id": "A0A3B3UYQ7_9TELE"
+      }, 
+      {
+        "ac": "B5DGN6", 
+        "id": "B5DGN6_SALSA"
+      }, 
+      {
+        "ac": "A0A3Q1G802", 
+        "id": "A0A3Q1G802_9TELE"
+      }, 
+      {
+        "ac": "A0A3B4H753", 
+        "id": "A0A3B4H753_9CICH"
+      }, 
+      {
+        "ac": "A0A1A8FNE8", 
+        "id": "A0A1A8FNE8_9TELE"
+      }, 
+      {
+        "ac": "Q641J7", 
+        "id": "Q641J7_XENTR"
+      }, 
+      {
+        "ac": "A0A1W7RIT4", 
+        "id": "A0A1W7RIT4_AGKCO"
+      }, 
+      {
+        "ac": "U3FXC9", 
+        "id": "U3FXC9_MICFL"
+      }, 
+      {
+        "ac": "A0A3Q3A6B6", 
+        "id": "A0A3Q3A6B6_KRYMA"
+      }, 
+      {
+        "ac": "A0A3P9HL06", 
+        "id": "A0A3P9HL06_ORYLA"
+      }, 
+      {
+        "ac": "A0A4W6FCX1", 
+        "id": "A0A4W6FCX1_LATCA"
+      }, 
+      {
+        "ac": "A0A3B3XYZ4", 
+        "id": "A0A3B3XYZ4_9TELE"
+      }, 
+      {
+        "ac": "I6L4R5", 
+        "id": "I6L4R5_ORYLA"
+      }, 
+      {
+        "ac": "A0A3Q4GZV1", 
+        "id": "A0A3Q4GZV1_NEOBR"
+      }, 
+      {
+        "ac": "W5NCF3", 
+        "id": "W5NCF3_LEPOC"
+      }, 
+      {
+        "ac": "A0A3B3C428", 
+        "id": "A0A3B3C428_ORYME"
+      }, 
+      {
+        "ac": "A0A3B4T2N9", 
+        "id": "A0A3B4T2N9_SERDU"
+      }, 
+      {
+        "ac": "A0A3B3SEE3", 
+        "id": "A0A3B3SEE3_9TELE"
+      }, 
+      {
+        "ac": "A0A3Q2EG10", 
+        "id": "A0A3Q2EG10_CYPVA"
+      }, 
+      {
+        "ac": "A0A1A8DS22", 
+        "id": "A0A1A8DS22_9TELE"
+      }, 
+      {
+        "ac": "A0A2I4CCV5", 
+        "id": "A0A2I4CCV5_9TELE"
+      }, 
+      {
+        "ac": "A0A484DHA8", 
+        "id": "A0A484DHA8_PERFV"
+      }, 
+      {
+        "ac": "A0A4W4GGH3", 
+        "id": "A0A4W4GGH3_ELEEL"
+      }, 
+      {
+        "ac": "G3NN97", 
+        "id": "G3NN97_GASAC"
+      }, 
+      {
+        "ac": "A0A553MWG2", 
+        "id": "A0A553MWG2_9TELE"
+      }, 
+      {
+        "ac": "A0A1V4JJM9", 
+        "id": "A0A1V4JJM9_PATFA"
+      }, 
+      {
+        "ac": "A0A3L8SYE2", 
+        "id": "A0A3L8SYE2_CHLGU"
+      }, 
+      {
+        "ac": "A0A3P8UJU4", 
+        "id": "A0A3P8UJU4_CYNSE"
+      }, 
+      {
+        "ac": "A0A2I0MAG2", 
+        "id": "A0A2I0MAG2_COLLI"
+      }, 
+      {
+        "ac": "A0A2U9CFE0", 
+        "id": "A0A2U9CFE0_SCOMX"
+      }, 
+      {
+        "ac": "A0A2D4P974", 
+        "id": "A0A2D4P974_MICSU"
+      }, 
+      {
+        "ac": "A0A444UYD9", 
+        "id": "A0A444UYD9_ACIRT"
+      }, 
+      {
+        "ac": "A0A3Q3NKC6", 
+        "id": "A0A3Q3NKC6_9LABR"
+      }, 
+      {
+        "ac": "U3KED5", 
+        "id": "U3KED5_FICAL"
+      }, 
+      {
+        "ac": "B2GQW3", 
+        "id": "B2GQW3_DANRE"
+      }, 
+      {
+        "ac": "A0A5J5CXN1", 
+        "id": "A0A5J5CXN1_9PERO"
+      }, 
+      {
+        "ac": "F8K8M6", 
+        "id": "F8K8M6_PLEAT"
+      }, 
+      {
+        "ac": "A0A0N8JZD2", 
+        "id": "A0A0N8JZD2_SCLFO"
+      }, 
+      {
+        "ac": "A0A096X8F3", 
+        "id": "A0A096X8F3_EPICO"
+      }, 
+      {
+        "ac": "A0A401NX80", 
+        "id": "A0A401NX80_SCYTO"
+      }, 
+      {
+        "ac": "A0A493T2L6", 
+        "id": "A0A493T2L6_ANAPP"
+      }, 
+      {
+        "ac": "C1BIN0", 
+        "id": "C1BIN0_OSMMO"
+      }, 
+      {
+        "ac": "A0A288HLC4", 
+        "id": "A0A288HLC4_ANSCY"
+      }, 
+      {
+        "ac": "B5AS02", 
+        "id": "B5AS02_SEBMA"
+      }, 
+      {
+        "ac": "A0A4Z2C6E4", 
+        "id": "A0A4Z2C6E4_9TELE"
+      }, 
+      {
+        "ac": "C0IUY0", 
+        "id": "C0IUY0_PAROL"
+      }, 
+      {
+        "ac": "S4REK4", 
+        "id": "S4REK4_PETMA"
+      }, 
+      {
+        "ac": "A0A402EPE1", 
+        "id": "A0A402EPE1_9SAUR"
+      }, 
+      {
+        "ac": "F5BZM5", 
+        "id": "F5BZM5_EPIBR"
+      }, 
+      {
+        "ac": "A0A4W3JGS5", 
+        "id": "A0A4W3JGS5_CALMI"
+      }, 
+      {
+        "ac": "C1C4P2", 
+        "id": "C1C4P2_LITCT"
+      }, 
+      {
+        "ac": "D7R0S8", 
+        "id": "D7R0S8_9CHON"
+      }, 
+      {
+        "ac": "J7FIR8", 
+        "id": "J7FIR8_OPLFA"
+      }
+    ]
+  }
+}

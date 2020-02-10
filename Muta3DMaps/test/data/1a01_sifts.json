@@ -1,0 +1,102 @@
+{
+    "1a01": {
+        "UniProt": {
+            "P68871": {
+                "identifier": "HBB_HUMAN",
+                "name": "HBB_HUMAN",
+                "mappings": [
+                    {
+                        "entity_id": 2,
+                        "end": {
+                            "author_residue_number": 146,
+                            "author_insertion_code": "",
+                            "residue_number": 146
+                        },
+                        "chain_id": "B",
+                        "pdb_start": 1,
+                        "start": {
+                            "author_residue_number": 1,
+                            "author_insertion_code": "",
+                            "residue_number": 1
+                        },
+                        "unp_end": 147,
+                        "pdb_end": 146,
+                        "struct_asym_id": "B",
+                        "unp_start": 2,
+                        "is_canonical": true,
+                        "identity": 0.986
+                    },
+                    {
+                        "entity_id": 2,
+                        "end": {
+                            "author_residue_number": 146,
+                            "author_insertion_code": "",
+                            "residue_number": 146
+                        },
+                        "chain_id": "D",
+                        "pdb_start": 1,
+                        "start": {
+                            "author_residue_number": 1,
+                            "author_insertion_code": "",
+                            "residue_number": 1
+                        },
+                        "unp_end": 147,
+                        "pdb_end": 146,
+                        "struct_asym_id": "D",
+                        "unp_start": 2,
+                        "is_canonical": true,
+                        "identity": 0.986
+                    }
+                ]
+            },
+            "P69905": {
+                "identifier": "HBA_HUMAN",
+                "name": "HBA_HUMAN",
+                "mappings": [
+                    {
+                        "entity_id": 1,
+                        "end": {
+                            "author_residue_number": 141,
+                            "author_insertion_code": "",
+                            "residue_number": 141
+                        },
+                        "chain_id": "A",
+                        "pdb_start": 1,
+                        "start": {
+                            "author_residue_number": 1,
+                            "author_insertion_code": "",
+                            "residue_number": 1
+                        },
+                        "unp_end": 142,
+                        "pdb_end": 141,
+                        "struct_asym_id": "A",
+                        "unp_start": 2,
+                        "is_canonical": true,
+                        "identity": 1
+                    },
+                    {
+                        "entity_id": 1,
+                        "end": {
+                            "author_residue_number": 141,
+                            "author_insertion_code": "",
+                            "residue_number": 141
+                        },
+                        "chain_id": "C",
+                        "pdb_start": 1,
+                        "start": {
+                            "author_residue_number": 1,
+                            "author_insertion_code": "",
+                            "residue_number": 1
+                        },
+                        "unp_end": 142,
+                        "pdb_end": 141,
+                        "struct_asym_id": "C",
+                        "unp_start": 2,
+                        "is_canonical": true,
+                        "identity": 1
+                    }
+                ]
+            }
+        }
+    }
+}
