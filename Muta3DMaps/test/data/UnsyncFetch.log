@@ -625,3 +625,433 @@
 2020-02-09 22:36:21,545 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
 2020-02-09 22:36:22,672 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
 2020-02-09 22:36:24,184 UnsyncFetch INFO downloaded in 35.072559999999996s
+2020-02-10 12:22:16,958 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:22:16,961 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:22:16,988 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:22:16,989 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:22:16,989 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:22:16,990 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:22:16,991 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:22:16,992 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:22:16,994 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:22:18,127 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:22:18,134 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:22:18,136 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:22:18,147 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:22:18,393 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:22:18,394 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:22:19,229 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:22:19,231 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:22:19,240 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:22:19,526 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:22:19,636 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:22:19,637 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:22:21,019 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:22:34,001 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:22:35,511 UnsyncFetch INFO downloaded in 18.552804000000002s
+2020-02-10 12:23:51,167 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:23:51,170 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:23:51,203 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:23:51,204 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:23:51,204 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:23:51,204 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:23:51,205 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:23:51,205 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:23:51,206 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:23:52,328 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:23:52,329 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:23:52,338 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:23:52,344 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:23:52,346 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:23:52,354 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:23:53,465 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:23:53,802 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:23:53,834 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:23:53,853 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:23:55,282 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:23:55,556 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:23:56,248 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:23:58,981 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:24:00,474 UnsyncFetch INFO downloaded in 9.307639600000002s
+2020-02-10 12:24:40,523 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:24:40,527 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:24:40,560 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:24:40,561 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:24:40,563 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:24:40,565 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:24:40,566 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:24:40,567 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:24:40,567 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:24:41,695 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:24:41,696 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:24:41,728 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:24:43,194 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:24:43,196 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:24:43,220 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:24:43,252 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:24:43,656 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:24:44,610 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:24:45,346 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:24:45,406 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:24:46,117 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:24:53,132 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:24:54,171 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 13.609(s), this was the 1st time calling it.
+2020-02-10 12:24:54,602 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:24:59,188 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:25:00,690 UnsyncFetch INFO downloaded in 20.1661301s
+2020-02-10 12:25:55,785 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:25:55,788 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:25:55,815 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:25:55,815 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:25:55,816 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:25:55,816 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:25:55,818 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:25:55,819 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:25:55,820 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:25:56,948 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:25:56,953 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:25:56,980 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:25:57,936 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:25:57,937 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:25:58,449 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:25:58,450 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:25:59,069 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:25:59,450 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:25:59,996 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:26:01,061 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:26:01,082 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:26:16,497 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:30:41,893 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:30:41,895 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:30:41,923 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:30:41,923 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:30:41,924 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:30:41,925 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:30:41,925 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:30:41,925 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:30:41,926 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:30:43,063 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:30:43,070 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:30:43,346 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:30:43,347 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:30:43,363 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:30:44,060 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:30:44,478 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:30:44,573 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:30:44,573 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:30:45,020 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:30:45,024 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:30:45,295 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:30:45,700 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:31:44,852 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 60.281(s), this was the 1st time calling it.
+2020-02-10 12:31:45,221 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:31:46,647 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:32:36,138 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:32:36,141 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:32:36,166 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:32:36,167 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:32:36,168 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:32:36,168 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:32:36,169 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:32:36,169 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:32:36,169 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:32:37,476 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:32:37,481 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:32:37,484 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:32:37,488 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:32:37,489 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:32:37,496 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:32:37,758 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:32:38,628 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:32:38,635 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:32:38,636 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:32:38,975 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:32:38,976 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:32:40,113 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:32:41,167 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:32:42,663 UnsyncFetch INFO downloaded in 6.524248099999999s
+2020-02-10 12:36:37,349 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:36:37,352 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:36:37,377 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:36:37,377 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:36:37,378 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:36:37,379 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:36:37,380 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:36:37,381 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:36:37,381 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:36:38,509 UnsyncFetch DEBUG Start to save file: ./data/2xyn_molecules.json
+2020-02-10 12:36:38,512 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:36:38,782 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:36:38,783 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:36:38,790 UnsyncFetch DEBUG Start to save file: ./data/3g96_molecules.json
+2020-02-10 12:36:38,793 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:36:38,796 UnsyncFetch DEBUG Start to save file: ./data/6lu7_molecules.json
+2020-02-10 12:36:38,799 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:36:40,014 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:36:40,281 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:36:41,151 UnsyncFetch DEBUG Start to save file: ./data/1a01_residue_listing.json
+2020-02-10 12:36:41,153 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:36:42,090 UnsyncFetch DEBUG Start to save file: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:36:42,091 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:36:42,266 UnsyncFetch DEBUG Start to save file: ./data/2hev_molecules.json
+2020-02-10 12:36:42,270 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:36:43,432 UnsyncFetch DEBUG Start to save file: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:36:43,434 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:36:45,661 UnsyncFetch DEBUG Start to save file: ./data/1miu_molecules.json
+2020-02-10 12:36:45,663 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:36:51,671 UnsyncFetch DEBUG Start to save file: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:36:51,674 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:37:37,684 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 60.297(s), this was the 1st time calling it.
+2020-02-10 12:37:37,735 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:37:41,989 UnsyncFetch DEBUG Start to save file: ./data/1a01_molecules.json
+2020-02-10 12:37:41,990 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:37:43,490 UnsyncFetch INFO downloaded in 66.1412476s
+2020-02-10 12:39:45,382 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:39:45,386 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:39:45,423 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:39:45,424 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:39:45,425 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:39:45,426 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:39:45,427 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:39:45,428 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:39:45,429 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:39:46,560 UnsyncFetch DEBUG Start to save file: ./data/1a01_molecules.json
+2020-02-10 12:39:46,563 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:39:46,572 UnsyncFetch DEBUG Start to save file: ./data/2hev_molecules.json
+2020-02-10 12:39:46,573 UnsyncFetch DEBUG Start to save file: ./data/1miu_molecules.json
+2020-02-10 12:39:46,576 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:39:46,576 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:39:46,578 UnsyncFetch DEBUG Start to save file: ./data/6lu7_molecules.json
+2020-02-10 12:39:46,580 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:39:46,600 UnsyncFetch DEBUG Start to save file: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:39:46,602 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:39:48,063 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:39:48,064 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:39:48,065 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:39:49,878 UnsyncFetch DEBUG Start to save file: ./data/2xyn_molecules.json
+2020-02-10 12:39:49,880 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:39:51,567 UnsyncFetch DEBUG Start to save file: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:39:51,569 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:39:51,835 UnsyncFetch DEBUG Start to save file: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:39:51,838 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:39:52,327 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:39:55,290 UnsyncFetch DEBUG Start to save file: ./data/3g96_molecules.json
+2020-02-10 12:39:55,292 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:39:55,885 UnsyncFetch DEBUG Start to save file: ./data/1a01_residue_listing.json
+2020-02-10 12:39:55,887 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:39:57,374 UnsyncFetch INFO downloaded in 11.9906666s
+2020-02-10 12:40:54,986 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:40:54,989 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:40:55,018 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:40:55,020 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:40:55,020 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:40:55,022 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:40:55,023 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:40:55,023 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:40:55,023 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:40:56,175 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:40:56,179 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:40:56,179 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:40:56,181 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:40:56,188 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:40:57,166 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:40:57,674 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:40:57,675 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:40:57,675 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:40:58,242 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:40:58,799 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:40:58,801 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:40:58,831 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:41:02,984 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:41:02,988 UnsyncFetch INFO downloaded in 8.001332900000001s
+2020-02-10 12:42:12,011 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 12:42:12,014 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:42:12,045 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 12:42:12,046 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 12:42:12,046 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 12:42:12,047 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 12:42:12,047 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 12:42:12,047 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 12:42:12,048 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 12:42:13,181 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 12:42:13,182 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 12:42:13,478 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 12:42:13,478 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 12:42:14,025 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 12:42:14,303 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 12:42:14,315 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 12:42:14,316 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 12:42:14,340 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 12:42:14,680 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 12:42:14,972 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 12:42:14,972 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 12:42:17,215 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 12:42:17,991 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 12:42:19,491 UnsyncFetch INFO downloaded in 7.479339899999999s
+2020-02-10 13:02:06,242 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 13:02:06,245 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:02:06,273 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:02:06,274 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:02:06,275 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:02:06,275 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:02:06,276 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:02:06,276 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 13:02:06,277 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:02:07,496 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:02:07,498 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:02:08,277 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 13:02:08,311 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 13:02:08,317 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 13:02:08,320 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 13:02:08,595 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 13:02:08,631 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 13:02:08,876 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 13:02:09,592 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 13:02:09,764 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:02:09,814 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:02:12,570 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 13:02:15,027 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 13:02:16,521 UnsyncFetch INFO downloaded in 10.2793709s
+2020-02-10 13:12:09,458 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 13:12:09,461 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:12:09,488 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:12:09,489 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:12:09,489 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:12:09,490 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:12:09,490 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:12:09,491 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 13:12:09,491 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:12:10,812 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 13:12:10,838 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 13:12:10,839 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 13:12:11,700 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:12:11,701 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:12:12,125 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 13:12:12,161 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 13:12:12,321 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:12:12,322 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:12:13,150 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 13:12:14,190 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 13:12:15,459 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 13:12:15,543 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 13:12:17,200 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 13:12:18,718 UnsyncFetch INFO downloaded in 9.2597192s
+2020-02-10 13:16:05,857 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 13:16:05,860 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:16:05,891 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:16:05,892 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:16:05,892 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:16:05,893 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:16:05,893 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:16:05,894 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 13:16:05,895 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:16:07,034 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:16:07,035 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:16:07,059 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 1.156(s), this was the 1st time calling it.
+2020-02-10 13:16:07,324 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 1.422(s), this was the 1st time calling it.
+2020-02-10 13:16:07,640 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:16:08,108 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:16:08,173 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 1.141(s), this was the 1st time calling it.
+2020-02-10 13:16:08,888 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:16:09,221 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 3.328(s), this was the 2nd time calling it.
+2020-02-10 13:16:09,266 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:16:10,042 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 4.140(s), this was the 2nd time calling it.
+2020-02-10 13:16:10,393 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 4.500(s), this was the 3rd time calling it.
+2020-02-10 13:16:10,393 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:16:10,394 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:16:10,610 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:16:10,647 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 4.750(s), this was the 1st time calling it.
+2020-02-10 13:16:10,648 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 4.750(s), this was the 1st time calling it.
+2020-02-10 13:16:10,650 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 4.750(s), this was the 1st time calling it.
+2020-02-10 13:16:10,950 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:16:11,537 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:16:11,541 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 1.140(s), this was the 1st time calling it.
+2020-02-10 13:16:11,578 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:16:11,578 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:16:12,690 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 6.797(s), this was the 2nd time calling it.
+2020-02-10 13:16:12,715 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 2.312(s), this was the 2nd time calling it.
+2020-02-10 13:16:12,726 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:16:13,155 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 6.125(s), this was the 2nd time calling it.
+2020-02-10 13:16:13,749 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:16:13,833 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 7.937(s), this was the 3rd time calling it.
+2020-02-10 13:16:13,833 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:16:13,833 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:16:13,840 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 7.937(s), this was the 3rd time calling it.
+2020-02-10 13:16:13,840 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:16:14,113 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 8.218(s), this was the 1st time calling it.
+2020-02-10 13:16:14,164 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:16:14,957 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 1.125(s), this was the 1st time calling it.
+2020-02-10 13:16:15,048 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:16:15,070 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:16:17,581 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 11.687(s), this was the 2nd time calling it.
+2020-02-10 13:16:17,823 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 7.422(s), this was the 3rd time calling it.
+2020-02-10 13:16:17,823 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:16:18,832 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 5.000(s), this was the 2nd time calling it.
+2020-02-10 13:16:19,013 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:16:19,041 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:16:20,168 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 14.265(s), this was the 2nd time calling it.
+2020-02-10 13:16:20,368 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 13.328(s), this was the 3rd time calling it.
+2020-02-10 13:16:20,368 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:16:20,417 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 14.515(s), this was the 3rd time calling it.
+2020-02-10 13:16:20,418 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:16:21,397 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:16:22,545 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 8.719(s), this was the 3rd time calling it.
+2020-02-10 13:16:22,545 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:16:23,192 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 17.297(s), this was the 2nd time calling it.
+2020-02-10 13:16:25,185 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:17:10,440 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 13:17:10,444 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:17:10,475 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:17:10,476 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:17:10,477 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:17:10,477 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:17:10,477 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:17:10,478 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 13:17:10,478 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:17:11,614 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 13:17:11,615 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 13:17:11,616 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 13:17:11,619 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 13:17:11,630 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 13:17:13,114 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:17:13,114 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:17:13,114 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:17:13,666 UnsyncFetch WARNING 404/405 for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:17:13,847 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 13:17:13,848 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 13:17:14,236 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 13:17:14,247 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 13:17:14,521 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 13:17:16,018 UnsyncFetch INFO downloaded in 5.5771605s
+2020-02-10 13:33:56,804 UnsyncFetch INFO Logging file in ./data/UnsyncFetch.log
+2020-02-10 13:33:56,808 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:33:56,834 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1a01'}
+2020-02-10 13:33:56,834 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2xyn'}
+2020-02-10 13:33:56,835 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/1miu'}
+2020-02-10 13:33:56,835 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/2hev'}
+2020-02-10 13:33:56,836 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/3g96'}
+2020-02-10 13:33:56,836 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/6lu7'}
+2020-02-10 13:33:56,837 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '6lu7,3g96,2hev'}
+2020-02-10 13:33:58,008 UnsyncFetch DEBUG File has been saved in: ./data/1a01_molecules.json
+2020-02-10 13:33:58,013 UnsyncFetch ERROR code=405, message=Method Not Allowed, headers=<CIMultiDictProxy('Server': 'Apache/2.2.15 (Red Hat)', 'Vary': 'Accept-Encoding', 'Content-Type': 'text/html; charset=UTF-8', 'Content-Encoding': 'gzip', 'Strict-Transport-Security': 'max-age=0', 'Date': 'Mon, 10 Feb 2020 05:33:54 GMT', 'Access-Control-Allow-Origin': '*', 'Allow': 'POST', 'Content-Length': '391')>
+2020-02-10 13:33:58,014 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 1.219(s), this was the 1st time calling it.
+2020-02-10 13:33:58,022 UnsyncFetch DEBUG File has been saved in: ./data/1miu_molecules.json
+2020-02-10 13:33:58,026 UnsyncFetch DEBUG File has been saved in: ./data/3g96_molecules.json
+2020-02-10 13:33:58,027 UnsyncFetch DEBUG File has been saved in: ./data/2xyn_molecules.json
+2020-02-10 13:33:58,174 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:33:59,009 UnsyncFetch DEBUG File has been saved in: ./data/6lu7_molecules.json
+2020-02-10 13:33:59,015 UnsyncFetch DEBUG File has been saved in: ./data/2hev_molecules.json
+2020-02-10 13:33:59,286 UnsyncFetch ERROR code=405, message=Method Not Allowed, headers=<CIMultiDictProxy('Server': 'Apache/2.2.15 (Red Hat)', 'Vary': 'Accept-Encoding', 'Content-Type': 'text/html; charset=UTF-8', 'Content-Encoding': 'gzip', 'Strict-Transport-Security': 'max-age=0', 'Date': 'Mon, 10 Feb 2020 05:33:56 GMT', 'Access-Control-Allow-Origin': '*', 'Allow': 'POST', 'Content-Length': '391')>
+2020-02-10 13:33:59,287 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 2.484(s), this was the 2nd time calling it.
+2020-02-10 13:33:59,446 UnsyncFetch DEBUG File has been saved in: ./data/6lu7,3g96,2hev_summary.json
+2020-02-10 13:33:59,509 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/', 'data': '1a01,2xyn,1miu'}
+2020-02-10 13:33:59,528 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/residue_listing/1a01'}
+2020-02-10 13:33:59,528 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}
+2020-02-10 13:34:00,157 UnsyncFetch DEBUG Start to download file: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:34:00,647 UnsyncFetch DEBUG File has been saved in: ./data/1a01,2xyn,1miu_summary.json
+2020-02-10 13:34:02,358 UnsyncFetch ERROR code=405, message=Method Not Allowed, headers=<CIMultiDictProxy('Server': 'Apache/2.2.15 (Red Hat)', 'Vary': 'Accept-Encoding', 'Content-Type': 'text/html; charset=UTF-8', 'Content-Encoding': 'gzip', 'Strict-Transport-Security': 'max-age=0', 'Date': 'Mon, 10 Feb 2020 05:33:59 GMT', 'Access-Control-Allow-Origin': '*', 'Allow': 'POST', 'Content-Length': '391')>
+2020-02-10 13:34:02,358 UnsyncFetch WARNING Finished call to 'Muta3DMaps.core.retrieve.fetchFiles.UnsyncFetch.download_file' after 5.562(s), this was the 3rd time calling it.
+2020-02-10 13:34:02,359 UnsyncFetch ERROR Retry failed for: {'url': 'https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/', 'params': '1a01'}
+2020-02-10 13:34:04,310 UnsyncFetch DEBUG File has been saved in: ./data/1a01,pppp,2xyn_status.json
+2020-02-10 13:34:04,399 UnsyncFetch DEBUG File has been saved in: ./data/1a01_residue_listing.json
+2020-02-10 13:34:05,893 UnsyncFetch INFO downloaded in 9.08754s

@@ -23,17 +23,34 @@ class UnsyncFetch(object):
     Note:
 
     * Implement both GET and POST method
-    * Since the methods in this class would not load all the response data in memory,
+    * Load all the available data(stream) in memory as soon as it is received
+    * Since the methods in this class would not load the entire file in memory,
       the response data could be a large file
     * Parameters of `tenacity.retry` is built-in
-    * Reference: https://docs.aiohttp.org/en/stable/client_quickstart.html
+    
+    Reference (following packages provide me with a lot of insights and inspiration)
+
+        aiohttp
+
+        * https://github.com/aio-libs/aiohttp
+        * https://docs.aiohttp.org/en/stable/client_quickstart.html
+        * https://docs.aiohttp.org/en/stable/streams.html
+
+        unsync
+
+        * https://github.com/alex-sherman/unsync
+
+        tenacity
+
+        * https://github.com/jd/tenacity
+        * https://tenacity.readthedocs.io/en/latest/
     '''
 
     logger = logging.getLogger("UnsyncFetch"); logger.setLevel(logging.DEBUG)
     streamHandler = logging.StreamHandler(); streamHandler.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"); streamHandler.setFormatter(formatter)
     logger.addHandler(streamHandler)
-    
+
     retry_kwargs = {
         'wait': wait_random_exponential(multiplier=1, max=15),
         'stop': stop_after_attempt(3),
@@ -52,17 +69,16 @@ class UnsyncFetch(object):
 
     @classmethod
     @retry(**retry_kwargs)
-    async def download_file(cls, method: str, info: Dict, path: str, chunk_size: int = 1024*1024):
+    async def download_file(cls, method: str, info: Dict, path: str) -> Optional[str]:
         cls.logger.debug(f"Start to download file: {info}")
         async with aiohttp.ClientSession() as session:
             async_func = getattr(session, method)
             async with async_func(**info) as resp:
                 if resp.status == 200:
-                    chunk = await resp.content.read(chunk_size)
-                    with open(path, 'wb') as fileOb:
-                        while chunk:
-                            fileOb.write(chunk)
-                            chunk = await resp.content.read(chunk_size)
+                    async with aiofiles.open(path, 'wb') as fileOb:
+                        # Asynchronous iterator implementation of readany()
+                        async for chunk in resp.content.iter_any():
+                            await fileOb.write(chunk)
                     cls.logger.debug(f"File has been saved in: {path}")
                     return path
                 elif resp.status in (404, 405):
@@ -77,7 +93,6 @@ class UnsyncFetch(object):
     @unsync
     async def save_file(cls, path: str, data: bytes):
         '''Deprecated'''
-        cls.logger.debug(f"Start to save file: {path}")
         async with aiofiles.open(path, 'wb') as fileOb:
             await fileOb.write(data)
 
@@ -92,25 +107,6 @@ class UnsyncFetch(object):
                 return res
         except RetryError:
             cls.logger.error(f"Retry failed for: {info}")
-    '''
-    @classmethod
-    @unsync
-    async def fetch_file(cls, semaphore: asyncio.Semaphore, method: str, info: Dict, path: str, rate: float) -> Optional[str]:
-        try:
-            async with semaphore:
-                async with aiofiles.open(path, 'wb') as fileOb:
-                    async for chunk in cls.download_file(method, info):
-                        if chunk is None:
-                            cls.logger.warning(f"404/405 for: {info}")
-                            return None
-                        else:
-                            await fileOb.write(chunk)
-                cls.logger.debug(f"File has been saved in: {path}")
-                await asyncio.sleep(rate)
-                return path
-        except RetryError:
-            cls.logger.error(f"Retry failed for: {info}")
-    '''
 
     @classmethod
     @unsync
