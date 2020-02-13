@@ -9,7 +9,7 @@ from time import perf_counter
 import asyncio
 import aiohttp
 import aiofiles
-from unsync import unsync
+from unsync import unsync, Unfuture
 from tenacity import retry, wait_random_exponential, stop_after_attempt, after_log, RetryError
 import logging
 from tqdm import tqdm
@@ -110,7 +110,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5):
+    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5) -> Unfuture:
         '''
         Template for multiTasking
 

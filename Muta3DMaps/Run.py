@@ -250,7 +250,7 @@ def i3dMap(i3dpath):
         & (intergrate_df['coordinates_len'] > 20)  # For Chain
         & (intergrate_df['method'].isin(["X-RAY DIFFRACTION", "SOLUTION NMR"]))
         & (intergrate_df['delete'] == False)
-        & (intergrate_df['identity'] >= 0.9)  # For Record
+        & (intergrate_df['identity'] >= 0.9)  # For Chain
         & (intergrate_df['pdb_contain_chain_type'].isin(["protein", "DNA,protein", "protein,DNA", "RNA,protein", "protein,RNA"]))
     ].reset_index(drop=True)
 
