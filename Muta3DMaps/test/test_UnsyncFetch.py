@@ -1,3 +1,9 @@
+# @Created Date: 2020-02-08 05:35:21 pm
+# @Filename: test_UnsyncFetch.py
+# @Email:  1730416009@stu.suda.edu.cn
+# @Author: ZeFeng Zhu
+# @Last Modified: 2020-02-11 11:17:31 am
+# @Copyright (c) 2020 MinghuiGroup, Soochow University
 import pytest
 from Muta3DMaps.core.retrieve.fetchFiles import UnsyncFetch
 
@@ -5,7 +11,8 @@ from Muta3DMaps.core.retrieve.fetchFiles import UnsyncFetch
 UNP_ID_MAP = 'https://www.uniprot.org/uploadlists/'
 PDBE_URL = 'https://www.ebi.ac.uk/pdbe/api'
 SMR_URL = 'https://swissmodel.expasy.org/repository/uniprot'
-MODB_URL = 'http://salilab.org/modbase-cgi/model_search.cgi'
+MODB_SEARCH_URL = 'http://salilab.org/modbase-cgi/model_search.cgi'
+MODB_RETRIEVE_URL = 'https://modbase.compbio.ucsf.edu/modbase-cgi/retrieve/modbase/' # ?databaseID=%s
 I3D_URL = 'https://interactome3d.irbbarcelona.org/api'
 
 UNP_ID_MAP_COLUMNS = [
@@ -16,7 +23,8 @@ ID_DEMO = [
     'ENST00000379407', 'ENST00000379409']
 
 TASKS = [
-    ('get', {'url': UNP_ID_MAP, 'params': {'from': 'ENSEMBL_TRS_ID', 'to': 'ACC', 'format': 'tab', 'query': ','.join(ID_DEMO), 'columns': ','.join(UNP_ID_MAP_COLUMNS)}}, 'uniprot_id_mapping_test.tsv'),
+    # ('get', {'url': 'ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz'}, 'uniprot_sprot.fasta.gz'),
+    # ('get', {'url': UNP_ID_MAP, 'params': {'from': 'ENSEMBL_TRS_ID', 'to': 'ACC', 'format': 'tab', 'query': ','.join(ID_DEMO), 'columns': ','.join(UNP_ID_MAP_COLUMNS)}}, 'uniprot_id_mapping_test.tsv'),
     ('get', {'url': f'{PDBE_URL}/pdb/entry/molecules/', 'params': '1a01'}, '1a01_molecules.json'),  # 405
     ('get', {'url': f'{PDBE_URL}/pdb/entry/molecules/1a01'}, '1a01_molecules.json'),
     ('get', {'url': f'{PDBE_URL}/pdb/entry/molecules/2xyn'}, '2xyn_molecules.json'),
@@ -29,19 +37,21 @@ TASKS = [
     ('get', {'url': f'{PDBE_URL}/pdb/entry/residue_listing/1a01'}, '1a01_residue_listing.json'),
     ('post', {'url': f'{PDBE_URL}/pdb/entry/status/', 'data': '1a01,pppp,2xyn'}, '1a01,pppp,2xyn_status.json'),  # contail 404, the server would ignore pppp
     ('get', {'url': f'{PDBE_URL}/mappings/all_isoforms/1a01'}, '1a01_sifts.json'),
-    ('get', {'url': f'{SMR_URL}/P07900.json', 'params': {'provider': 'swissmodel'}}, 'P07900_SMR.json'),
-    ('get', {'url': f'{SMR_URL}/P0DP24.json', 'params': {'provider': 'swissmodel'}}, 'P0DP24_SMR.json'),
-    ('get', {'url': f'{SMR_URL}/P07900-2.json', 'params': {'provider': 'swissmodel'}}, 'P07900-2_SMR.json'),
-    ('get', {'url': f'{SMR_URL}/P07900-2.pdb', 'params': {'provider': 'swissmodel', 'sort': 'seqid'}}, 'P07900-2_SMR.pdb'),
-    ('get', {'url': f'{I3D_URL}/getInteractionStructures', 'params': {'queryProt1': 'A0A5B9', 'queryProt2': 'P01848'}}, 'A0A5B9-P01848_I3D.xml'),
-    ('get', {'url': f'{I3D_URL}/getInteractionStructures', 'params': {'queryProt1': 'Q16543', 'queryProt2': 'P07900'}}, 'Q16543-P07900_I3D.xml'),
-    ('get', {'url': f'{I3D_URL}/getPdbFile', 'params': {'filename': 'P07900-Q16543-EXP-pdb2k5b.ent-A-0-B-0.pdb', 'type': 'interaction'}}, 'P07900-Q16543_I3D.pdb'),
-    ('get', {'url': f'{MODB_URL}', 'params': {'searchkw': 'name', 'kword': 'Q99777'}}, 'ModB_test.html'),
+    # ('get', {'url': f'{SMR_URL}/P07900.json', 'params': {'provider': 'swissmodel'}}, 'P07900_SMR.json'),
+    # ('get', {'url': f'{SMR_URL}/P0DP24.json', 'params': {'provider': 'swissmodel'}}, 'P0DP24_SMR.json'),
+    # ('get', {'url': f'{SMR_URL}/P07900-2.json', 'params': {'provider': 'swissmodel'}}, 'P07900-2_SMR.json'),
+    # ('get', {'url': f'{SMR_URL}/P07900-2.pdb', 'params': {'provider': 'swissmodel', 'sort': 'seqid'}}, 'P07900-2_SMR.pdb'),
+    # ('get', {'url': f'{I3D_URL}/getInteractionStructures', 'params': {'queryProt1': 'A0A5B9', 'queryProt2': 'P01848'}}, 'A0A5B9-P01848_I3D.xml'),
+    # ('get', {'url': f'{I3D_URL}/getInteractionStructures', 'params': {'queryProt1': 'Q16543', 'queryProt2': 'P07900'}}, 'Q16543-P07900_I3D.xml'),
+    # ('get', {'url': f'{I3D_URL}/getPdbFile', 'params': {'filename': 'P07900-Q16543-EXP-pdb2k5b.ent-A-0-B-0.pdb', 'type': 'interaction'}}, 'P07900-Q16543_I3D.pdb'),
+    # ('get', {'url': f'{MODB_SEARCH_URL}', 'params': {'searchkw': 'name', 'kword': 'Q99777'}}, 'ModB_test.html'),
+    # ('get', {'url': f'{MODB_RETRIEVE_URL}', 'params': {'databaseID': 'P51587'}}, 'ModB_P51587.xml')
 ]
 def task():
     try:
-        return len(UnsyncFetch.main(r'./data/', TASKS, 8))
-    except Exception:
+        return len(UnsyncFetch.main(r'./data/', TASKS, 50))
+    except Exception as e:
+        UnsyncFetch.logger.error(e)
         return -1
 
 def test_task():

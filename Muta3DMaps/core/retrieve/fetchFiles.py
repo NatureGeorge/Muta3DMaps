@@ -10,10 +10,11 @@ import asyncio
 import aiohttp
 import aiofiles
 from unsync import unsync, Unfuture
-from tenacity import retry, wait_random_exponential, stop_after_attempt, after_log, RetryError
+from tenacity import retry, wait_random, stop_after_attempt, after_log, RetryError
 import logging
 from tqdm import tqdm
-from typing import Iterable, Iterator, Union, Any, Optional, List, Dict
+from typing import Iterable, Iterator, Union, Any, Optional, List, Dict, Coroutine
+import ujson as json
 
 
 class UnsyncFetch(object):
@@ -52,7 +53,7 @@ class UnsyncFetch(object):
     logger.addHandler(streamHandler)
 
     retry_kwargs = {
-        'wait': wait_random_exponential(multiplier=1, max=15),
+        'wait': wait_random(max=10),
         'stop': stop_after_attempt(3),
         'after': after_log(logger, logging.WARNING)}
 
@@ -69,7 +70,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @retry(**retry_kwargs)
-    async def download_file(cls, method: str, info: Dict, path: str) -> Optional[str]:
+    async def download_file(cls, method: str, info: Dict, path: str):
         cls.logger.debug(f"Start to download file: {info}")
         async with aiohttp.ClientSession() as session:
             async_func = getattr(session, method)
@@ -98,7 +99,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def fetch_file(cls, semaphore: asyncio.Semaphore, method: str, info: Dict, path: str, rate: float) -> Optional[str]:
+    async def fetch_file(cls, semaphore: asyncio.Semaphore, method: str, info: Dict, path: str, rate: float):
         try:
             async with semaphore:
                 res = await cls.download_file(method, info, path)
@@ -110,7 +111,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5) -> Unfuture:
+    async def multi_tasks(cls, workdir: str, tasks: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5):
         '''
         Template for multiTasking
 
@@ -119,20 +120,39 @@ class UnsyncFetch(object):
             2. unit func
         '''
         semaphore = asyncio.Semaphore(concur_req)
-        tasks = [cls.fetch_file(semaphore, method, info, os.path.join(workdir, path), rate) for method, info, path in tasks]
-        # await asyncio.gather(*tasks)
-        # return [await fob for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks))]
+        tasks = [cls.fetch_file(semaphore, method, info, os.path.join(workdir, path), rate).then(cls.cpu_bound_func) for method, info, path in tasks]
+        # return await asyncio.gather(*tasks)
+        return [await fob for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks))]
+        '''
         result = []
         for fob in tqdm(asyncio.as_completed(tasks), total=len(tasks)):
             res = await fob
-            # TODO: do something, may implement `Unfuture.then`
+            # TODO: do something
             result.append(res)
         return result
+        '''
+
+    @classmethod
+    @unsync
+    def cpu_bound_func(cls, path: Unfuture) -> Unfuture:
+        path = path.result()
+        try:
+            if path is None:
+                pass
+            elif path[-4:] == 'json':
+                with open(path, 'r') as jsonFile:
+                    data = json.load(jsonFile)
+                    cls.logger.info(f'data: {data.keys()}')
+        except Exception as e:
+            cls.logger.error(e)
+        finally:
+            return path
 
     @classmethod
     def main(cls, workdir: str, data: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5, logName: str = 'UnsyncFetch'):
         cls.set_logging_fileHandler(os.path.join(workdir, f'{logName}.log'))
         t0 = perf_counter()
+        # res = asyncio.run(cls.multi_tasks(workdir, data, concur_req, rate))
         res = cls.multi_tasks(workdir, data, concur_req, rate).result()
         elapsed = perf_counter() - t0
         cls.logger.info(f'downloaded in {elapsed}s')
