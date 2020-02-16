@@ -15,11 +15,12 @@ import logging
 from tqdm import tqdm
 from typing import Iterable, Iterator, Union, Any, Optional, List, Dict, Coroutine, Callable
 import ujson as json
+from Muta3DMaps.core.log import Abclog
 from Muta3DMaps.core.pdbe.decode import PDBeJsonDecoder, traversePDBeData, convertJson2other
 import re
 
 
-class UnsyncFetch(object):
+class UnsyncFetch(Abclog):
     '''
     Fetch files through API in unsync/async way
 
@@ -49,31 +50,13 @@ class UnsyncFetch(object):
         * https://tenacity.readthedocs.io/en/latest/
     '''
 
-    logger = logging.getLogger("UnsyncFetch"); logger.setLevel(logging.DEBUG)
-    streamHandler = logging.StreamHandler(); streamHandler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"); streamHandler.setFormatter(formatter)
-    logger.addHandler(streamHandler)
-    suffix_pat = re.compile(r'[A-z0-9,]+_([A-z_]+)\.')
-    converted_format= 'tsv'
-
     retry_kwargs = {
         'wait': wait_random(max=10),
         'stop': stop_after_attempt(3),
-        'after': after_log(logger, logging.WARNING)}
+        # 'after': after_log(logger, logging.WARNING)
+        }
 
     @classmethod
-    def set_logging_fileHandler(cls, path: str, level: int = logging.DEBUG, formatter=formatter):
-        try:
-            fileHandler = logging.FileHandler(filename=path)
-            fileHandler.setLevel(level)
-            fileHandler.setFormatter(formatter)
-            cls.logger.addHandler(fileHandler)
-            cls.logger.info(f"Logging file in {path}")
-        except Exception:
-            cls.logger.warning("Invalid file path for logging file ! Please specifiy path=...")
-
-    @classmethod
-    @retry(**retry_kwargs)
     async def download_file(cls, method: str, info: Dict, path: str):
         cls.logger.debug(f"Start to download file: {info}")
         async with aiohttp.ClientSession() as session:
@@ -115,7 +98,7 @@ class UnsyncFetch(object):
 
     @classmethod
     @unsync
-    async def multi_tasks(cls, tasks: Union[Iterable, Iterator], to_do_func: Optional[Callable] = None, concur_req: int = 4, rate: float = 1.5):
+    async def multi_tasks(cls, tasks: Union[Iterable, Iterator], to_do_func: Optional[Callable] = None, concur_req: int = 4, rate: float = 1.5, logger: Optional[logging.Logger] = None):
         '''
         Template for multiTasking
 
@@ -123,6 +106,9 @@ class UnsyncFetch(object):
             1. asyncio.Semaphore
             2. unit func
         '''
+        cls.init_logger('UnsyncFetch', logger)
+        cls.retry_kwargs['after'] = after_log(cls.logger, logging.WARNING)
+        cls.download_file = retry(cls.download_file, **cls.retry_kwargs)
         semaphore = asyncio.Semaphore(concur_req)
         if to_do_func is None:
             # to_do_func = cls.default_func
@@ -134,10 +120,10 @@ class UnsyncFetch(object):
 
     @classmethod
     def main(cls, workdir: str, data: Union[Iterable, Iterator], concur_req: int = 4, rate: float = 1.5, logName: str = 'UnsyncFetch'):
-        cls.set_logging_fileHandler(os.path.join(workdir, f'{logName}.log'))
+        cls.set_logging_fileHandler(os.path.join(workdir, f'{logName}.log'), logName='UnsyncFetch')
         t0 = perf_counter()
-        # res = asyncio.run(cls.multi_tasks(workdir, data, concur_req, rate))
-        res = cls.multi_tasks(data, concur_req, rate).result()
+        # res = asyncio.run(cls.multi_tasks(data, concur_req=concur_req, rate=rate))
+        res = cls.multi_tasks(data, concur_req=concur_req, rate=rate).result()
         elapsed = perf_counter() - t0
         cls.logger.info(f'downloaded in {elapsed}s')
         return res

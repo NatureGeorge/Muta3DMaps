@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 from unsync import unsync, Unfuture
 from collections import Counter
-sys.path.append(r'C:\GitWorks\Muta3DMaps')
+from Muta3DMaps.core.log import Abclog
 from Muta3DMaps.core.retrieve.fetchFiles import UnsyncFetch
 
 QUERY_COLUMNS: List[str] = [
@@ -183,16 +183,11 @@ class ExtractIsoAlt:
         else:
             return None, None
 
-class MapUniProtID(object):
+
+class MapUniProtID(Abclog):
     '''
     Implement UniProt Retrieve/ID Mapping API
     '''
-    logger = logging.getLogger("MapUniProtID")
-    logger.setLevel(logging.DEBUG)
-    streamHandler = logging.StreamHandler(); streamHandler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"); streamHandler.setFormatter(formatter)
-    logger.addHandler(streamHandler)
-
     def __init__(self, id_col: str, id_type: str, 
         dfrm: Optional[pd.DataFrame], 
         ids: Optional[Iterable] = None,
@@ -201,9 +196,11 @@ class MapUniProtID(object):
         usecols: Optional[Iterable] = QUERY_COLUMNS,
         site_col: Optional[str] = None, 
         site_type: Optional[str] = None, 
-        gene_col: Optional[str] = None,  
+        gene_col: Optional[str] = None,
+        logger: Optional[logging.Logger] = None,
         loggingPath: Optional[str] = None):
         
+        self.init_logger('MapUniProtID', logger)
         if dfrm is not None:
             self.dfrm = dfrm
         else:
@@ -238,18 +235,6 @@ class MapUniProtID(object):
         PARAMS['from'] = id_type
         if isinstance(loggingPath, str):
             self.set_logging_fileHandler(loggingPath)
-
-    @classmethod
-    def set_logging_fileHandler(cls, path: str, level: int = logging.DEBUG, formatter=formatter):
-        try:
-            fileHandler = logging.FileHandler(filename=path)
-            fileHandler.setLevel(level)
-            fileHandler.setFormatter(formatter)
-            cls.logger.addHandler(fileHandler)
-            cls.logger.info(f"Logging file in {path}")
-        except Exception:
-            cls.logger.warning(
-                "Invalid file path for logging file ! Please specifiy path=...")
 
     @property
     def sites(self) -> Generator:
@@ -310,7 +295,7 @@ class MapUniProtID(object):
         
         self.logger.info(f"Have finished {len(finish_id)} ids, {len(rest_id)} ids left.")
         t0 = time.perf_counter()
-        res = UnsyncFetch.multi_tasks(self.yieldTasks(rest_id, chunksize), self.process, concur_req, rate).result()
+        res = UnsyncFetch.multi_tasks(self.yieldTasks(rest_id, chunksize), self.process, concur_req, rate, self.logger).result()
         elapsed = time.perf_counter() - t0
         self.logger.info('{} chunks downloaded in {:.2f}s'.format(len(res), elapsed))
 
@@ -489,11 +474,6 @@ class MapUniProtID(object):
         pathOb = Path(path)
         edPath = str(Path(pathOb.parent, f'{pathOb.stem}_ed{pathOb.suffix}'))
         final_df.to_csv(edPath, sep=sep)
+        self.logger.debug(f"Handled id mapping result saved in {edPath}")
         return edPath
 
-
-if __name__ == "__main__":
-    dfrm = pd.read_csv(r'C:\OmicData\LiGroupWork\compareTool\1211\exac_missense_mo.txt', sep='\t', nrows=25000)
-    demo = MapUniProtID(id_col='ENST', id_type='ENSEMBL_TRS_ID', dfrm=dfrm, site_col='aa_pos', gene_col='GENE')
-    demo.set_logging_fileHandler(r'C:\GitWorks\Muta3DMaps\Muta3DMaps\test\data\uniprot\id_map.log')
-    demo.retrieve(r'C:\GitWorks\Muta3DMaps\Muta3DMaps\test\data\uniprot\uniprot_id_mapping_test.tsv')
