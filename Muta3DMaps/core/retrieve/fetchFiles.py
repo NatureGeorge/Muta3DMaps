@@ -8,6 +8,7 @@ import os
 from time import perf_counter
 import asyncio
 import aiohttp
+import aioftp
 import aiofiles
 from unsync import unsync, Unfuture
 from tenacity import retry, wait_random, stop_after_attempt, after_log, RetryError
@@ -15,6 +16,7 @@ import logging
 from tqdm import tqdm
 from typing import Iterable, Iterator, Union, Any, Optional, List, Dict, Coroutine, Callable
 import ujson as json
+from furl import furl
 from Muta3DMaps.core.log import Abclog
 from Muta3DMaps.core.pdbe.decode import PDBeJsonDecoder, traversePDBeData, convertJson2other
 import re
@@ -57,7 +59,7 @@ class UnsyncFetch(Abclog):
         }
 
     @classmethod
-    async def download_file(cls, method: str, info: Dict, path: str):
+    async def http_download(cls, method: str, info: Dict, path: str):
         cls.logger.debug(f"Start to download file: {info}")
         async with aiohttp.ClientSession() as session:
             async_func = getattr(session, method)
@@ -78,6 +80,25 @@ class UnsyncFetch(Abclog):
                     raise Exception(mes)
 
     @classmethod
+    async def ftp_download(cls, method: str, info: Dict, path: str):
+        cls.logger.debug(f"Start to download file: {info}")
+        url = furl(info['url'])
+        async with aioftp.ClientSession(url.host) as session:
+            await session.change_directory('/'.join(url.path.segments[:-1]))
+            await session.download(url.path.segments[-1], path)# path, write_info=True
+        cls.logger.debug(f"File has been saved in: {path}")
+
+    @classmethod
+    def download_func_dispatch(cls, method: str):
+        method = method.lower()
+        if method in ('get', 'post'):
+            return cls.http_download
+        elif method == 'ftp':
+            return cls.ftp_download
+        else:
+            raise ValueError(f'Invalid method: {method}, valid method should be get, post or ftp')
+
+    @classmethod
     @unsync
     async def save_file(cls, path: str, data: bytes):
         '''Deprecated'''
@@ -87,9 +108,10 @@ class UnsyncFetch(Abclog):
     @classmethod
     @unsync
     async def fetch_file(cls, semaphore: asyncio.Semaphore, method: str, info: Dict, path: str, rate: float):
+        download_func = cls.download_func_dispatch(method)
         try:
             async with semaphore:
-                res = await cls.download_file(method, info, path)
+                res = await download_func(method, info, path)
                 if res is not None:
                     await asyncio.sleep(rate)
                 return res
@@ -108,10 +130,10 @@ class UnsyncFetch(Abclog):
         '''
         cls.init_logger('UnsyncFetch', logger)
         cls.retry_kwargs['after'] = after_log(cls.logger, logging.WARNING)
-        cls.download_file = retry(cls.download_file, **cls.retry_kwargs)
+        cls.http_download = retry(cls.http_download, **cls.retry_kwargs)
+        cls.ftp_download = retry(cls.ftp_download, **cls.retry_kwargs)
         semaphore = asyncio.Semaphore(concur_req)
         if to_do_func is None:
-            # to_do_func = cls.default_func
             tasks = [cls.fetch_file(semaphore, method, info, path, rate) for method, info, path in tasks]
         else:
             tasks = [cls.fetch_file(semaphore, method, info, path, rate).then(to_do_func) for method, info, path in tasks]
