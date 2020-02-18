@@ -5,7 +5,7 @@
 # @Last Modified: 2020-02-16 10:54:32 am
 # @Copyright (c) 2020 MinghuiGroup, Soochow University
 from typing import Iterable, Iterator, Optional, Union, Generator, Dict, List
-import re, time, sys
+import re, time
 import ujson as json
 import pandas as pd
 import numpy as np
@@ -298,6 +298,7 @@ class MapUniProtID(Abclog):
         res = UnsyncFetch.multi_tasks(self.yieldTasks(rest_id, chunksize), self.process, concur_req, rate, self.logger).result()
         elapsed = time.perf_counter() - t0
         self.logger.info('{} chunks downloaded in {:.2f}s'.format(len(res), elapsed))
+        return res
 
     def getCanonicalInfo(self, dfrm: pd.DataFrame):
         """

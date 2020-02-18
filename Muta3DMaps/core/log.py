@@ -16,6 +16,8 @@ class Abclog(object):
         if hasattr(cls, 'logger') and cls.logger is not None:
             pass
         elif logger is None:
+            if logName is None:
+                logName = __name__
             cls.logger = logging.getLogger(logName)
             cls.logger.setLevel(log_level)
             cls.streamHandler = logging.StreamHandler()
@@ -29,7 +31,7 @@ class Abclog(object):
 
     @classmethod
     def set_logging_fileHandler(cls, path: str, level: int = logging.DEBUG, logName: Optional[str] = None):
-        if logName is not None and not hasattr(cls, 'logger'):
+        if not hasattr(cls, 'logger'):
             cls.init_logger(logName)
         try:
             fileHandler = logging.FileHandler(filename=path)
@@ -38,4 +40,4 @@ class Abclog(object):
             cls.logger.addHandler(fileHandler)
             cls.logger.info(f"Logging file in {path}")
         except Exception:
-            cls.logger.warning("Invalid file path for logging file ! Please specifiy path=...")
+            cls.logger.exception("Invalid file path for logging file ! Please specifiy path=...")

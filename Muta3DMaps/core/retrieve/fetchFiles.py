@@ -18,7 +18,6 @@ from typing import Iterable, Iterator, Union, Any, Optional, List, Dict, Corouti
 import ujson as json
 from furl import furl
 from Muta3DMaps.core.log import Abclog
-from Muta3DMaps.core.pdbe.decode import PDBeJsonDecoder, traversePDBeData, convertJson2other
 import re
 
 
@@ -85,8 +84,11 @@ class UnsyncFetch(Abclog):
         url = furl(info['url'])
         async with aioftp.ClientSession(url.host) as session:
             await session.change_directory('/'.join(url.path.segments[:-1]))
-            await session.download(url.path.segments[-1], path)# path, write_info=True
-        cls.logger.debug(f"File has been saved in: {path}")
+            fileName = url.path.segments[-1]
+            await session.download(fileName, path) # , write_info=True
+        filePath = os.path.join(path, fileName)
+        cls.logger.debug(f"File has been saved in: {filePath}")
+        return filePath
 
     @classmethod
     def download_func_dispatch(cls, method: str):
