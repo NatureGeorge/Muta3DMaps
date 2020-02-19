@@ -10,7 +10,7 @@ import pandas as pd
 import pyexcel as pe
 import tablib
 from tablib import InvalidDimensions, UnsupportedFormat
-from typing import Union, Optional, Iterator, Iterable, Set, Dict, List, Any, Generator, Callable
+from typing import Union, Optional, Iterator, Iterable, Set, Dict, List, Any, Generator, Callable, Tuple
 from json import JSONDecodeError
 import ujson as json
 import time
@@ -21,7 +21,7 @@ from unsync import unsync, Unfuture
 from Bio import Align, SeqIO
 from Bio.SubsMat import MatrixInfo as matlist
 from functools import lru_cache
-from Muta3DMaps.core.utils import decompression
+from Muta3DMaps.core.utils import decompression, related_dataframe
 from Muta3DMaps.core.log import Abclog
 from Muta3DMaps.core.retrieve.fetchFiles import UnsyncFetch
 
@@ -32,11 +32,11 @@ API_LYST: List = sorted(['summary', 'molecules', 'experiment', 'ligand_monomers'
                    'assembly', 'electron_density_statistics',
                    'cofactor', 'drugbank', 'related_experiment_data'])
 
-BASE_URL: str = 'http://www.ebi.ac.uk/pdbe/api'
+BASE_URL: str = 'http://www.ebi.ac.uk/pdbe/api/'
 
-FTP_URL: str = 'ftp://ftp.ebi.ac.uk'
+FTP_URL: str = 'ftp://ftp.ebi.ac.uk/'
 
-FTP_DEFAULT_PATH: str = '/pub/databases/msd/sifts/flatfiles/tsv/uniprot_pdb.tsv.gz'
+FTP_DEFAULT_PATH: str = 'pub/databases/msd/sifts/flatfiles/tsv/uniprot_pdb.tsv.gz'
 
 FUNCS = list()
 
@@ -55,7 +55,7 @@ def traversePDBeData(query: Any, *args):
         if query in keySet:
             return func(*args)
     else:
-        raise ValueError('Invalid query')
+        raise ValueError(f'Invalid query: {query}')
 
 
 def convertJson2other(
@@ -163,7 +163,57 @@ class SeqPairwiseAlign(object):
         return segments1, segments2
 
 
-class ProcessSIFTS(Abclog):
+class ProcessPDBe(Abclog):
+    @staticmethod
+    def yieldTasks(pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 100) -> Generator:
+        file_prefix = suffix.replace('/', '%')
+        method = method.lower()
+        if method == 'post':
+            url = f'{BASE_URL}{suffix}'
+            for i in range(0, len(pdbs), chunksize):
+                params = {'url': url, 'data': ','.join(pdbs[i:i+chunksize])}
+                yield method, params, os.path.join(folder, f'{file_prefix}+{i}.json')
+        elif method == 'get':
+            for pdb in pdbs:
+                pdb = pdb.lower()
+                yield method, {'url': f'{BASE_URL}{suffix}{pdb}'}, os.path.join(folder, f'{file_prefix}+{pdb}.json')
+        else:
+            raise ValueError(f'Invalid method: {method}, method should either be "get" or "post"')
+
+    @classmethod
+    def retrieve(cls, pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 20, concur_req: int = 20, rate: float = 1.5):
+        t0 = time.perf_counter()
+        res = UnsyncFetch.multi_tasks(
+            cls.yieldTasks(pdbs, suffix, method, folder, chunksize), 
+            cls.process, 
+            concur_req=concur_req, 
+            rate=rate, 
+            logger=cls.logger).result()
+        elapsed = time.perf_counter() - t0
+        cls.logger.info('{} ids downloaded in {:.2f}s'.format(len(res), elapsed))
+        return res
+    
+    @classmethod
+    @unsync
+    def process(cls, path: Union[str, Path, Unfuture]):
+        cls.logger.debug('Start to decode')
+        if not isinstance(path, (str, Path)):
+            path = path.result()
+        path = Path(path)
+        with open(str(path), 'r') as inFile:
+            data = json.load(inFile)
+        suffix = path.name.replace('%', '/').split('+')[0]
+        new_path = str(path).replace('.json', '.tsv')
+        PDBeDecoder.pyexcel_io(
+            suffix=suffix,
+            data=data,
+            filename=new_path,
+            delimiter='\t')
+        cls.logger.debug(f'Decoded file in {new_path}')
+        return new_path
+
+
+class ProcessSIFTS(ProcessPDBe):
     @classmethod
     def related_UNP_PDB(cls, filePath: Union[str, Path], related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
         '''
@@ -182,7 +232,7 @@ class ProcessSIFTS(Abclog):
         elif filePath.is_file():
             filePath = str(filePath)
         else:
-            raise ValueError('Valid value for filePath')
+            raise ValueError('Invalid value for filePath')
 
         dfrm = pd.read_csv(filePath, sep='\t', header=1)
         pdb_list = list()
@@ -196,55 +246,17 @@ class ProcessSIFTS(Abclog):
             return set(pdb_list), set(dfrm['SP_PRIMARY'])
 
     @staticmethod
-    def yieldTasks(pdbs: Union[Iterable, Iterator], folder: Union[str, Path]) -> Generator:
-        for pdb in pdbs:
-            pdb = pdb.lower()
-            yield 'get', {'url': f'{BASE_URL}/mappings/all_isoforms/{pdb}'}, str(Path(folder, f'{pdb}_sifts.json'))
-
-    @classmethod
-    @unsync
-    def process(cls, path: Union[str, Unfuture]):
-        cls.logger.debug('Start to decode')
-        if not isinstance(path, str):
-            path = path.result()
-        with open(str(path), 'r') as inFile:
-            data = json.load(inFile)
-        new_path = path.replace('.json', '.tsv')
-        PDBeDecoder.pyexcel_io(
-            suffix='/mappings/all_isoforms/',
-            data=data,
-            filename=new_path,
-            delimiter='\t')
-        cls.logger.debug(f'Decoded file in {new_path}')
-        return new_path
-
-    @classmethod
-    def retrieve(cls, pdbs: Union[Iterable, Iterator], outputFolder: Union[str, Path], concur_req: int = 20, rate: float = 1.5):
-        outputFolder = Path(outputFolder)
-        if outputFolder.is_file():
-            folder = outputFolder.stem
-        elif outputFolder.is_dir():
-            folder = outputFolder
-        else:
-            raise ValueError('Invalid value for outputFolder')
-
-        t0 = time.perf_counter()
-        res = UnsyncFetch.multi_tasks(cls.yieldTasks(
-            pdbs, folder), cls.process, concur_req, rate, cls.logger).result()
-        elapsed = time.perf_counter() - t0
-        cls.logger.info(f'{len(pdbs)} pdbs downloaded in {elapsed}s')
-        return res
-
-    @staticmethod
     def reformat(path: str) -> pd.DataFrame:
         dfrm = pd.read_csv(path, sep='\t')
         group_info_col = ['pdb_id', 'chain_id', 'UniProt']
         range_info_col = ['pdb_start', 'pdb_end', 'unp_start', 'unp_end']
         reader = SeqRangeReader(group_info_col)
         dfrm[['sifts_pdb_range', 'sifts_unp_range']] = pd.DataFrame(dfrm.apply(
-            lambda x: reader.check(tuple(x[i] for i in group_info_col), tuple(x[i] for i in range_info_col)),
+            lambda x: reader.check(tuple(x[i] for i in group_info_col), tuple(
+                x[i] for i in range_info_col)),
             axis=1).values.tolist(), index=dfrm.index)
-        dfrm = dfrm.drop(columns=range_info_col).drop_duplicates(subset=group_info_col, keep='last').reset_index(drop=True)
+        dfrm = dfrm.drop(columns=range_info_col).drop_duplicates(
+            subset=group_info_col, keep='last').reset_index(drop=True)
         dfrm["Entry"] = dfrm["UniProt"].apply(lambda x: x.split('-')[0])
         return dfrm
 
@@ -262,7 +274,8 @@ class ProcessSIFTS(Abclog):
             # ADD TAGE FOR SIFTS
             df[tage_name] = 'Safe'
             # No Insertion But Deletion[Pure Deletion]
-            df.loc[df[(df['group_info'] == 1) & (df['sifts_unp_pdb_var'] > 0)].index, tage_name] = 'Deletion'
+            df.loc[df[(df['group_info'] == 1) & (
+                df['sifts_unp_pdb_var'] > 0)].index, tage_name] = 'Deletion'
             # Insertion & No Deletion
             df.loc[df[
                 (df['group_info'] != 1) &
@@ -272,7 +285,7 @@ class ProcessSIFTS(Abclog):
             df.loc[df[
                 (df['group_info'] != 1) &
                 ((df['var_0_count'] != df['group_info']) |
-                (df['unp_GAP_0_count'] != (df['group_info'] - 1)))].index, tage_name] = 'Insertion & Deletion'
+                 (df['unp_GAP_0_count'] != (df['group_info'] - 1)))].index, tage_name] = 'Insertion & Deletion'
 
         dfrm['pdb_GAP_list'] = dfrm.apply(lambda x: json.dumps(
             get_gap_list(json.loads(x['sifts_pdb_range']))), axis=1)
@@ -282,7 +295,8 @@ class ProcessSIFTS(Abclog):
             json.loads(x['sifts_unp_range']), json.loads(x['sifts_pdb_range']))), axis=1)
         dfrm['delete'] = dfrm.apply(
             lambda x: '-' in x['var_list'], axis=1)
-        dfrm['delete'] = dfrm.apply(lambda x: True if '-' in x['unp_GAP_list'] else x['delete'], axis=1)
+        dfrm['delete'] = dfrm.apply(
+            lambda x: True if '-' in x['unp_GAP_list'] else x['delete'], axis=1)
         dfrm['var_0_count'] = dfrm.apply(
             lambda x: json.loads(x['var_list']).count(0), axis=1)
         dfrm['unp_GAP_0_count'] = dfrm.apply(
@@ -307,7 +321,7 @@ class ProcessSIFTS(Abclog):
                     if unp_id in record.id.split('|'):
                         unpSeq = record.seq
             return unpSeq
-        
+
         focus = ('Deletion', 'Insertion & Deletion')
         focus_index = dfrm[dfrm['sifts_range_tage'].isin(focus)].index
         updated_pdb_range, updated_unp_range = list(), list()
@@ -317,11 +331,13 @@ class ProcessSIFTS(Abclog):
             unp_entry = dfrm.loc[index, "Entry"]
             unp_id = dfrm.loc[index, "UniProt"]
             try:
-                fasta_path = os.path.join(unp_fasta_files_folder, f'{unp_id}.fasta')
+                fasta_path = os.path.join(
+                    unp_fasta_files_folder, f'{unp_id}.fasta')
                 unpSeq = getSeq(fasta_path)
             except FileNotFoundError:
                 try:
-                    fasta_path = os.path.join(unp_fasta_files_folder, f'{unp_entry}.fasta')
+                    fasta_path = os.path.join(
+                        unp_fasta_files_folder, f'{unp_entry}.fasta')
                     unpSeq = getSeq(fasta_path)
                 except FileNotFoundError:
                     unpSeq = None
@@ -329,22 +345,28 @@ class ProcessSIFTS(Abclog):
             updated_unp_range.append(res[0])
             updated_pdb_range.append(res[1])
 
-        updated_range_df = pd.DataFrame({new_range_cols[0]: updated_unp_range, new_range_cols[1]: updated_pdb_range}, index=focus_index)
-        dfrm = pd.merge(dfrm, updated_range_df, left_index=True, right_index=True, how='left')
-        dfrm[new_range_cols[0]] = dfrm.apply(lambda x: x['sifts_unp_range'] if pd.isna(x[new_range_cols[0]]) else x[new_range_cols[0]], axis=1)
-        dfrm[new_range_cols[1]] = dfrm.apply(lambda x: x['sifts_pdb_range'] if pd.isna(x[new_range_cols[1]]) else x[new_range_cols[1]], axis=1)
+        updated_range_df = pd.DataFrame(
+            {new_range_cols[0]: updated_unp_range, new_range_cols[1]: updated_pdb_range}, index=focus_index)
+        dfrm = pd.merge(dfrm, updated_range_df, left_index=True,
+                        right_index=True, how='left')
+        dfrm[new_range_cols[0]] = dfrm.apply(lambda x: x['sifts_unp_range'] if pd.isna(
+            x[new_range_cols[0]]) else x[new_range_cols[0]], axis=1)
+        dfrm[new_range_cols[1]] = dfrm.apply(lambda x: x['sifts_pdb_range'] if pd.isna(
+            x[new_range_cols[1]]) else x[new_range_cols[1]], axis=1)
         return dfrm
 
     @classmethod
     def main(cls, filePath: Union[str, Path], folder: str, related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
         pdbs, _ = cls.related_UNP_PDB(filePath, related_unp, related_pdb)
-        res = cls.retrieve(pdbs, folder)
+        res = cls.retrieve(pdbs, 'mappings/all_isoforms/', 'get', folder)
         return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res), sort=False, ignore_index=True)
 
 
-class ProcessPDBe(Abclog):
-    pass
-
+class ProcessEntryData(ProcessPDBe):
+    @staticmethod
+    def reformat(path: str) -> pd.DataFrame:
+        pass
+        
 
 class PDBeDecoder(object):
     @staticmethod
@@ -396,11 +418,11 @@ class PDBeDecoder(object):
         return cur_ob
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/status/', '/pdb/entry/summary/', '/pdb/entry/modified_AA_or_NA/',
-                      '/pdb/entry/mutated_AA_or_NA/', '/pdb/entry/cofactor/', '/pdb/entry/molecules/',
-                      '/pdb/entry/ligand_monomers/', '/pdb/entry/experiment/',
-                      '/pdb/entry/electron_density_statistics/',
-                      '/pdb/entry/related_experiment_data/', '/pdb/entry/drugbank/'})
+    @dispatch_on_set({'pdb/entry/status/', 'pdb/entry/summary/', 'pdb/entry/modified_AA_or_NA/',
+                      'pdb/entry/mutated_AA_or_NA/', 'pdb/entry/cofactor/', 'pdb/entry/molecules/',
+                      'pdb/entry/ligand_monomers/', 'pdb/entry/experiment/',
+                      'pdb/entry/electron_density_statistics/',
+                      'pdb/entry/related_experiment_data/', 'pdb/entry/drugbank/'})
     def yieldCommon(data: Dict) -> Generator:
         for pdb in data:
             values = data[pdb]
@@ -411,7 +433,7 @@ class PDBeDecoder(object):
             yield values, ('pdb_id',), (pdb,)
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/polymer_coverage/'})
+    @dispatch_on_set({'pdb/entry/polymer_coverage/'})
     def yieldPolymerCoverage(data: Dict) -> Generator:
         for pdb in data:
             molecules = data[pdb]['molecules']
@@ -425,14 +447,14 @@ class PDBeDecoder(object):
                     yield observed, ('chain_id', 'struct_asym_id', 'entity_id', 'pdb_id'), (chain['chain_id'], chain['struct_asym_id'], entity['entity_id'], pdb)
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/observed_residues_ratio/'})
+    @dispatch_on_set({'pdb/entry/observed_residues_ratio/'})
     def yieldObservedResiduesRatio(data: Dict) -> Generator:
         for pdb in data:
             for entity_id, entity in data[pdb].items():
                 yield entity, ('entity_id', 'pdb_id'), (entity_id, pdb)
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/residue_listing/'})
+    @dispatch_on_set({'pdb/entry/residue_listing/'})
     def yieldResidues(data: Dict) -> Generator:
         for pdb in data:
             molecules = data[pdb]['molecules']
@@ -448,7 +470,7 @@ class PDBeDecoder(object):
                     yield residues, ('chain_id', 'struct_asym_id', 'entity_id', 'pdb_id'), (chain['chain_id'], chain['struct_asym_id'], entity['entity_id'], pdb)
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/secondary_structure/'})
+    @dispatch_on_set({'pdb/entry/secondary_structure/'})
     def yieldSecondaryStructure(data: Dict) -> Generator:
         for pdb in data:
             molecules = data[pdb]['molecules']
@@ -467,7 +489,7 @@ class PDBeDecoder(object):
                         yield fragment, ('secondary_structure', 'chain_id', 'struct_asym_id', 'entity_id', 'pdb_id'), (name, chain['chain_id'], chain['struct_asym_id'], entity['entity_id'], pdb)
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/binding_sites/'})
+    @dispatch_on_set({'pdb/entry/binding_sites/'})
     def yieldBindingSites(data: Dict) -> Generator:
         for pdb in data:
             for site in data[pdb]:
@@ -479,7 +501,7 @@ class PDBeDecoder(object):
                     yield residues, ('residues_type', 'details', 'evidence_code', 'site_id', 'pdb_id'), (tage, site['details'], site['evidence_code'], site['site_id'], pdb)
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/assembly/'})
+    @dispatch_on_set({'pdb/entry/assembly/'})
     def yieldAssembly(data: Dict) -> Generator:
         for pdb in data:
             for biounit in data[pdb]:
@@ -493,7 +515,7 @@ class PDBeDecoder(object):
                 yield entities, tuple(keys)+('pdb_id',), tuple(biounit[key] for key in keys)+(pdb, )
 
     @staticmethod
-    @dispatch_on_set({'/pdb/entry/files/'})
+    @dispatch_on_set({'pdb/entry/files/'})
     def yieldAssociatedFiles(data: Dict) -> Generator:
         for pdb in data:
             for key in data[pdb]:
@@ -505,7 +527,7 @@ class PDBeDecoder(object):
                         continue
 
     @staticmethod
-    @dispatch_on_set({'/mappings/all_isoforms/'})
+    @dispatch_on_set({'mappings/all_isoforms/'})
     def yieldSIFTSRange(data: Dict) -> Generator:
         top_root = next(iter(data))  # PDB_ID or UniProt Isoform ID
         sec_root = next(iter(data[top_root]))  # 'UniProt' or 'PDB'

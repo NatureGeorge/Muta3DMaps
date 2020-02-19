@@ -7,8 +7,10 @@
 import os
 import gzip
 import shutil
-from typing import Optional
+from typing import Optional, Union, Dict, Tuple, Iterable
 from logging import Logger
+from pandas import read_csv, DataFrame
+
 
 def decompression(path: str, extension: str =".gz", remove: bool =True, outputPath: Optional[str] = None, logger: Optional[Logger] = None):
     """
@@ -40,3 +42,26 @@ def decompression(path: str, extension: str =".gz", remove: bool =True, outputPa
             logger.error(e)
 
     return outputPath
+
+
+def related_dataframe(filters: Optional[Union[Dict, Iterable[Tuple]]] = None, dfrm: Optional[DataFrame] = None, path: Union[str, Path, None] = None, sep: str = '\t'):
+    '''
+    valid symbol: `eq, ne, le, lt, ge, gt, isin`
+    '''
+    
+    if dfrm is None:
+        if path is not None:
+            dfrm = read_csv(path, sep=sep)
+        else:
+            raise ValueError('path should not be None')
+    elif not isinstance(dfrm, DataFrame):
+        raise ValueError('dfrm should be a pandas.DataFrame')
+
+    if filters is None:
+        return dfrm
+    elif isinstance(filters, Dict):
+        filters = filters.items()
+
+    for col, (symbol, value) in filters:
+        dfrm = dfrm[getattr(getattr(dfrm, col), symbol)(value)]
+    return dfrm
