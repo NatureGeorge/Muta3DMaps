@@ -32,7 +32,7 @@ API_LYST: List = sorted(['summary', 'molecules', 'experiment', 'ligand_monomers'
                    'assembly', 'electron_density_statistics',
                    'cofactor', 'drugbank', 'related_experiment_data'])
 
-BASE_URL: str = 'http://www.ebi.ac.uk/pdbe/api/'
+BASE_URL: str = 'https://www.ebi.ac.uk/pdbe/api/'
 
 FTP_URL: str = 'ftp://ftp.ebi.ac.uk/'
 
@@ -181,7 +181,7 @@ class ProcessPDBe(Abclog):
             raise ValueError(f'Invalid method: {method}, method should either be "get" or "post"')
 
     @classmethod
-    def retrieve(cls, pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 20, concur_req: int = 20, rate: float = 1.5):
+    def retrieve(cls, pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 20, concur_req: int = 20, rate: float = 1.5, **kwargs):
         t0 = time.perf_counter()
         res = UnsyncFetch.multi_tasks(
             cls.yieldTasks(pdbs, suffix, method, folder, chunksize), 
@@ -199,8 +199,10 @@ class ProcessPDBe(Abclog):
         cls.logger.debug('Start to decode')
         if not isinstance(path, (str, Path)):
             path = path.result()
+        if path is None:
+            return path
         path = Path(path)
-        with open(str(path), 'r') as inFile:
+        with path.open() as inFile:
             data = json.load(inFile)
         suffix = path.name.replace('%', '/').split('+')[0]
         new_path = str(path).replace('.json', '.tsv')
@@ -359,14 +361,26 @@ class ProcessSIFTS(ProcessPDBe):
     def main(cls, filePath: Union[str, Path], folder: str, related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
         pdbs, _ = cls.related_UNP_PDB(filePath, related_unp, related_pdb)
         res = cls.retrieve(pdbs, 'mappings/all_isoforms/', 'get', folder)
-        return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res), sort=False, ignore_index=True)
+        return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res if res is not None), sort=False, ignore_index=True)
 
 
 class ProcessEntryData(ProcessPDBe):
     @staticmethod
-    def reformat(path: str) -> pd.DataFrame:
-        pass
-        
+    def related_PDB(pdb_col: str, **kwargs) -> pd.Series:
+        dfrm = related_dataframe(**kwargs)
+        return dfrm[pdb_col].drop_duplicates()
+
+    @classmethod
+    def main(cls, **kwargs):
+        pdbs = cls.related_PDB(**kwargs)
+        if len(pdbs) > 0:
+            res = cls.retrieve(pdbs, **kwargs)
+            try:
+                return pd.concat((pd.read_csv(route, kwargs.get('sep', '\t')) for route in res if res is not None), sort=False, ignore_index=True)
+            except ValueError:
+                cls.logger.error('Non-value to concat')
+        else:
+            return None
 
 class PDBeDecoder(object):
     @staticmethod

@@ -10,6 +10,7 @@ import shutil
 from typing import Optional, Union, Dict, Tuple, Iterable
 from logging import Logger
 from pandas import read_csv, DataFrame
+from pathlib import Path
 
 
 def decompression(path: str, extension: str =".gz", remove: bool =True, outputPath: Optional[str] = None, logger: Optional[Logger] = None):
@@ -44,7 +45,7 @@ def decompression(path: str, extension: str =".gz", remove: bool =True, outputPa
     return outputPath
 
 
-def related_dataframe(filters: Optional[Union[Dict, Iterable[Tuple]]] = None, dfrm: Optional[DataFrame] = None, path: Union[str, Path, None] = None, sep: str = '\t'):
+def related_dataframe(filters: Optional[Union[Dict, Iterable[Tuple]]] = None, dfrm: Optional[DataFrame] = None, path: Union[str, Path, None] = None, sep: str = '\t', **kwargs):
     '''
     valid symbol: `eq, ne, le, lt, ge, gt, isin`
     '''

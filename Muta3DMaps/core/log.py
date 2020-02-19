@@ -17,7 +17,7 @@ class Abclog(object):
             pass
         elif logger is None:
             if logName is None:
-                logName = __name__
+                logName = cls.__name__
             cls.logger = logging.getLogger(logName)
             cls.logger.setLevel(log_level)
             cls.streamHandler = logging.StreamHandler()

@@ -56,9 +56,12 @@ class UnsyncFetch(Abclog):
         'stop': stop_after_attempt(3),
         # 'after': after_log(logger, logging.WARNING)
         }
+    use_existing: bool = False
 
     @classmethod
     async def http_download(cls, method: str, info: Dict, path: str):
+        if cls.use_existing is True and os.path.exists(path):
+            return path
         cls.logger.debug(f"Start to download file: {info}")
         async with aiohttp.ClientSession() as session:
             async_func = getattr(session, method)
@@ -80,13 +83,15 @@ class UnsyncFetch(Abclog):
 
     @classmethod
     async def ftp_download(cls, method: str, info: Dict, path: str):
-        cls.logger.debug(f"Start to download file: {info}")
         url = furl(info['url'])
+        fileName = url.path.segments[-1]
+        filePath = os.path.join(path, fileName)
+        if cls.use_existing is True and os.path.exists(filePath):
+            return filePath
+        cls.logger.debug(f"Start to download file: {info}")
         async with aioftp.ClientSession(url.host) as session:
             await session.change_directory('/'.join(url.path.segments[:-1]))
-            fileName = url.path.segments[-1]
             await session.download(fileName, path) # , write_info=True
-        filePath = os.path.join(path, fileName)
         cls.logger.debug(f"File has been saved in: {filePath}")
         return filePath
 

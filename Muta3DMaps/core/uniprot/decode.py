@@ -253,7 +253,7 @@ class MapUniProtID(Abclog):
     def yieldTasks(self, lyst: Iterable, chunksize: int = 100, sep: str = ',') -> Generator:
         fileName = self.outputPath.stem
         for i in range(0, len(lyst), chunksize):
-            cur_fileName = f'{fileName}_{i}'
+            cur_fileName = f'{fileName}+{i}'
             cur_params = PARAMS.copy()
             cur_params['query'] = sep.join(lyst[i:i+chunksize])
             yield ('get', {'url': f'{BASE_URL}/uploadlists/', 'params': cur_params}, str(Path(self.outputPath.parent, cur_fileName+self.outputPath.suffix)))
