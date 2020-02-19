@@ -32,7 +32,7 @@ COLUMNS_DICT: Dict = dict(zip(QUERY_COLUMNS, RESULT_COLUMNS))
 
 RESULT_NEW_COLUMN: List[str] = ['yourlist', 'isomap']
 
-BASE_URL: str = 'https://www.uniprot.org/uploadlists/'
+BASE_URL: str = 'https://www.uniprot.org'
 
 PARAMS: Dict = {
     'columns': None,
@@ -256,7 +256,7 @@ class MapUniProtID(Abclog):
             cur_fileName = f'{fileName}_{i}'
             cur_params = PARAMS.copy()
             cur_params['query'] = sep.join(lyst[i:i+chunksize])
-            yield ('get', {'url': BASE_URL, 'params': cur_params}, str(Path(self.outputPath.parent, cur_fileName+self.outputPath.suffix)))
+            yield ('get', {'url': f'{BASE_URL}/uploadlists/', 'params': cur_params}, str(Path(self.outputPath.parent, cur_fileName+self.outputPath.suffix)))
 
     def retrieve(self, outputPath: str, finishedPath: Optional[str] = None, sep: str = '\t', chunksize: int = 100, concur_req: int = 20, rate: float = 1.5):
         finish_id = list()
@@ -478,3 +478,23 @@ class MapUniProtID(Abclog):
         self.logger.debug(f"Handled id mapping result saved in {edPath}")
         return edPath
 
+
+class UniProtFASTA(Abclog):
+    
+    params = {'include': 'yes'}
+    
+    @classmethod
+    def yieldTasks(cls, lyst: Iterable, folder: str) -> Generator:
+        for unp in lyst:
+            cur_fileName = f'{unp}.fasta'
+            cur_filePath = str(Path(folder, cur_fileName))
+            yield ('get', {'url': f'{BASE_URL}/uniprot/{cur_fileName}', 'params': cls.params}, cur_filePath)
+
+    @classmethod
+    def retrieve(cls, lyst: Iterable, folder: str, concur_req: int = 20, rate: float = 1.5):
+        t0 = time.perf_counter()
+        res = UnsyncFetch.multi_tasks(cls.yieldTasks(
+            lyst, folder), concur_req=concur_req, rate=rate, logger=cls.logger).result()
+        elapsed = time.perf_counter() - t0
+        cls.logger.info('{} ids downloaded in {:.2f}s'.format(len(res), elapsed))
+        return res

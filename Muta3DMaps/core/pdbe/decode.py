@@ -116,14 +116,12 @@ class SeqRangeReader(object):
         if self.name == name_group_to_check:
             self.pdb_range.append([int(data_group[0]), int(data_group[1])])
             self.unp_range.append([int(data_group[2]), int(data_group[3])])
-            out = self.output()
         else:
             self.name = name_group_to_check
             self.pdb_range = [[int(data_group[0]), int(data_group[1])]]
             self.unp_range = [[int(data_group[2]), int(data_group[3])]]
-            out = self.output()
 
-        return out
+        return self.output()
 
 
 class SeqPairwiseAlign(object):
@@ -139,13 +137,15 @@ class SeqPairwiseAlign(object):
 
     @lru_cache()
     def makeAlignment(self, seqa, seqb):
+        if seqa is None or seqb is None:
+            return np.nan, np.nan
         self.seqa = seqa
         self.seqb = seqb
         alignments = self.aligner.align(seqa, seqb)
         for alignment in alignments:
             result = self.getAlignmentSegment(alignment)
             self.alignment_count += 1
-            yield json.dumps(result[0]), json.dumps(result[1])
+            return json.dumps(result[0]), json.dumps(result[1])
 
     @staticmethod
     def getAlignmentSegment(alignment):
@@ -162,6 +162,7 @@ class SeqPairwiseAlign(object):
             i1, i2 = j1, j2
         return segments1, segments2
 
+
 class ProcessSIFTS(Abclog):
     @classmethod
     def related_UNP_PDB(cls, filePath: Union[str, Path], related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
@@ -170,7 +171,7 @@ class ProcessSIFTS(Abclog):
         
             * http://www.ebi.ac.uk/pdbe/docs/sifts/quick.html
             * A summary of the UniProt to PDB mappings showing the UniProt accession
-            followed by a semicolon-separated list of PDB four letter codes.
+              followed by a semicolon-separated list of PDB four letter codes.
         '''
         filePath = Path(filePath)
         if filePath.is_dir():
@@ -215,6 +216,7 @@ class ProcessSIFTS(Abclog):
             filename=new_path,
             delimiter='\t')
         cls.logger.debug(f'Decoded file in {new_path}')
+        return new_path
 
     @classmethod
     def retrieve(cls, pdbs: Union[Iterable, Iterator], outputFolder: Union[str, Path], concur_req: int = 20, rate: float = 1.5):
@@ -239,13 +241,15 @@ class ProcessSIFTS(Abclog):
         group_info_col = ['pdb_id', 'chain_id', 'UniProt']
         range_info_col = ['pdb_start', 'pdb_end', 'unp_start', 'unp_end']
         reader = SeqRangeReader(group_info_col)
-        dfrm['sifts_pdb_range'], dfrm['sifts_unp_range'] = dfrm.apply(lambda x: reader.check(tuple(x[i] for i in group_info_col), tuple(x[i] for i in range_info_col)), axis=1)
-        dfrm.drop_duplicates(subset=group_info_col, keep='last', inplace=True)
+        dfrm[['sifts_pdb_range', 'sifts_unp_range']] = pd.DataFrame(dfrm.apply(
+            lambda x: reader.check(tuple(x[i] for i in group_info_col), tuple(x[i] for i in range_info_col)),
+            axis=1).values.tolist(), index=dfrm.index)
+        dfrm = dfrm.drop(columns=range_info_col).drop_duplicates(subset=group_info_col, keep='last').reset_index(drop=True)
         dfrm["Entry"] = dfrm["UniProt"].apply(lambda x: x.split('-')[0])
         return dfrm
 
     @staticmethod
-    def dealWithInDe(dfrm: pd.DataFrame):
+    def dealWithInDe(dfrm: pd.DataFrame) -> pd.DataFrame:
         def get_gap_list(li: List):
             return [li[i+1][0] - li[i][1] - 1 for i in range(len(li)-1)]
 
@@ -291,28 +295,52 @@ class ProcessSIFTS(Abclog):
         return dfrm
 
     @staticmethod
-    def update_range(dfrm: pd.DataFrame, fasta_col: str, unp_fasta_files_folder: str, new_range_cols=('new_sifts_unp_range', 'new_sifts_pdb_range')):
+    def update_range(dfrm: pd.DataFrame, fasta_col: str, unp_fasta_files_folder: str, new_range_cols=('new_sifts_unp_range', 'new_sifts_pdb_range')) -> pd.DataFrame:
+        def getSeq(fasta_path: str):
+            unpSeq = None
+            try:
+                unpSeqOb = SeqIO.read(fasta_path, "fasta")
+                unpSeq = unpSeqOb.seq
+            except ValueError:
+                unpSeqOb = SeqIO.parse(fasta_path, "fasta")
+                for record in unpSeqOb:
+                    if unp_id in record.id.split('|'):
+                        unpSeq = record.seq
+            return unpSeq
+        
         focus = ('Deletion', 'Insertion & Deletion')
         focus_index = dfrm[dfrm['sifts_range_tage'].isin(focus)].index
-
         updated_pdb_range, updated_unp_range = list(), list()
         seqAligner = SeqPairwiseAlign()
         for index in focus_index:
+            pdbSeq = dfrm.loc[index, fasta_col]
+            unp_entry = dfrm.loc[index, "Entry"]
+            unp_id = dfrm.loc[index, "UniProt"]
             try:
-                pdbSeq = dfrm.loc[index, fasta_col]
-                unpSeqOb = SeqIO.read(os.path.join(unp_fasta_files_folder, f'{dfrm.loc[index, "UniProt"]}.fasta'), "fasta")
-                res = seqAligner.makeAlignment(unpSeqOb.seq, pdbSeq)
-                updated_unp_range.append(res[0])
-                updated_pdb_range.append(res[1])
+                fasta_path = os.path.join(unp_fasta_files_folder, f'{unp_id}.fasta')
+                unpSeq = getSeq(fasta_path)
             except FileNotFoundError:
-                updated_unp_range.append(np.nan)
-                updated_pdb_range.append(np.nan)
+                try:
+                    fasta_path = os.path.join(unp_fasta_files_folder, f'{unp_entry}.fasta')
+                    unpSeq = getSeq(fasta_path)
+                except FileNotFoundError:
+                    unpSeq = None
+            res = seqAligner.makeAlignment(unpSeq, pdbSeq)
+            updated_unp_range.append(res[0])
+            updated_pdb_range.append(res[1])
 
         updated_range_df = pd.DataFrame({new_range_cols[0]: updated_unp_range, new_range_cols[1]: updated_pdb_range}, index=focus_index)
         dfrm = pd.merge(dfrm, updated_range_df, left_index=True, right_index=True, how='left')
         dfrm[new_range_cols[0]] = dfrm.apply(lambda x: x['sifts_unp_range'] if pd.isna(x[new_range_cols[0]]) else x[new_range_cols[0]], axis=1)
         dfrm[new_range_cols[1]] = dfrm.apply(lambda x: x['sifts_pdb_range'] if pd.isna(x[new_range_cols[1]]) else x[new_range_cols[1]], axis=1)
         return dfrm
+
+    @classmethod
+    def main(cls, filePath: Union[str, Path], folder: str, related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
+        pdbs, _ = cls.related_UNP_PDB(filePath, related_unp, related_pdb)
+        res = cls.retrieve(pdbs, folder)
+        return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res), sort=False, ignore_index=True)
+
 
 class ProcessPDBe(Abclog):
     pass
@@ -421,7 +449,7 @@ class PDBeDecoder(object):
 
     @staticmethod
     @dispatch_on_set({'/pdb/entry/secondary_structure/'})
-    def yieldSecondaryStructure(data: Dict):
+    def yieldSecondaryStructure(data: Dict) -> Generator:
         for pdb in data:
             molecules = data[pdb]['molecules']
             for entity in molecules:
@@ -452,7 +480,7 @@ class PDBeDecoder(object):
 
     @staticmethod
     @dispatch_on_set({'/pdb/entry/assembly/'})
-    def yieldAssembly(data: Dict):
+    def yieldAssembly(data: Dict) -> Generator:
         for pdb in data:
             for biounit in data[pdb]:
                 entities = biounit['entities']
@@ -466,7 +494,7 @@ class PDBeDecoder(object):
 
     @staticmethod
     @dispatch_on_set({'/pdb/entry/files/'})
-    def yieldAssociatedFiles(data: Dict):
+    def yieldAssociatedFiles(data: Dict) -> Generator:
         for pdb in data:
             for key in data[pdb]:
                 for innerKey in data[pdb][key]:
