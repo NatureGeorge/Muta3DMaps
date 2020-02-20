@@ -16,7 +16,7 @@ import ujson as json
 import time
 from pathlib import Path
 from logging import Logger
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from unsync import unsync, Unfuture
 from Bio import Align, SeqIO
 from Bio.SubsMat import MatrixInfo as matlist
@@ -165,14 +165,14 @@ class SeqPairwiseAlign(object):
 
 class ProcessPDBe(Abclog):
     @staticmethod
-    def yieldTasks(pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 100) -> Generator:
+    def yieldTasks(pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 25, task_id: int = 0) -> Generator:
         file_prefix = suffix.replace('/', '%')
         method = method.lower()
         if method == 'post':
             url = f'{BASE_URL}{suffix}'
             for i in range(0, len(pdbs), chunksize):
                 params = {'url': url, 'data': ','.join(pdbs[i:i+chunksize])}
-                yield method, params, os.path.join(folder, f'{file_prefix}+{i}.json')
+                yield method, params, os.path.join(folder, f'{file_prefix}+{task_id}+{i}.json')
         elif method == 'get':
             for pdb in pdbs:
                 pdb = pdb.lower()
@@ -181,10 +181,10 @@ class ProcessPDBe(Abclog):
             raise ValueError(f'Invalid method: {method}, method should either be "get" or "post"')
 
     @classmethod
-    def retrieve(cls, pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 20, concur_req: int = 20, rate: float = 1.5, **kwargs):
+    def retrieve(cls, pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 20, concur_req: int = 20, rate: float = 1.5, task_id: int = 0, **kwargs):
         t0 = time.perf_counter()
         res = UnsyncFetch.multi_tasks(
-            cls.yieldTasks(pdbs, suffix, method, folder, chunksize), 
+            cls.yieldTasks(pdbs, suffix, method, folder, chunksize, task_id), 
             cls.process, 
             concur_req=concur_req, 
             rate=rate, 
@@ -231,7 +231,7 @@ class ProcessSIFTS(ProcessPDBe):
             task = ('ftp', {'url': url}, str(filePath))
             res = UnsyncFetch.multi_tasks([task]).result()
             filePath = decompression(res[0], remove=False, logger=cls.logger)
-        elif filePath.is_file():
+        elif filePath.is_file() and filePath.exists():
             filePath = str(filePath)
         else:
             raise ValueError('Invalid value for filePath')
@@ -365,6 +365,17 @@ class ProcessSIFTS(ProcessPDBe):
 
 
 class ProcessEntryData(ProcessPDBe):
+
+    converters = {
+        'pdb_id': str,
+        'chain_id': str,
+        'struct_asym_id': str,
+        'entity_id': int,
+        'author_residue_number': int, 
+        'residue_number': int,
+        'author_insertion_code': str,
+    }
+
     @staticmethod
     def related_PDB(pdb_col: str, **kwargs) -> pd.Series:
         dfrm = related_dataframe(**kwargs)
@@ -376,11 +387,86 @@ class ProcessEntryData(ProcessPDBe):
         if len(pdbs) > 0:
             res = cls.retrieve(pdbs, **kwargs)
             try:
-                return pd.concat((pd.read_csv(route, kwargs.get('sep', '\t')) for route in res if res is not None), sort=False, ignore_index=True)
+                return pd.concat((pd.read_csv(route, sep=kwargs.get('sep', '\t'), converters=cls.converters) for route in res if res is not None), sort=False, ignore_index=True)
             except ValueError:
                 cls.logger.error('Non-value to concat')
         else:
             return None
+
+    @classmethod
+    def unit(cls, pdbs, **kwargs):
+        if len(pdbs) > 0:
+            res = cls.retrieve(pdbs, **kwargs)
+            try:
+                return pd.concat((pd.read_csv(route, sep=kwargs.get('sep', '\t'), converters=cls.converters) for route in res if res is not None), sort=False, ignore_index=True)
+            except ValueError:
+                cls.logger.warning('Non-value to concat')
+        else:
+            return None
+
+    @staticmethod
+    def yieldObserved(dfrm: pd.DataFrame) -> Generator:
+        groups = dfrm.groupby(['pdb_id', 'entity_id', 'chain_id'])
+        for i, j in groups:
+            mod = j.dropna(subset=['chem_comp_id'])
+            yield i, len(j[j.observed_ratio.gt(0)]), len(mod[mod.observed_ratio.gt(0)])
+
+    @staticmethod
+    def traverse(data: Dict, cols: Tuple, cutoff=50):
+        '''
+        temp
+        '''
+        observed_res_count, observed_modified_res_count = cols
+        for pdb in data:
+            count = 0
+            cleaned = 0
+            for entity in data[pdb].values():
+                for chain in entity.values():
+                    if chain[observed_res_count] - chain[observed_modified_res_count] < cutoff:
+                        cleaned += 1
+                    count += 1
+            yield pdb, count, cleaned
+
+    @classmethod
+    def pipeline(cls, pdbs: Iterable, folder: str, chunksize: int = 1000):
+        for i in range(0, len(pdbs), chunksize):
+            related_pdbs = pdbs[i:i+chunksize]
+            molecules_dfrm = ProcessEntryData.unit(
+                related_pdbs,
+                suffix='pdb/entry/molecules/',
+                method='post',
+                folder=folder,
+                task_id=i)
+            res_listing_dfrm =ProcessEntryData.unit(
+                related_pdbs,
+                suffix='pdb/entry/residue_listing/',
+                method='get',
+                folder=folder,
+                task_id=i)
+            modified_AA_dfrm = ProcessEntryData.unit(
+                related_pdbs,
+                suffix='pdb/entry/modified_AA_or_NA/',
+                method='post',
+                folder=folder,
+                task_id=i)
+            if modified_AA_dfrm is not None:
+                res_listing_dfrm.drop(columns=['author_insertion_code'], inplace=True)
+                modified_AA_dfrm.drop(columns=['author_insertion_code'], inplace=True)
+                res_listing_mod_dfrm = pd.merge(res_listing_dfrm, modified_AA_dfrm, how='left')
+            else:
+                res_listing_mod_dfrm = res_listing_dfrm
+                res_listing_mod_dfrm['chem_comp_id'] = np.nan
+            pro_dfrm = molecules_dfrm[molecules_dfrm.molecule_type.isin(['polypeptide(L)', 'polypeptide(D)'])][['pdb_id', 'entity_id']].reset_index(drop=True)
+            pro_res_listing_mod_dfrm = pd.merge(res_listing_mod_dfrm, pro_dfrm)
+            data = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+            for (pdb_id, entity_id, chain_id), observed_res_count, observed_modified_res_count in cls.yieldObserved(pro_res_listing_mod_dfrm):
+                data[pdb_id][entity_id][chain_id]['ob_res'] = observed_res_count
+                data[pdb_id][entity_id][chain_id]['ob_moded_res'] = observed_modified_res_count
+            with Path(folder, f'clean_pdb_statistic+{i}.tsv').open(mode='w+') as outFile:
+                for tup in cls.traverse(data, ('ob_res', 'ob_moded_res')):
+                    outFile.write('%s\t%s\t%s\n' % tup)
+            with Path(folder, f'clean_pdb_statistic+{i}.json').open(mode='w+') as outFile:
+                json.dump(data, outFile)
 
 class PDBeDecoder(object):
     @staticmethod
