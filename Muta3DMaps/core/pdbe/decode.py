@@ -361,7 +361,7 @@ class ProcessSIFTS(ProcessPDBe):
     def main(cls, filePath: Union[str, Path], folder: str, related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
         pdbs, _ = cls.related_UNP_PDB(filePath, related_unp, related_pdb)
         res = cls.retrieve(pdbs, 'mappings/all_isoforms/', 'get', folder)
-        return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res if res is not None), sort=False, ignore_index=True)
+        return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res if route is not None), sort=False, ignore_index=True)
 
 
 class ProcessEntryData(ProcessPDBe):
@@ -373,8 +373,7 @@ class ProcessEntryData(ProcessPDBe):
         'entity_id': int,
         'author_residue_number': int, 
         'residue_number': int,
-        'author_insertion_code': str,
-    }
+        'author_insertion_code': str}
 
     @staticmethod
     def related_PDB(pdb_col: str, **kwargs) -> pd.Series:
@@ -387,7 +386,7 @@ class ProcessEntryData(ProcessPDBe):
         if len(pdbs) > 0:
             res = cls.retrieve(pdbs, **kwargs)
             try:
-                return pd.concat((pd.read_csv(route, sep=kwargs.get('sep', '\t'), converters=cls.converters) for route in res if res is not None), sort=False, ignore_index=True)
+                return pd.concat((pd.read_csv(route, sep=kwargs.get('sep', '\t'), converters=cls.converters) for route in res if route is not None), sort=False, ignore_index=True)
             except ValueError:
                 cls.logger.error('Non-value to concat')
         else:
@@ -398,7 +397,7 @@ class ProcessEntryData(ProcessPDBe):
         if len(pdbs) > 0:
             res = cls.retrieve(pdbs, **kwargs)
             try:
-                return pd.concat((pd.read_csv(route, sep=kwargs.get('sep', '\t'), converters=cls.converters) for route in res if res is not None), sort=False, ignore_index=True)
+                return pd.concat((pd.read_csv(route, sep=kwargs.get('sep', '\t'), converters=cls.converters) for route in res if route is not None), sort=False, ignore_index=True)
             except ValueError:
                 cls.logger.warning('Non-value to concat')
         else:
@@ -437,7 +436,7 @@ class ProcessEntryData(ProcessPDBe):
                 method='post',
                 folder=folder,
                 task_id=i)
-            res_listing_dfrm =ProcessEntryData.unit(
+            res_listing_dfrm = ProcessEntryData.unit(
                 related_pdbs,
                 suffix='pdb/entry/residue_listing/',
                 method='get',

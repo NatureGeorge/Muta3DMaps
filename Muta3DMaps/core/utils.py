@@ -47,7 +47,7 @@ def decompression(path: str, extension: str =".gz", remove: bool =True, outputPa
 
 def related_dataframe(filters: Optional[Union[Dict, Iterable[Tuple]]] = None, dfrm: Optional[DataFrame] = None, path: Union[str, Path, None] = None, sep: str = '\t', **kwargs):
     '''
-    valid symbol: `eq, ne, le, lt, ge, gt, isin`
+    valid symbol: `eq, ne, le, lt, ge, gt, isin, isnull`
     '''
     
     if dfrm is None:
