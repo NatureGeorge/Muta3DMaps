@@ -251,10 +251,11 @@ class SIFTS_unit(Unit):
 
         def getHeadTailMisNum(head, tail, li):
             try:
-                mis_li = json.loads(li.replace('\'', '"'))
+                if isinstance(li, str):
+                    mis_li = json.loads(li.replace('\'', '"'))
             except Exception:
                 return 0
-            if not isinstance(head, float) and not isinstance(tail, float):  # WARNING
+            if not pd.isna(head) and not pd.isna(tail):  # WARNING
                 return len(list(filter(lambda x: (x >= head+5) & (x <= tail-5), mis_li)))
             else:
                 return 0
@@ -784,3 +785,20 @@ if __name__ == '__main__':
     demo = SIFTS_unit()
     demo.set_lists(['Test is success.'], [])
     print(demo.pdb_list)
+
+
+
+def select_interveral_best(dfrm: pd.DataFrame, target_col: str, rank_col: str):
+    '''Will change the dataframe'''
+
+    def define_group(value: float, groups):
+        for name, group in groups:
+            if value in groups:
+                return name
+        return np.nan
+
+
+    dfrm['group_col'] = dfrm[target_col].apply(define_group)
+    for group_name, group_data in dfrm.groupby('group_col'):
+        
+

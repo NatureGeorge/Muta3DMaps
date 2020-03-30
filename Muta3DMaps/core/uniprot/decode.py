@@ -384,6 +384,8 @@ class MapUniProtID(Abclog):
         self.logger.debug("Start to handle id mapping result")
         if not isinstance(path, str):
             path = path.result()
+        if not Path(path).stat().st_size:
+            return None
         self.altSeqPath, self.altProPath = ExtractIsoAlt.main(path=path)
         try:
             df = pd.read_csv(path, sep='\t', names=self.result_cols, skiprows=1, header=None)
@@ -498,3 +500,6 @@ class UniProtFASTA(Abclog):
         elapsed = time.perf_counter() - t0
         cls.logger.info('{} ids downloaded in {:.2f}s'.format(len(res), elapsed))
         return res
+
+
+# TODO: Fix MapUniProtID.__init__, let it read the big file in chunk

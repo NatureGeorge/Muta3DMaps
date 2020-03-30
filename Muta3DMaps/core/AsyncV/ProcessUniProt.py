@@ -526,7 +526,7 @@ class MapUniProtID:
         * others(corresponding GENE)
 
         """
-        if self.id_col != 'GENENAME':
+        if self.id_type != 'GENENAME':
             
             if self.gene_col is None:
                 handled_df['GENE_status'] = True

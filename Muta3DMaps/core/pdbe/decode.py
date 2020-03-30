@@ -164,6 +164,16 @@ class SeqPairwiseAlign(object):
 
 
 class ProcessPDBe(Abclog):
+
+    converters = {
+        'pdb_id': str,
+        'chain_id': str,
+        'struct_asym_id': str,
+        'entity_id': int,
+        'author_residue_number': int,
+        'residue_number': int,
+        'author_insertion_code': str}
+
     @staticmethod
     def yieldTasks(pdbs: Union[Iterable, Iterator], suffix: str, method: str, folder: str, chunksize: int = 25, task_id: int = 0) -> Generator:
         file_prefix = suffix.replace('/', '%')
@@ -247,9 +257,9 @@ class ProcessSIFTS(ProcessPDBe):
         else:
             return set(pdb_list), set(dfrm['SP_PRIMARY'])
 
-    @staticmethod
-    def reformat(path: str) -> pd.DataFrame:
-        dfrm = pd.read_csv(path, sep='\t')
+    @classmethod
+    def reformat(cls, path: str) -> pd.DataFrame:
+        dfrm = pd.read_csv(path, sep='\t', converters=cls.converters)
         group_info_col = ['pdb_id', 'chain_id', 'UniProt']
         range_info_col = ['pdb_start', 'pdb_end', 'unp_start', 'unp_end']
         reader = SeqRangeReader(group_info_col)
@@ -361,20 +371,11 @@ class ProcessSIFTS(ProcessPDBe):
     def main(cls, filePath: Union[str, Path], folder: str, related_unp: Optional[Iterable] = None, related_pdb: Optional[Iterable] = None):
         pdbs, _ = cls.related_UNP_PDB(filePath, related_unp, related_pdb)
         res = cls.retrieve(pdbs, 'mappings/all_isoforms/', 'get', folder)
-        return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res if route is not None), sort=False, ignore_index=True)
+        # return pd.concat((cls.dealWithInDe(cls.reformat(route)) for route in res if route is not None), sort=False, ignore_index=True)
+        return res
 
 
 class ProcessEntryData(ProcessPDBe):
-
-    converters = {
-        'pdb_id': str,
-        'chain_id': str,
-        'struct_asym_id': str,
-        'entity_id': int,
-        'author_residue_number': int, 
-        'residue_number': int,
-        'author_insertion_code': str}
-
     @staticmethod
     def related_PDB(pdb_col: str, **kwargs) -> pd.Series:
         dfrm = related_dataframe(**kwargs)
