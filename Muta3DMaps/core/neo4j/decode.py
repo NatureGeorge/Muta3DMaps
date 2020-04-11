@@ -4,7 +4,7 @@
 # @Author: ZeFeng Zhu
 # @Last Modified: 2020-04-08 09:44:05 am
 # @Copyright (c) 2020 MinghuiGroup, Soochow University
-from typing import List, Iterable, Iterator, Union, Dict
+from typing import List, Iterable, Iterator, Union, Dict, Optional, Tuple
 from neo4j import GraphDatabase
 import pandas as pd
 from pathlib import Path
@@ -30,13 +30,19 @@ standardNu = ['DA', 'DT', 'DC', 'DG', 'A', 'U', 'C', 'G']
 
 def to_interval(lyst: Union[Iterable, Iterator]) -> Union[float, List]:
     def pass_check(lyst):
-        if not lyst or pd.isna(lyst):
-            return False
-        else:
-            return True
+        try:
+            if not lyst or pd.isna(lyst):
+                return False
+            else:
+                return True
+        except ValueError:
+            if isinstance(lyst, float):
+                return False
+            else:
+                return True
     if not pass_check(lyst): return nan
     else:
-        lyst = set(lyst)
+        lyst = set(int(i) for i in lyst)
         if not pass_check(lyst): return nan
         start = []
         interval_lyst = []
@@ -83,12 +89,25 @@ def interval2set(lyst: Union[Iterable, Iterator, str]):
     return range_set
 
 
+def lyst2range(lyst, add_end=1):
+    for start, end in lyst:
+        yield from range(int(start), int(end)+add_end)
+
+
 def subtract_range(pdb_range: Union[str, Iterable], mis_range: Union[str, Iterable]) -> List:
     if isinstance(mis_range, float):
         return pdb_range
     pdb_range_set = interval2set(pdb_range)
     mis_range_set = interval2set(mis_range)
     return to_interval(pdb_range_set - mis_range_set)
+
+
+def add_range(left: Union[str, Iterable], right: Union[str, Iterable]) -> List:
+    if isinstance(right, float):
+        return left
+    left_range_set = interval2set(left)
+    right_range_set = interval2set(right)
+    return to_interval(left_range_set | right_range_set)
 
 
 def overlap_range(obs_range:Union[str, Iterable], unk_range: Union[str, Iterable]) -> List:
@@ -126,7 +145,10 @@ def range_len(lyst: Union[List, str, float]) -> int:
 
 
 def lyst2dict(lyst: List) -> Dict:
-    res = dict(lyst)
+    try:
+        res = dict(lyst)
+    except TypeError:
+        res = dict((tuple(key), value)for key,value in lyst)
     for key in res.keys():
         res[key] = dict(res[key])
     return res
@@ -137,6 +159,47 @@ def sub_index(init_index, subtract_index) -> pd.Index:
         return init_index
     else:
         return pd.Index(set(init_index)-set(subtract_index))
+
+
+def related_dataframe(filters: Optional[Union[Dict, Iterable[Tuple]]] = None, dfrm: Optional[pd.DataFrame] = None, path: Union[str, Path, None] = None, sep: str = '\t', **kwargs):
+    '''
+    valid symbol: `eq, ne, le, lt, ge, gt, isin, isnull`
+    example:
+        {col1: ('eq', 1), col2: ('lt', 5)}
+    '''
+
+    if dfrm is None:
+        if path is not None:
+            dfrm = pd.read_csv(path, sep=sep)
+        else:
+            raise ValueError('path should not be None')
+    elif not isinstance(dfrm, pd.DataFrame):
+        raise ValueError('dfrm should be a pandas.DataFrame')
+
+    if filters is None:
+        return dfrm
+    elif isinstance(filters, Dict):
+        filters = filters.items()
+
+    for col, (symbol, value) in filters:
+        dfrm = dfrm[getattr(getattr(dfrm, col), symbol)(value)]
+    return dfrm
+
+
+def subtract_dict(left: Dict, right: Dict, copy:bool=True) -> Dict:
+    if copy:
+        left = left.copy()
+    for key in left.keys() & right.keys():
+        res = set(left[key]) - set(right[key])
+        if res:
+            left[key] = list(res)
+        else:
+            del left[key]
+    return left
+
+
+def tidy_na(dfrm: pd.DataFrame, colName: str, fill, astype):
+    dfrm[colName] = dfrm[colName].fillna(fill).apply(astype)
 
 
 class Entry(object):
@@ -155,7 +218,7 @@ class Entry(object):
         query = '''
             MATCH (entry:Entry)-[:EXPERIMENT]->(method:Method)
             WHERE entry.ID in $lyst
-            RETURN entry.ID as pdb_id, entry.PDB_REV_DATE_ORIGINAL, entry.FIRST_REV_DATE, entry.PDB_REV_DATE, entry.REVISION_DATE, entry.RESOLUTION, method.METHOD_CLASS
+            RETURN entry.ID as pdb_id, entry.PDB_REV_DATE_ORIGINAL, entry.FIRST_REV_DATE, entry.PDB_REV_DATE, entry.REVISION_DATE, tofloat(entry.RESOLUTION) as resolution, method.METHOD_CLASS
         '''
         return session.run(query, lyst=list(pdbs))
     
@@ -202,9 +265,12 @@ class Entry(object):
     def deal_nucleotides(cls, res):
         dfrm = cls.to_data_frame(res)
         dfrm.polymer_type = dfrm.apply(lambda x: cls.get_polymer_type(x['DNA_COUNT'], x['RNA_COUNT']), axis=1)
-        return pd.DataFrame(
-            ((pdb_id, json.dumps(dict(zip(data.entity_id, data.polymer_type)))) for pdb_id, data in res.groupby('pdb_id')),
+        res = pd.DataFrame(
+            ((pdb_id, json.dumps(dict(zip(data.entity_id, data.polymer_type))))
+             for pdb_id, data in dfrm.groupby('pdb_id')),
             columns=('pdb_id', 'nucleotides_entity_type'))
+        res['has_hybrid_nucleotides'] = res.nucleotides_entity_type.apply(lambda x: 'D\/R' in x)
+        return res
 
     @classmethod
     def summary_seq(cls, pdbs, session=None):
@@ -213,7 +279,7 @@ class Entry(object):
         query = '''
             MATCH (entry:Entry)-[:HAS_ENTITY]->(entity:Entity{POLYMER_TYPE:'P'})-[:CONTAINS_CHAIN]->(chain:Chain)-[inChain:IS_IN_CHAIN]-(res:PDBResidue)
             WHERE entry.ID in $lyst
-            RETURN 
+            WITH 
                 entry.ID as pdb_id,
                 entity.ID as entity_id,
                 chain.AUTH_ASYM_ID as chain_id,
@@ -221,7 +287,11 @@ class Entry(object):
                 avg(tofloat(inChain.OBSERVED_RATIO)) as AVG_OBS_RATIO,
                 [x in COLLECT([res.ID, inChain.AUTH_COMP_ID]) WHERE NOT x[1] IN $standardAA] as NON_INDEX,
                 [x in COLLECT([res.ID, inChain.AUTH_COMP_ID]) WHERE x[1] = 'UNK'] as UNK_INDEX,
-                [x in COLLECT([res.ID, inChain.OBSERVED]) WHERE x[1]='N'] as MIS_INDEX
+                [x in COLLECT([res.ID, inChain.OBSERVED]) WHERE x[1]='N'] as MIS_INDEX,
+                chain
+            MATCH (chain)-[obs_inChain:IS_IN_CHAIN]-()
+           	WHERE tofloat(obs_inChain.OBSERVED_RATIO) > 0
+            RETURN pdb_id, entity_id, chain_id, SEQRES_COUNT, AVG_OBS_RATIO, avg(tofloat(obs_inChain.OBSERVED_RATIO)) as AVG_OBS_OBS_RATIO, NON_INDEX, UNK_INDEX, MIS_INDEX
         '''
         return session.run(query, lyst=list(pdbs), standardAA=standardAA)
 
@@ -315,8 +385,11 @@ class Entry(object):
     
     @classmethod
     def deal_entity_chain(cls, res):
-        dfrm = cls.to_data_frame(res)
-        dfrm.entity_chain_map = dfrm.entity_chain_map.apply(dict)
+        if isinstance(res, pd.DataFrame):
+            dfrm = res
+        else:
+            dfrm = cls.to_data_frame(res)
+            dfrm.entity_chain_map = dfrm.entity_chain_map.apply(dict)
         dfrm['entity_count'] = dfrm.entity_chain_map.apply(len)
         dfrm['chain_count'] = dfrm.entity_chain_map.apply(lambda x: sum(len(i) for i in x.values()))
         return dfrm
@@ -324,48 +397,61 @@ class Entry(object):
 
 class SIFTS(Entry):
     @classmethod
-    def summary_entity_unp(cls, pdbs, session=None):
+    def summary_entity_unp(cls, pdbs, tax_id: Optional[str]=None, session=None):
         if session is None:
             session = cls.session
         query = """
-                MATCH (entry:Entry)-[:HAS_ENTITY]-(entity:Entity{POLYMER_TYPE:'P'})-[unp_rel:HAS_UNIPROT{BEST_MAPPING:"1"}]-(unp:UniProt)
-                WHERE entry.ID in $pdbs
-                WITH entry, entity, unp
+                MATCH (entry:Entry)-[:HAS_ENTITY]-(entity:Entity{POLYMER_TYPE:'P'})-[unp_rel:HAS_UNIPROT{BEST_MAPPING:"1"}]-(unp:UniProt)-[:HAS_TAXONOMY]-(tax:Taxonomy)
+                WHERE entry.ID in $pdbs %s
+                WITH entry, entity, unp, tax
                 MATCH (unp)-[seg:HAS_UNIPROT_SEGMENT]-(entity)
-                WITH COLLECT(DISTINCT [seg.UNP_START, seg.UNP_END]) as range_info, unp, entry, entity
-                WITH COLLECT([entity.ID, range_info]) as eneitiy_unp_info, entry, unp
-                RETURN entry.ID as pdb_id, COLLECT([unp.ACCESSION, eneitiy_unp_info]) as unp_entity_info
+                WITH COLLECT(DISTINCT [toInteger(seg.UNP_START), toInteger(seg.UNP_END)]) as range_info, unp, entry, entity, tax
+                WITH COLLECT([entity.ID, range_info]) as eneitiy_unp_info, entry, unp, tax
+                RETURN entry.ID as pdb_id, COLLECT([[unp.ACCESSION,tax.TAX_ID], eneitiy_unp_info]) as unp_entity_info
             """
+        if tax_id is None:
+            query = query % ''
+        else:
+            query = query % f'AND tax.ID = "{tax_id}"'
         return session.run(query, pdbs=list(pdbs))
     
     @classmethod
     def deal_entity_unp(cls, res):
-        dfrm = cls.to_data_frame(res)
-        dfrm.unp_entity_info = dfrm.unp_entity_info.apply(lyst2dict)
-        dfrm['unp_count'] = dfrm.unp_entity_info.apply(len)
-        dfrm['unp_rel_count'] = dfrm.unp_entity_info.apply(lambda x: sum(len(i) for i in x.values()))
-        return dfrm
+        def reverse_dict(info_dict: Dict) -> Dict:
+            res = defaultdict(list)
+            for key, valueDict in info_dict.items():
+                for innerKey in valueDict.keys():
+                    res[innerKey].append(key)
+            return res
 
-    @staticmethod
-    def overall_check(df: pd.DataFrame):
-        error_index = df[df.entity_count < df.unp_rel_count].index
-        pass_index = sub_index(df.index, error_index)
-        return df.loc[pass_index], df.loc[error_index]
+        def min_unp(info_dict: Dict) -> int:
+            return min(len(set(res)) for res in product(*info_dict.values()))
+        
+        if isinstance(res, pd.DataFrame):
+            dfrm = res
+        else:
+            dfrm = cls.to_data_frame(res)
+            dfrm.unp_entity_info = dfrm.unp_entity_info.apply(lyst2dict)
+        dfrm['entity_unp_info'] = dfrm.unp_entity_info.apply(reverse_dict)
+        dfrm['entity_with_unp_count'] = dfrm.entity_unp_info.apply(len)
+        dfrm['min_unp_count'] = dfrm.entity_unp_info.apply(min_unp)
+        return dfrm
     
     @staticmethod
-    def get_raw_oligo_state(df: pd.DataFrame):
-        state_name, unmapped_name = 'raw_oligo_state', 'has_unmapped_protein'
+    def get_oligo_state(df: pd.DataFrame):
+        state_name, unmapped_name = 'oligo_state', 'has_unmapped_protein'
+        assert len(df[df.entity_count < df.entity_with_unp_count]) == 0
         cur_df = df
         # He
         he = cur_df[
-            ((cur_df.entity_count > cur_df.unp_rel_count) &
-            (cur_df.unp_count.eq(1))) | (cur_df.unp_count.gt(1))
+            ((cur_df.entity_count > cur_df.entity_with_unp_count) &
+             (cur_df.min_unp_count.eq(1))) | (cur_df.min_unp_count.gt(1))
         ].index
         cur_df = cur_df.loc[sub_index(cur_df.index, he)]
         # Ho
         ho = cur_df[
-            (cur_df.entity_count == cur_df.unp_rel_count)  # already satisfied
-            & (cur_df.unp_count.eq(1))  # already satisfied
+            (cur_df.entity_count == cur_df.entity_with_unp_count)
+            & (cur_df.min_unp_count.eq(1))
             & (cur_df.chain_count.gt(1))
         ].index
         cur_df = cur_df.loc[sub_index(cur_df.index, ho)]
@@ -379,7 +465,7 @@ class SIFTS(Entry):
         df.loc[he, state_name] = 'he'
         # Tag
         non_ho = df.loc[sub_index(df.index, ho)]
-        unmapped = non_ho[non_ho.entity_count > non_ho.unp_rel_count].index
+        unmapped = non_ho[non_ho.entity_count > non_ho.entity_with_unp_count].index
         df[unmapped_name] = False
         df.loc[unmapped, unmapped_name] = True
         # return
@@ -387,15 +473,52 @@ class SIFTS(Entry):
 
     @classmethod
     def summary_oligo_state(cls, pdbs):
-        entity_chain_info = cls.deal_entity_chain(cls.summary_entity_chain(pdbs))
-        unp_entity_info = cls.deal_entity_unp(cls.summary_entity_unp(pdbs))
-        unp_entity_chain_info = pd.merge(entity_chain_info, unp_entity_info, how='left')
-        unp_entity_chain_info.unp_count.fillna(0, inplace=True)
-        unp_entity_chain_info.unp_rel_count.fillna(0, inplace=True)
-        unp_entity_chain_info.unp_count = unp_entity_chain_info.unp_count.apply(int)
-        unp_entity_chain_info.unp_rel_count = unp_entity_chain_info.unp_rel_count.apply(int)
-        pass_result, error_result = cls.overall_check(unp_entity_chain_info)
-        pass_result_oli, indexes_oli = cls.get_raw_oligo_state(pass_result)
+        entity_chain = cls.deal_entity_chain(cls.summary_entity_chain(pdbs))
+        unp_entity = cls.deal_entity_unp(cls.summary_entity_unp(pdbs))
+        unp_entity_chain = pd.merge(entity_chain, unp_entity, how='left')
+        tidy_na(unp_entity_chain, 'entity_with_unp_count', 0, int)
+        tidy_na(unp_entity_chain, 'min_unp_count', 0, int)
+        # pass_result_oli, indexes_oli
+        return cls.get_oligo_state(unp_entity_chain)
+
+    @staticmethod
+    def omit_chains(seq_df: pd.DataFrame, cutoff: int = 50, omit_col: str = 'ATOM_RECORD_COUNT'):
+        focus = seq_df[seq_df[omit_col].lt(cutoff)]
+        return pd.DataFrame(
+            ((pdb_id, dict((entity_id, entityData.chain_id.to_list()) for entity_id,
+                           entityData in pdbData.groupby('entity_id'))) for pdb_id, pdbData in focus.groupby('pdb_id')),
+            columns=('pdb_id', 'del_entity_chain')
+        )
+
+    @classmethod
+    def update_oligo_state(cls, oligo_df: pd.DataFrame, omit_df: pd.DataFrame):
+        def new_entity_chain_map(entity_chain_map, del_entity_chain) -> Dict:
+            if isinstance(del_entity_chain, Dict):
+                return subtract_dict(entity_chain_map, del_entity_chain)
+            else:
+                return entity_chain_map
+
+        def rest_unp_entity(unp_entity_info, entity_chain_map: Dict):
+            if not isinstance(unp_entity_info, Dict):
+                return nan
+            new_unp_entity_info = defaultdict(dict)
+            for unp, valuedict in unp_entity_info.items():
+                entities = valuedict.keys() & entity_chain_map.keys()
+                if not entities:
+                    continue
+                for entity in entities:
+                    new_unp_entity_info[unp][entity] = unp_entity_info[unp][entity]
+            return new_unp_entity_info
+        
+        oligo_df = pd.merge(oligo_df, omit_df, how='left')
+        oligo_df.entity_chain_map = oligo_df.apply(lambda x: new_entity_chain_map(
+            x['entity_chain_map'], x['del_entity_chain']), axis=1)
+        oligo_df.unp_entity_info = oligo_df.apply(lambda x: rest_unp_entity(
+            x['unp_entity_info'], x['entity_chain_map']), axis=1)
+        oligo_df = cls.deal_entity_unp(cls.deal_entity_chain(oligo_df))
+        tidy_na(oligo_df, 'entity_with_unp_count', 0, int)
+        tidy_na(oligo_df, 'min_unp_count', 0, int)
+        return cls.get_oligo_state(oligo_df)
 
     @classmethod
     def set_from(cls, id_type: str):
@@ -427,7 +550,21 @@ class SIFTS(Entry):
         dfrm.unp_range = dfrm.unp_range.apply(json.dumps)
         dfrm = cls.update_range(dfrm)
         return dfrm
-    
+
+    @classmethod
+    def extra_mapping(cls, entity_uniqids, unps, session=None) -> pd.DataFrame:
+        if session is None:
+            session = cls.session
+        query = '''
+            MATCH (entity:Entity)-[seg:HAS_UNIPROT_SEGMENT]->(unp:UniProt)
+            WHERE entity.UNIQID IN $entity_uniqids AND unp.ACCESSION IN $unps
+            RETURN unp.ACCESSION as UniProt, entry.ID as pdb_id, entity.ID as entity_id, seg.AUTH_ASYM_ID as chain_id, tofloat(seg.IDENTITY) as identity, COLLECT([toInteger(seg.PDB_START), toInteger(seg.PDB_END)]) as pdb_range, COLLECT([toInteger(seg.UNP_START), toInteger(seg.UNP_END)]) as unp_range
+        '''
+        res = session.run(query, 
+            entity_uniqids=list(entity_uniqids),
+            unps=list(unps))
+        return cls.deal_mapping(res)
+
     @staticmethod
     def sort_2_range(unp_range: List, pdb_range: List):
         unp_range, pdb_range = zip(*sorted(zip(unp_range, pdb_range), key=lambda x: x[0][0]))
@@ -489,7 +626,8 @@ class SIFTS(Entry):
         return dfrm
 
     @classmethod
-    def update_range(cls, dfrm: pd.DataFrame, new_range_cols=('new_unp_range', 'new_pdb_range')) -> pd.DataFrame:
+    def update_range(cls, dfrm: pd.DataFrame) -> pd.DataFrame:
+        new_unp_range, new_pdb_range = 'new_unp_range', 'new_pdb_range'
         focus_index = dfrm[
             (dfrm.sifts_range_tag.isin(('Deletion', 'Insertion & Deletion')))
             & (dfrm.repeated.eq(False))].index
@@ -504,13 +642,13 @@ class SIFTS(Entry):
             updated_pdb_range.append(res[1])
 
         updated_range_df = pd.DataFrame(
-            {new_range_cols[0]: updated_unp_range, new_range_cols[1]: updated_pdb_range}, index=focus_index)
+            {new_unp_range: updated_unp_range, new_pdb_range: updated_pdb_range}, index=focus_index)
         dfrm = pd.merge(dfrm, updated_range_df, left_index=True,
                         right_index=True, how='left')
-        dfrm[new_range_cols[0]] = dfrm.apply(lambda x: x['unp_range'] if pd.isna(
-            x[new_range_cols[0]]) else x[new_range_cols[0]], axis=1)
-        dfrm[new_range_cols[1]] = dfrm.apply(lambda x: x['pdb_range'] if pd.isna(
-            x[new_range_cols[1]]) else x[new_range_cols[1]], axis=1)
+        dfrm[new_unp_range] = dfrm.apply(lambda x: x['unp_range'] if pd.isna(
+            x[new_unp_range]) else x[new_unp_range], axis=1)
+        dfrm[new_pdb_range] = dfrm.apply(lambda x: x['pdb_range'] if pd.isna(
+            x[new_pdb_range]) else x[new_pdb_range], axis=1)
         return dfrm
 
     @classmethod
@@ -523,9 +661,9 @@ class SIFTS(Entry):
             RETURN unpRes.ONE_LETTER_CODE AS aa ORDER BY toInteger(unpRes.ID)
         ''' % unp
         return ''.join(r['aa'] for r in session.run(query))
-        
+
     @classmethod
-    def summary_muta(cls, lyst, session=None):
+    def summary_res_conflict(cls, lyst, session=None):
         def get_mutaRes(dfrm: pd.DataFrame):
             sites = defaultdict(list)
             def storeSites(lyst, sitelyst):
@@ -550,16 +688,50 @@ class SIFTS(Entry):
         '''
         result = cls.to_data_frame(session.run(muta_query, lyst=lyst))
         sites = get_mutaRes(result)
-        mutaRes_df = pd.concat(yield_dfrm_of_mutaRes(sites), sort=False, ignore_index=True)
-        focusRes = (mutaRes_df.pdb_id+'_'+mutaRes_df.entity_id+'_' + mutaRes_df.residue_number).drop_duplicates().to_list()
-        query = """
-                MATCH (entry:Entry)-[:HAS_ENTITY]->(entity:Entity{POLYMER_TYPE:'P'})-[:CONTAINS_CHAIN]->(chain:Chain)-[inChain:IS_IN_CHAIN]-(res:PDBResidue)
-                WHERE res.UNIQID IN $focusRes AND entry.ID in $lyst
-                RETURN entry.ID as pdb_id, entity.ID as entity_id, chain.AUTH_ASYM_ID as chain_id, res.ID as residue_number, inChain.OBSERVED as OBSERVED
-            """
-        result = cls.to_data_frame(session.run(query, focusRes=focusRes, lyst=lyst))
-        mutaRes_df = pd.merge(mutaRes_df, result)
-        return mutaRes_df
+        return pd.concat(yield_dfrm_of_mutaRes(sites), sort=False, ignore_index=True)
+
+    @classmethod
+    def deal_res_conflict(cls, res: pd.DataFrame):
+        res.tag = res.tag.apply(lambda x: x.split('_')[0])
+        group_cols = ['pdb_id', 'entity_id', 'tag']
+        return pd.DataFrame(
+            ((pdb_id, entity_id, tag, 
+              json.dumps(to_interval(groupData.residue_number))
+              ) for (pdb_id, entity_id, tag), groupData in res.groupby(group_cols)),
+            columns=group_cols+['conflict_range'])
+
+    @staticmethod
+    def yieldPureHo(entity_chain_map: Dict, unp_entity_info: Dict):
+        for unp, entities in unp_entity_info.items():
+            for entity in entities:
+                chains = entity_chain_map[entity]
+                if len(chains) > 1:
+                    yield unp, tuple(combinations(chains, 2))
+
+    @staticmethod
+    def pass_range_check(left, right):
+        print(
+            jaccard.similarity(lyst2range(left), lyst2range(right)),
+            overlap.similarity(lyst2range(left), lyst2range(right)))
+        return True
+
+    @classmethod
+    def yieldDetectHo(cls, entity_chain_map: Dict, unp_entity_info: Dict):
+        for unp, entities in unp_entity_info.items():
+            if len(entities) > 1:
+                for entity_a, entity_b in combinations(entities, 2):
+                    if cls.pass_range_check(entities[entity_a], entities[entity_b]):
+                        yield unp, tuple(product(entity_chain_map[entity_a], entity_chain_map[entity_b]))
+    
+    @staticmethod
+    def yieldHe(entity_chain_map: Dict, unp_entity_info: Dict):
+        for unp_a, unp_b in combinations(unp_entity_info, 2):
+            # Check Taxonomy
+            if unp_a[1] != unp_b[1]:
+                continue
+            for entity_a, entity_b in product(unp_entity_info[unp_a], unp_entity_info[unp_b]):
+                assert entity_a != entity_b
+                yield (unp_a, unp_b), tuple(product(entity_chain_map[entity_a], entity_chain_map[entity_b]))
 
 
 class SeqPairwiseAlign(object):
@@ -599,3 +771,11 @@ class SeqPairwiseAlign(object):
                 segments2.append(segment2)
             i1, i2 = j1, j2
         return segments1, segments2
+
+
+'''
+TODO: 
+    1. Append Partner SIFTS Info (In Half Way)
+    2. Score SIFTS
+    3. SELECT SIFTS
+'''
