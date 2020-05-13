@@ -264,7 +264,9 @@ class Entry(object):
     @classmethod
     def deal_nucleotides(cls, res):
         dfrm = cls.to_data_frame(res)
-        dfrm.polymer_type = dfrm.apply(lambda x: cls.get_polymer_type(x['DNA_COUNT'], x['RNA_COUNT']), axis=1)
+        if len(dfrm) == 0:
+            return None
+        dfrm['polymer_type'] = dfrm.apply(lambda x: cls.get_polymer_type(x['DNA_COUNT'], x['RNA_COUNT']), axis=1)
         res = pd.DataFrame(
             ((pdb_id, json.dumps(dict(zip(data.entity_id, data.polymer_type))))
              for pdb_id, data in dfrm.groupby('pdb_id')),
@@ -601,10 +603,11 @@ class SIFTS(Entry):
             x['pdb_range']), axis=1)
         
         focus_index = dfrm[dfrm.group_info.gt(1)].index
-        focus_df = dfrm.loc[focus_index].apply(lambda x: cls.sort_2_range(x['unp_range'], x['pdb_range']), axis=1, result_type='expand')
-        focus_df.index = focus_index
-        focus_df.columns = ['unp_range', 'pdb_range']
-        dfrm.loc[focus_index, ['unp_range', 'pdb_range']] = focus_df
+        if len(focus_index) > 0: 
+            focus_df = dfrm.loc[focus_index].apply(lambda x: cls.sort_2_range(x['unp_range'], x['pdb_range']), axis=1, result_type='expand')
+            focus_df.index = focus_index
+            focus_df.columns = ['unp_range', 'pdb_range']
+            dfrm.loc[focus_index, ['unp_range', 'pdb_range']] = focus_df
         
         dfrm['pdb_gap_list'] = dfrm.apply(lambda x: json.dumps(
             get_gap_list(x['pdb_range'])), axis=1)
